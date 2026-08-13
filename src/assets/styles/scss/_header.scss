@@ -1,0 +1,89 @@
+
+.header{
+    background-color: #F4FAFB;
+    width: 100%;
+    position: sticky;
+    top:0;
+    padding-top:0.25rem;
+    padding-bottom:0.25rem;
+    border-bottom: 1px solid $primary-600;
+    z-index:1021;
+    max-height: 4rem;
+    filter: drop-shadow(0px 5px 8px rgba(51, 128, 142, 0.16));
+    &__wrapper{
+        display: flex;
+        align-items: center;
+        margin-top:-0.25rem;
+        margin-bottom:-0.25rem;
+    }
+    &__hospital-logo{
+        padding-left:0.5rem;
+        padding-right:0.5rem;
+        border-right: 1px solid $primary-600;
+        @media (max-width: 991.98px){
+            padding-top:10px;
+            padding-bottom:10px;
+        }
+        img{
+        width:192px;
+        @media (max-width: 991.98px) {
+            width:120px;
+        }
+        }
+    }
+    &__container{
+        display: flex;
+    }
+    &__menu{
+        border-left:1px solid $primary-600;
+        display: block;
+        height: auto;
+    }
+    &__container{
+        width: 100%;
+        display: flex;
+        padding-left:1rem;
+        padding-right:1rem;
+    }
+    &__details-card{
+        display: flex;
+        gap:0.5rem;
+        align-items: center;
+        justify-content: flex-start;
+        .user-photo{
+            width: 42px;
+            height: 42px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border:2px solid $primary-300;
+            border-radius: 50%;
+        }
+    }
+
+    &__actions{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap:1.5rem;
+        button{
+            margin:0;
+            padding:0;
+        }
+    }
+}
+
+.user-details{
+    p.label-heading{
+        font-weight: $medium;
+        margin-bottom:0.25rem;
+        color:$primary-600;
+        font-size: 0.75rem;
+    }
+    p{
+        color:$neutral-800;
+        margin-bottom:0;
+        font-size: 0.75rem;
+    }
+}

@@ -1,0 +1,113 @@
+
+.table{
+    border:1px solid $neutral-100;
+    th{
+        font-weight: $medium;
+        font-size:0.75rem;
+        color:$primary-600;
+        white-space: nowrap;
+        padding:0.5rem 0.75rem !important;
+        background-color: $primary-50 !important;
+        vertical-align: middle;
+    }
+    td{
+        font-size:0.75rem;
+        white-space: nowrap;
+        color:$neutral-700;
+        padding:0.5rem 0.75rem !important;
+        vertical-align: middle;
+        background-color: #fff;
+        &.text-bold{
+            font-size:0.875rem;
+            font-weight: $medium !important;
+        }
+    }
+    .btn{
+        padding-top:0.2rem;
+        padding-bottom:0.2rem;
+    }
+    tfoot{
+        th{
+            background-color: #FCEBE8 !important;
+            color: #BD7264;
+        }
+    }
+}
+.card-3d-wrapper{
+    table{
+        border:0;
+        tr:first-child{
+            th:first-child,
+            td:first-child{
+                border-top-left-radius: 0.5rem;
+            }
+        }
+    }
+}
+/* TABLE CARDS */
+.table-cards{
+    border-collapse: separate;
+    border-spacing:0 0.75rem;
+    border:0px;
+    width: 100%;
+    tr{
+        // box-shadow: 0px 4px 8px #EBEDED;
+        border-radius: 0.5rem;
+        td{
+            background: linear-gradient(180deg, #FFFFFF 0%, #E9F4F7 100%);
+            border-width: 1px;
+            border-right-width: 0;
+            border-style: solid;
+            border-color: #43A9BC;
+            padding:0.75rem 0.5rem;
+            border-right: 0px;
+            border-left: 0px;
+            &:first-child{
+                border-top-left-radius: 0.75rem;
+                border-bottom-left-radius: 0.75rem;
+                border-left:4px solid #43A9BC;
+                width: 12%;
+            }
+            &:last-child{
+                // border-width: 2px 4px 4px 4px;
+                border-top-right-radius: 0.75rem;
+                border-bottom-right-radius: 0.75rem;
+                border-right:1px solid #43A9BC;
+                width: 12%;
+            }
+            
+        }
+
+        &.selected{
+            td{
+                background-color: $primary-50;
+            }
+        }
+    }
+}
+.table-date-heading{
+    position: absolute;
+    top: 1.4rem;
+    left: 0;
+    background: #43a9bd;
+    color:#fff;
+    padding: 0.25rem 0.5rem;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap:0.25rem;
+    svg{
+        width: 1rem;
+    }
+}
+.table{
+    tr:last-child{
+        td{
+            border-bottom-color: #94bdc4;
+        }
+    }
+}
+
+/* TABLE CARDS END */

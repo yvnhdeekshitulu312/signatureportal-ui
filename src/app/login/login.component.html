@@ -1,0 +1,143 @@
+<div class="login__wrapper" *ngIf="showLogin">
+    <div class="login__anim-wrapper ">
+        <div class="logo-vision">
+            <img src="assets/images/vision-2030.png" alt="">
+        </div>
+        <div class="bg__scroll">
+            <!-- <img src="assets/images/bg-scroll.png" alt=""> -->
+        </div>
+    </div>
+    <div class="login__form-wrapper">
+        <div class="toggle__swithcer">
+            <button class="btn" [class.selected]="language.Id === selectedLang.Id"
+                *ngFor="let language of listOfLanguages"
+                (click)="selectedLanguage(language)">{{language?.value}}</button>
+        </div>
+        <div class="login__form-card">
+            <div class="__logo">
+                <img src="assets/images/AHH-Logo.svg" alt="">
+            </div>
+            <h3>{{loginLangData?.login?.welcomelabel}} {{loginLangData?.login?.to}}</h3>
+            <h2>{{loginLangData?.login?.welcome}}</h2>
+            <form [formGroup]="loginForm" class="w-75" (ngSubmit)="onSubmit()">
+                <span class="text-center"
+                *ngIf="this.errorMessage">
+                <div class="text-danger">
+                    {{errorMessage}}</div>
+                </span>
+                <div class="input-container">
+                    <span class="input-icon"> 
+                        <svg  height="24" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19.9548 25.2755C26.1315 25.2755 31.1565 19.284 31.1565 11.92C31.1565 4.90157 26.5502 0 19.9548 0C13.3594 0 8.75304 4.90168 8.75304 11.92C8.75304 19.2841 13.7784 25.2755 19.9548 25.2755ZM19.9548 3.73022C24.4237 3.73022 27.4264 7.02135 27.4264 11.92C27.4264 17.2277 24.0747 21.5457 19.9548 21.5457C15.8349 21.5457 12.4831 17.2273 12.4831 11.92C12.4831 7.0218 15.4859 3.73022 19.9548 3.73022ZM21.1009 26.5189H18.8082C7.9466 26.5189 0.648926 32.7945 0.648926 42.1348C0.648926 43.1643 1.48373 44 2.51414 44C3.54409 44 4.37936 43.1643 4.37936 42.1348C4.37936 33.363 12.1524 30.2503 18.8084 30.2503H21.1012C27.7579 30.2503 35.5313 33.3636 35.5313 42.1348C35.5313 43.1643 36.3661 44 37.3965 44C38.4265 44 39.2618 43.1643 39.2618 42.1348C39.2618 32.7945 31.9628 26.5189 21.1009 26.5189Z" fill="#368796"/>
+                         </svg>
+                    </span>
+                    <input type="text" class="form-control mb-2" formControlName="UserName"
+                    placeholder="User Name">
+                    <span class="position-absolute bottom-0"
+                        *ngIf="(isSubmitted && this.loginForm.get('UserName')?.errors) || (!this.loginForm.get('UserName')?.pristine && this.loginForm.get('UserName')?.invalid)">
+                        <div class="text-danger" *ngIf="this.loginForm.get('UserName')?.errors?.['required']">
+                            User Name is required</div>
+                    </span>
+                </div>  
+
+                <div class="input-container">
+                    <span class="input-icon"> 
+                        <svg  height="24" viewBox="0 0 32 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5917 21.3631H24.7908V11.9999C24.7908 9.49709 23.767 7.22145 22.1195 5.57187C20.4676 3.92508 18.192 2.90058 15.6915 2.90058C13.1907 2.90058 10.9151 3.92499 9.26587 5.57457L9.19357 5.64142C7.58668 7.2855 6.59151 9.53154 6.59151 11.9995L6.5917 21.3631ZM15.6904 28.4626C16.5457 28.4626 17.2465 29.1641 17.2465 30.0193C17.2465 30.6165 16.8983 31.1614 16.3643 31.4206L16.6289 36.5282C16.6388 36.725 16.4874 36.8938 16.2899 36.9037L15.109 36.9054C14.9115 36.9054 14.7502 36.7444 14.7502 36.5466L15.0176 31.4213C14.4839 31.1645 14.1347 30.6169 14.1347 30.0193C14.1347 29.163 14.8345 28.4626 15.6904 28.4626L15.6904 28.4626ZM27.6919 21.3798C28.6307 21.4671 29.4775 21.8872 30.1097 22.5195C30.8235 23.2326 31.2665 24.2178 31.2665 25.3009V28.4247C31.2665 32.7077 29.5133 36.6035 26.6913 39.4248C23.8693 42.2468 19.9742 44 15.6912 44C11.4079 44 7.513 42.2468 4.69103 39.4248C1.86906 36.6035 0.115845 32.7077 0.115845 28.4247V25.3009C0.115845 24.2175 0.558836 23.2326 1.27261 22.5195C1.90487 21.8872 2.75134 21.4667 3.69045 21.3798V12C3.69045 8.74314 5.0082 5.77694 7.13481 3.60939L7.21393 3.52345C9.38794 1.34944 12.3897 0 15.6908 0C18.9926 0 21.994 1.34944 24.1681 3.52345C26.3415 5.70331 27.6916 8.70295 27.6916 12.0004V21.3802L27.6919 21.3798Z" fill="#368796"/>
+                        </svg>
+                    </span>
+                    <input type="password" class="form-control mb-2" formControlName="Password"
+                    placeholder="Password">
+                    <span class="position-absolute bottom-0"
+                        *ngIf="(isSubmitted && this.loginForm.get('Password')?.errors) || (!this.loginForm.get('Password')?.pristine && this.loginForm.get('Password')?.invalid)">
+                        <div class="text-danger" *ngIf="this.loginForm.get('Password')?.errors?.['required']">
+                            Password is required</div>
+                    </span>
+                </div>
+
+                <button class="btn btn-primary" type="submit">Login</button>
+               
+            </form>
+        </div>
+        <!-- </form> -->
+        <p class="date-time mb-0">{{currentdate}}</p>
+
+        <!--Floating Objects-->
+        <span class="wrapper__object wrapper__object-1"><img src="assets/images/login-bg/object-1.png" alt=""> </span>
+        <span class="wrapper__object wrapper__object-2"><img src="assets/images/login-bg/object-2.png" alt=""> </span>
+        <span class="wrapper__object wrapper__object-3"><img src="assets/images/login-bg/object-3.png" alt=""> </span>
+        <span class="wrapper__object wrapper__object-4"><img src="assets/images/login-bg/object-4.png" alt=""> </span>
+        <span class="wrapper__object wrapper__object-5"><img src="assets/images/login-bg/object-5.png" alt=""> </span>
+    </div>
+
+</div>
+<div class="login__wrapper" *ngIf="!showLogin">
+    <div class="login__anim-wrapper ">
+        <div class="logo-vision">
+            <img src="assets/images/vision-2030.png" alt="">
+        </div>
+        <div class="bg__scroll">
+            <img src="assets/images/bg-scroll.png" alt="">
+        </div>
+    </div>
+    <div class="login__form-wrapper">
+        <div class="back__btn" (click)="backToLogin()">
+            <a class="btn-back" href="javascript:void(0)">
+                <svg width="3rem" height="3rem" viewBox="0 0 75 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="1" y="1.45422" width="73" height="73" rx="36.5" fill="#8ECBD7" />
+                    <path d="M42.5488 53.0669L28.4066 38.9248L42.5488 24.7827" stroke="#ECF6F8" stroke-width="6" />
+                    <rect x="1" y="1.45422" width="73" height="73" rx="36.5" stroke="#368796" />
+                </svg>
+            </a>
+        </div>
+        <div class="login__form-card">
+            <div class="__timer">
+                <p id="timerNum">{{timeLeft}}</p>
+                <div class="loader-bar">
+                    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="160px" height="160px">
+                        <defs>
+                            <linearGradient id="GradientColor">
+                                <stop offset="0%" stop-color="#e91e63" />
+                                <stop offset="100%" stop-color="#673ab7" />
+                            </linearGradient>
+                        </defs>
+                        <circle cx="80" cy="80" r="70" stroke-linecap="round" />
+
+                    </svg>
+                </div>
+            </div>
+           
+        </div>
+        <p class="date-time mb-0">{{currentdate}}</p>
+
+        <!--Floating Objects-->
+        <span class="wrapper__object wrapper__object-1"><img src="assets/images/login-bg/object-1.png" alt=""> </span>
+        <span class="wrapper__object wrapper__object-2"><img src="assets/images/login-bg/object-2.png" alt=""> </span>
+        <span class="wrapper__object wrapper__object-3"><img src="assets/images/login-bg/object-3.png" alt=""> </span>
+        <span class="wrapper__object wrapper__object-4"><img src="assets/images/login-bg/object-4.png" alt=""> </span>
+        <span class="wrapper__object wrapper__object-5"><img src="assets/images/login-bg/object-5.png" alt=""> </span>
+    </div>
+
+</div>
+<div class="modal" id="otpMessage" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-toast modal-toast-success">
+        <div class="modal-content">
+            <img class="modal-header-icon" *ngIf="apiResponse?.Status == 'Success'"
+                src="assets/images/icons/toast-success.svg" alt="">
+            <img class="modal-header-icon" *ngIf="apiResponse?.Status == 'Fail'"
+                src="assets/images/icons/toast-error.svg" alt="">
+            <div class="modal-body">
+                <!-- <h3>Thank You!</h3> -->
+                <p *ngIf="selectedLang.code === 'en'"> {{apiResponse?.Message}}</p>
+                <p *ngIf="selectedLang.code === 'ar'"> {{apiResponse?.Message2L}}</p>
+
+            </div>
+            <div class="modal-footer">
+                <a href="javascript:void(0)" type="button" class="btn btn-main-outline"
+                    (click)="closeToastr()">{{loginLangData?.common?.ok}}</a>
+                <button type="button" class="btn btn-danger-outline"
+                    (click)="closeToastr()">{{loginLangData?.common?.close}}</button>
+            </div>
+        </div>
+    </div>
+</div>

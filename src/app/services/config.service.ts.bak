@@ -1,0 +1,76 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { locationData } from 'src/assets/config-constants';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BYPASS_LOG } from './headers.interceptor';
+
+
+@Injectable({
+  providedIn: 'any'
+})
+export class ConfigService {
+  //public devApiUrl = "http://172.18.17.219/DoctorPortalAPI/API/";
+  public devApiUrl = "https://localhost:44350/API/";
+  public hijApiUrl = "http://172.18.17.219/DEVAPI/API/";
+  baseApiUrl = "https://file.io";
+
+  public prodApiUrl = "";
+  patientDetails: any;
+  patientInfo: any;
+  hospitalId = locationData.locationId;
+  public httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      Authorization: 'Basic ' + btoa('admin' + ':' + '123456'),
+    }),
+  };
+  langData: any;
+  langCode: any;
+  code: any = "en";
+  // public defaultLangCode = new BehaviorSubject("en");
+
+  constructor(private https: HttpClient, private router: Router) {
+    this.patientInfo = JSON.parse(localStorage.getItem("patientInfo") || '{}');
+    this.patientDetails = JSON.parse(localStorage.getItem("PatientDetails") || '{}');
+    this.langCode = localStorage.getItem('lang');
+  }
+ 
+  getLangData() {
+    this.langData = JSON.parse(localStorage.getItem("langData") || '{}');
+    return this.langData;
+  }
+  getLangCode() {
+    this.langData = localStorage.getItem('lang');
+    return this.langData;
+  }
+  getSelectedLang(lang: any) {
+    return this.https.get(`assets/lang/${lang}.json`)
+  }
+
+  onLogout() {
+    let isLoggedIn = "isLoggedIn";
+
+    localStorage.removeItem(isLoggedIn);
+    localStorage.removeItem("doctorDetails");
+    localStorage.clear()
+    this.router.navigate(['/login'])
+  }
+  
+   fetchFetchHospitalLocations() {
+    return this.https.get<any>(this.devApiUrl + '/FetchHospitalLocations?type=0&filter=blocked=0&UserId=0&WorkstationId=0', this.httpOptions);
+  }
+
+  validateDoctorLogin(username: string, password: string, location: string) {
+    return this.https.get<any>(this.devApiUrl + '/ValidateLoginCredentials?username='+ username +'&password='+ password +'&location='+ location +'', this.httpOptions);
+  }
+
+  fetchDoctorAppointments(doctorID: string, hospitalId: string, fromDate: any, toDate: any) {
+    return this.https.get<any>(this.devApiUrl + '/FetchDoctorAppointments?DoctorID='+ doctorID +'&HospitalID='+ hospitalId +'&FromDate='+ fromDate +'&ToDate='+ toDate+'', this.httpOptions);
+  }
+
+  fetchPatients(doctorID: string, hospitalId: string, fromDate: any, toDate: any) {
+    return this.https.get<any>(this.devApiUrl + '/FetchPatientDetails?FromDate='+ fromDate +'&ToDate='+ toDate +'&DoctorID='+ doctorID +'&HospitalID='+ hospitalId +'', this.httpOptions);
+  }
+}

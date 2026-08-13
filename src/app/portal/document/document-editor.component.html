@@ -1,0 +1,129 @@
+<div class="container-fluid p-0 bg-white">
+    <div class="row mx-0 min-vh-100">
+
+        <!-- LEFT: kept as-is from your markup (thumbnail list of other pending docs) -->
+        <div class="col-2 pe-0 border-end">
+            <div class="page-heading py-3 text-center border-bottom">
+                <h5 class="m-0 clr-primary">Documents</h5>
+            </div>
+            <div class="doc_list_vertical d-flex flex-column gap-2 mt-3 pe-2">
+                <!-- existing *ngFor over your document list goes here, unchanged -->
+            </div>
+        </div>
+
+        <!-- CENTER: document viewer + field overlay -->
+        <div class="col-7">
+            <div class="d-flex align-items-center justify-content-between sticky-top py-3 bg-light">
+                <h6 class="m-0">{{ documentName }}</h6>
+                <p class="m-0" *ngIf="pageImages.length > 1">
+                    <button class="btn btn-sm btn-link" [disabled]="currentPage === 1"
+                        (click)="currentPage = currentPage - 1">&lt;</button>
+                    {{ currentPage }}/{{ pageImages.length }}
+                    <button class="btn btn-sm btn-link" [disabled]="currentPage === pageImages.length"
+                        (click)="currentPage = currentPage + 1">&gt;</button>
+                </p>
+                <p class="m-0" *ngIf="pageImages.length <= 1">1/1</p>
+                <div class="actions">
+                    <button class="btn btn-danger-outline" (click)="reject()">Reject</button>
+                    <button class="btn btn-main-outline" (click)="goBack()">Back</button>
+                    <button class="btn btn-main-fill" [disabled]="isSending" (click)="send()">Send</button>
+                </div>
+            </div>
+
+            <div class="mt-3 p-3">
+                <div class="view_document border position-relative" style="width: 100%;">
+                    <!-- Aspose-rendered page image instead of a live PDF.js render -->
+                    <img *ngIf="pageImages[currentPage - 1]" [src]="pageImages[currentPage - 1]" class="w-100 d-block"
+                        alt="Document page">
+
+                    <!-- Drop target overlay, matches the image's rendered dimensions exactly
+                         since it's positioned absolute/w-100/h-100 over the <img> -->
+                    <div #pageOverlay class="position-absolute top-0 start-0 w-100 h-100" cdkDropList
+                        (cdkDropListDropped)="onFieldDropped($event, currentPage)">
+
+                        <ng-container *ngFor="let field of placedFields">
+                            <div *ngIf="field.pageNumber === currentPage" cdkDrag
+                                (cdkDragEnded)="onFieldMoved($event, field)" (click)="selectField(field.tempId)"
+                                class="position-absolute d-flex align-items-center justify-content-center rounded-1"
+                                [style.left.px]="field.xPx" [style.top.px]="field.yPx" [style.width.px]="field.widthPx"
+                                [style.height.px]="field.heightPx"
+                                [style.border]="'2px solid ' + recipientColor(field.recipientClientId)"
+                                [style.background]="recipientColor(field.recipientClientId) + '22'"
+                                style="cursor: move;">
+
+                                <span class="small">{{ field.fieldType }}</span>
+
+                                <button type="button" class="btn-close btn-close-sm position-absolute top-0 end-0"
+                                    style="transform: scale(0.6);"
+                                    (click)="deleteField(field.tempId); $event.stopPropagation()">
+                                </button>
+
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: recipients + fields palette -->
+        <div class="col-3 p-0 border-start">
+            <div class="drag_recipient">
+                <div class="bg-primary p-3">
+                    <h6 class="m-0 clr-light">Recipients</h6>
+                </div>
+                <div class="recipients_list d-flex flex-column gap-2 mt-3">
+                    <div class="recipient d-flex align-items-center" *ngFor="let r of recipients"
+                        [class.active]="r.clientId === activeRecipientClientId" (click)="selectRecipient(r.clientId)"
+                        style="cursor: pointer;">
+                        <div class="img_icon d-flex align-items-center justify-content-center">
+                            <img src="./assets/images/mic.svg" alt="">
+                        </div>
+                        <div>
+                            <h6 class="m-0">{{ r.name }}</h6>
+                            <p class="m-0">{{ r.email }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drag_field mt-3">
+                <div class="bg-primary p-3">
+                    <h6 class="m-0 clr-light">Fields</h6>
+                    <p class="m-0 clr-light small" *ngIf="!activeRecipientClientId">Select a recipient first</p>
+                </div>
+                <div class="p-3">
+                    <div class="row mx-0 g-2" cdkDropListGroup>
+                        <div class="col-lg-6 col-md-12" *ngFor="let item of fieldPalette">
+                            <div class="field d-flex justify-content-between" cdkDrag [cdkDragData]="item"
+                                [cdkDragDisabled]="!activeRecipientClientId" [class.disabled]="!activeRecipientClientId"
+                                style="cursor: pointer;">
+                                <div class="p-2 d-flex align-items-center" (click)="addFieldByClick(item)">
+                                    <!-- existing svg icon unchanged -->
+                                    <p class="m-0">{{ item.label }}</p>
+                                </div>
+                                <div class="field_icon bg-primary p-2" (click)="addFieldByClick(item)">
+                                    <img src="./assets/images/icons/icon-edit.svg" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Field settings panel, shown when a placed field is selected -->
+            <div class="p-3 edit_recipient" *ngIf="selectedFieldId">
+                <h6 class="mb-2">Field settings</h6>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2" *ngFor="let f of placedFields"
+                        [hidden]="f.tempId !== selectedFieldId">
+                        <input type="checkbox" class="form-check-input mt-0 me-2" [(ngModel)]="f.isRequired">
+                        <label class="form-label mb-0">Required</label>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-main-outline" (click)="deleteSelectedField()">Delete field</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,407 @@
+<div class="content-wrapper p-0">
+    <div class="row g-0">
+        <div class="col-lg-9">
+            <div class="content-wrapper">
+                <div class="row ">
+                    <!-- <div class="col-lg-12 text-end">
+                        <a href="javascript:void(0)" class="btn btn-main-outline" (click)="gotoMyFamily()"><i
+                                class="fa-solid fa-people-roof"></i> {{langData?.common?.myfamily}}</a>
+                        <button class="btn btn-danger btn-danger-outline mx-1" (click)="onLogout()">
+                            <i class="fa fa-sign-out" aria-hidden="true"></i> {{langData?.common?.logout}}
+                        </button>
+                    </div> -->
+                    <!-- Heading-->
+                    <div class="col-lg-12">
+                        <div class="sub-heading">
+                            <h4> {{langData?.home?.homepage}} </h4>
+                        </div>
+                    </div>
+                </div>
+                <!-- Welcome card-->
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="welcome-message d-flex">
+                            <div class="row align-items-center">
+                                <div class="col-lg-7">
+                                    <h2 *ngIf="showEng">{{langData?.common?.hi}} {{patientDetails?.FirstName}}
+                                        {{patientDetails?.MiddleName}}
+                                        {{patientDetails?.Familyname}}</h2>
+                                    <h2 *ngIf="!showEng">{{langData?.common?.hi}} {{patientDetails?.FirstName2l}}
+                                        {{patientDetails?.MiddleName2L}}
+                                        {{patientDetails?.Familyname2l}}</h2>
+                                    <h3>{{langData?.home?.welcome}}</h3>
+                                    <a href="javascript:void(0)" class="mt-3"
+                                        (click)="goToAppointment()">{{langData?.home?.wantbookanapp}} <i
+                                            class="fa-solid fa-arrow-right mx-2"></i></a>
+                                </div>
+                                <div class="col-lg-5">
+                                    <img src="assets/images/welcome-bg.svg" width="100%" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="reminders">
+                            <h2>{{langData?.home?.reminder}}</h2>
+                            <div class="row gy-2 px-3">
+                                <div class="reminder-card">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-9">
+                                            <p>
+                                                {{langData?.home?.appRemDesc}}
+                                            </p>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <button class="btn btn-sm btn-secondary btn-secondary-outline px-3"
+                                                (click)="openAppointmentModal()">{{langData?.home?.go}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="reminder-card">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-9">
+                                            <p>{{langData?.home?.labRepDesc}}</p>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <button
+                                                class="btn btn-sm btn-secondary btn-secondary-outline px-3">{{langData?.home?.go}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heading-->
+                <div class="row mt-3">
+                    <div class="col-lg-12">
+                        <div class="sub-heading">
+                            <h4> {{langData?.home?.quickservice}} </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services-->
+                <div class="row g-3">
+                    <!-- Book Appointment-->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="service-card">
+                            <div class="service-icon"> <img src="assets/images/services/appointment.svg" alt=""> </div>
+                            <h3 class="title">{{langData?.home?.bookappointment}}</h3>
+                            <div class="row align-items-start">
+                                <p class="col-lg-8">
+                                    {{langData?.home?.labreportsDesc}}
+                                </p>
+                                <div class="col-lg-4">
+                                    <a href="javascript:void(0)"
+                                        class="btn  btn-secondary btn-secondary-outline  ms-auto"
+                                        (click)="goToAppointment()">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Radilogy-->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="service-card">
+                            <div class="service-icon"> <img src="assets/images/services/radilology.svg" alt=""> </div>
+                            <h3 class="title">{{langData?.home?.radilologyLabel}}</h3>
+                            <div class="row align-items-start">
+                                <p class="col-lg-8">
+                                    {{langData?.home?.radilologyDesc}}
+                                </p>
+                                <div class="col-lg-4">
+                                    <button class="btn  btn-secondary btn-secondary-outline  ms-auto"
+                                        (click)="goToRadiology()">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Lab Reports-->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="service-card">
+                            <div class="service-icon"> <img src="assets/images/services/lab-reports.svg" alt=""> </div>
+                            <h3 class="title">{{langData?.home?.labreportsLabel}}</h3>
+                            <div class="row align-items-start">
+                                <p class="col-lg-8">
+                                    {{langData?.home?.labreportsDesc}}
+                                </p>
+                                <div class="col-lg-4">
+                                    <button class="btn  btn-secondary btn-secondary-outline  ms-auto"
+                                        (click)="goToLabreports()">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Insurance Status-->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="service-card">
+                            <div class="service-icon"> <img src="assets/images/services/insurance.svg" alt=""> </div>
+                            <h3 class="title">{{langData?.home?.insurancestatusLabel}}</h3>
+                            <div class="row align-items-start">
+                                <p class="col-lg-8">
+                                    {{langData?.home?.insurancestatusDesc}}
+                                </p>
+                                <div class="col-lg-4">
+                                    <button class="btn  btn-secondary btn-secondary-outline  ms-auto"
+                                        (click)="goToInsurancestatus()">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Prescriptions-->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="service-card">
+                            <div class="service-icon"> <img src="assets/images/services/prescriptions.svg" alt="">
+                            </div>
+                            <h3 class="title">{{langData?.home?.prescriptionsLabel}}</h3>
+                            <div class="row align-items-start">
+                                <p class="col-lg-8">
+                                    {{langData?.home?.prescriptionsDesc}}
+                                </p>
+                                <div class="col-lg-4">
+                                    <button class="btn  btn-secondary btn-secondary-outline  ms-auto"
+                                        (click)="goToPrescriptions()">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Others-->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="service-card">
+                            <div class="service-icon"> <img src="assets/images/services/others.svg" alt=""> </div>
+                            <h3 class="title">{{langData?.home?.othersLabel}}</h3>
+                            <div class="row align-items-start">
+                                <p class="col-lg-8">
+                                    {{langData?.home?.othersDesc}}
+                                </p>
+                                <div class="col-lg-4">
+                                    <button class="btn  btn-secondary btn-secondary-outline  ms-auto"
+                                        (click)="goToOthers()">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="col-3">
+            <div class="right-profile col-2 w-100">
+                
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Appointments list-->
+<div class="modal" tabindex="-1" id="appointmets-list" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{langData?.home?.appointmentModalLabel}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <table class="table-cards mb-4">
+                    <tbody>
+                        <tr [class.selected]="appointment?.SCHEDULEID === selectedAppointment?.SCHEDULEID"
+                            *ngFor="let appointment of listOfAppointmentList;let i = index;">
+                            <td>
+                                <p class="label">{{langData?.home?.scheduleDate}}</p>
+                                <p class="value">{{appointment?.SCHEDULEDATE}}</p>
+                            </td>
+                            <td>
+                                <p class="label">{{langData?.home?.time}}</p>
+                                <p class="value">{{appointment?.SCHEDULESTARTTIME}}</p>
+                            </td>
+                            <td>
+                                <p class="label">{{langData?.home?.doctor}}</p>
+                                <p *ngIf="showEng" class="value" (click)="navigateToVideo(appointment)" style="cursor: pointer;">{{langData?.common?.dr}} {{appointment?.DOCTORNAME}} <i *ngIf="appointment?.IsVideoConsultation.toLowerCase() == 'true'" class="fa fa-video-camera menu-icon" style="color: #69BAC9;"></i>
+                                </p>
+                                <p *ngIf="!showEng" class="value" (click)="navigateToVideo(appointment)">{{langData?.common?.dr}} {{appointment?.DOCTORNAME2L}} <i *ngIf="appointment?.IsVideoConsultation.toLowerCase() == 'true'" class="fa fa-video-camera menu-icon" style="color: #69BAC9;"></i>
+                                </p>
+                            </td>
+                            <td>
+                                <p class="label">{{langData?.labreports?.specialisation}}</p>
+                                <p *ngIf="showEng" class="value"> {{appointment?.SPECIALITY}}
+                                </p>
+                                <p *ngIf="!showEng" class="value">{{appointment?.SPECIALITY2L}}
+                                </p>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-danger-outline mx-1"
+                                    (click)="confirmCancelAppointment(appointment)">
+                                    {{langData?.common?.cancel}}
+                                </button>
+                                <button class="btn btn-sm btn-main-outline mx-1"
+                                    (click)="reScheduleAppointment(appointment)">
+                                    {{langData?.home?.reschedule}}
+                                </button>
+                                <button class="btn btn-sm btn-success-outline mx-1 px-3"
+                                    *ngIf="appointment?.IsBilled === 0">
+                                    {{langData?.home?.pay}}
+                                </button>
+                                <button class="btn btn-sm btn-success-outline mx-1 px-3"
+                                    *ngIf="appointment?.IsBilled === 1">
+                                    {{langData?.home?.billed}}
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="listOfAppointmentList?.length  === 0">
+                            {{langData?.messages?.nodataFound}}
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="card__dashed" *ngIf="showBillSummary">
+                    <h5 class="heading">{{langData?.home?.billsummary}}:</h5>
+                    <div class="row align-items-center">
+                        <div class="col-2">
+                            <p class="mb-2">{{langData?.home?.billamount}}</p>
+                            <p class="mb-2">{{langData?.home?.vat}}</p>
+                            <p class="mb-2">{{langData?.home?.balAmount}}</p>
+                            <p class="mb-2">{{langData?.home?.collectable}}</p>
+                            <p class="mb-2">{{langData?.home?.ordertype}}</p>
+                            <p class="mb-2">{{langData?.home?.message}}</p>
+                        </div>
+                        <div class="col-1">
+                            <p class="mb-2">:</p>
+                            <p class="mb-2">:</p>
+                            <p class="mb-2">:</p>
+                            <p class="mb-2">:</p>
+                            <p class="mb-2">:</p>
+                            <p class="mb-2">:</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-2">{{summaryDetails?.BillSummary[0]?.BillAmount}}</p>
+                            <p class="mb-2">{{summaryDetails?.BillSummary[0]?.VAT}}</p>
+                            <p class="mb-2"> {{summaryDetails?.BillSummary[0]?.BalanceAmount ?
+                                summaryDetails?.BillSummary[0]?.BalanceAmount : "-"}}</p>
+                            <p class="mb-2">{{summaryDetails?.BillSummary[0]?.Collectable
+                                ?summaryDetails?.BillSummary[0]?.Collectable :"-"}}</p>
+                            <p class="mb-2">{{summaryDetails?.BillSummary[0]?.OrderType
+                                ?summaryDetails?.BillSummary[0]?.OrderType :"-"}}</p>
+                            <!-- <p class="mb-2">{{summaryDetails.BillSummary[0]?.OrderType
+                                ?summaryDetails.BillSummary[0]?.OrderType :"-"}}</p> -->
+                            <p class="mb-2">{{summaryDetails?.Message ?summaryDetails?.Message :"-"}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger-outline"
+                    data-bs-dismiss="modal">{{langData?.common?.cancel}}</button>
+                <button type="button" class="btn btn-main-outline"
+                    data-bs-dismiss="modal">{{langData?.home?.proceedtoPay}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complete Profile -->
+<div class="modal" tabindex="-1" id="profile-info" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-mds ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">{{langData?.home?.profileInfoLabel}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body m-4">
+                <div class="p-3">
+                    <div class="row gx-2 gy-4">
+                        <div class="col-md-12">
+                            <p class="label mb-1">{{langData?.home?.patientName}}</p>
+                            <p class="value" *ngIf="showEng">{{patientDetails?.FirstName}}
+                                {{patientDetails?.MiddleName}}
+                                {{patientDetails?.Familyname}}</p>
+                            <p class="value" *ngIf="!showEng">{{patientDetails?.FirstName2l}}
+                                {{patientDetails?.MiddleName2L}}
+                                {{patientDetails?.Familyname2l}}</p>
+                        </div>
+                        <div class="col-md-12">
+                            <p class="label mb-1">{{langData?.common?.ageLabel}} / {{langData?.common?.genderLabel}}</p>
+                            <p class="value">{{patientDetails?.Age}} {{patientDetails?.AgeUoM}} /
+                                {{patientDetails?.Gender}}</p>
+                        </div>
+                        <div class="col-md-12">
+                            <p class="label mb-1">{{langData?.common?.SSNLabel}}</p>
+                            <p class="value">{{patientDetails?.SSN}}</p>
+                        </div>
+                        <div class="col-md-12">
+                            <p class="label mb-1">{{langData?.common?.mobilenumber}}</p>
+                            <p class="value">{{patientDetails?.MobileNo}}</p>
+                        </div>
+                        <div class="col-md-12">
+                            <p class="label mb-1">{{langData?.home?.company}}</p>
+                            <p class="value">{{patientDetails?.InsuranceName}}</p>
+                        </div>
+                        <div class="col-md-12">
+                            <!-- <p class="label mb-1">{{langData?.home?.cardValidity}}</p>
+                            <p class="value">{{patientDetails?.CardValidity|date:"dd-MMM-YYYY"}}</p> -->
+                        </div>
+                        <div class="col-md-12">
+                            <p class="label mb-1">{{langData?.home?.nationality}}</p>
+                            <p class="value">{{patientDetails?.Nationality ? patientDetails?.Nationality : "-" }}</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-danger-outline"
+                    data-bs-dismiss="modal">{{langData?.common?.close}}</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+<!--Toast Modal-->
+<div class="modal" id="saveMessage" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-toast modal-toast-success">
+        <div class="modal-content">
+            <img class="modal-header-icon" *ngIf="apiResponse?.Status == 'Success' || apiResponse?.Status == 'True'"
+                src="assets/images/icons/toast-success.svg" alt="">
+            <img class="modal-header-icon" *ngIf="apiResponse?.Status == 'Fail'"
+                src="assets/images/icons/toast-error.svg" alt="">
+            <div class="modal-body">
+                <p>
+                    {{apiResponse?.Message}}
+                </p>
+                <div class="modal-footer">
+                    <a href="javascript:void(0)" type="button" class="btn btn-main-outline"
+                        data-bs-dismiss="modal">{{langData?.common?.ok}}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Confirm Modal -->
+<div class="modal" id="confirm" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-toast modal-toast-success">
+        <div class="modal-content">
+            <img class="modal-header-icon" src="assets/images/icons/toast-info.svg" alt="">
+            <div class="modal-body">
+                <p> {{langData?.messages?.cancelAppointment}} </p>
+                <div class="modal-footer">
+                    <!-- <a href="javascript:void(0)" type="button" class="btn btn-main-outline"
+                        (click)="confirmCancelApp('Yes')">{{langData?.common?.yes}}</a>
+                    <button type="button" class="btn btn-danger-outline" data-bs-dismiss="modal"
+                        (click)="confirmCancelApp('No')">{{langData?.common?.no}}</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

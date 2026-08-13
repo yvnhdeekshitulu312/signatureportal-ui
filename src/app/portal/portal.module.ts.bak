@@ -1,0 +1,66 @@
+import { NgModule } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { PortalRoutingModule } from './portal-routing.module';
+import { AppointmentComponent } from '../appointment/appointment.component';
+import { HomepageComponent } from './homepage/homepage.component';
+import { SafePipe } from '../safe.pipe';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatMomentDateModule } from "@angular/material-moment-adapter";
+import { TwoDigitDecimaNumberDirective } from '../two-digit-decima-number.directive';
+import { FormsModule } from '@angular/forms';
+import {CdkAccordionModule} from '@angular/cdk/accordion';
+import { VideoConsultationComponent } from './video-consultation/video-consultation.component';
+import { DoctorAppointmentsComponent } from './doctor-appointments/doctor-appointments.component';
+import { PatientDetailsComponent } from './patient-details/patient-details.component';
+
+// import { SidebarComponent } from '../sidebar/sidebar.component';
+
+
+@NgModule({
+  declarations: [
+    AppointmentComponent,
+    SafePipe,
+    TwoDigitDecimaNumberDirective, VideoConsultationComponent, DoctorAppointmentsComponent, PatientDetailsComponent
+  ],
+  providers: [MatDatepickerModule, DatePipe],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDatepickerModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatTableModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatMomentDateModule,
+    CdkAccordionModule,
+    PortalRoutingModule,
+    FormsModule
+  ],
+  exports: [
+    MatDatepickerModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatTableModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatMomentDateModule,
+    CdkAccordionModule
+  ],
+})
+export class PortalModule { }

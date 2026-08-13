@@ -1,0 +1,52 @@
+<div class="d-flex align-items-center justify-content-between py-3">
+  <div>
+    <h5 class="m-0">{{ doc?.Name }}</h5>
+    <span *ngIf="!loading" class="badge" [ngClass]="statusBadgeClass(doc.Status)">{{ doc.Status }}</span>
+  </div>
+  <button class="btn btn-main-outline" (click)="goBack()">Back to Documents</button>
+</div>
+
+<div *ngIf="loading" class="text-center p-5 text-muted">Loading document...</div>
+
+<div *ngIf="!loading && doc" class="row mx-0">
+  <!-- Document + fields, read-only -->
+  <div class="col-8">
+    <div class="position-relative border mx-auto" style="max-width: 900px; min-height: 500px;">
+      <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="w-100 d-block" alt="Document page">
+
+      <div class="position-absolute top-0 start-0 w-100 h-100">
+        <div *ngFor="let f of fieldsOnPage(currentPage)"
+             class="position-absolute d-flex align-items-center justify-content-center rounded-1"
+             [ngStyle]="boxStyle(f)"
+             [style.border]="'2px solid ' + (f.Value ? '#28a745' : '#adb5bd')"
+             [style.background]="(f.Value ? '#28a74522' : '#adb5bd22')">
+
+          <img *ngIf="isImageValue(f.Value)" [src]="f.Value" class="w-100 h-100" style="object-fit: contain;">
+          <span *ngIf="!isImageValue(f.Value) && f.Value" class="small">{{ f.Value }}</span>
+          <span *ngIf="!f.Value" class="small text-muted">Awaiting {{ f.FieldType }}</span>
+        </div>
+      </div>
+    </div>
+
+    <p *ngIf="pageImages.length > 1" class="text-center mt-2">
+      <button class="btn btn-sm btn-link" [disabled]="currentPage===1" (click)="currentPage=currentPage-1">&lt;</button>
+      {{ currentPage }}/{{ pageImages.length }}
+      <button class="btn btn-sm btn-link" [disabled]="currentPage===pageImages.length" (click)="currentPage=currentPage+1">&gt;</button>
+    </p>
+  </div>
+
+  <!-- Recipient status sidebar -->
+  <div class="col-4">
+    <h6 class="clr-primary">Recipients</h6>
+    <div *ngFor="let r of doc.Recipients" class="border rounded-2 p-2 mb-2">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-bold">{{ r.Name }}</div>
+          <small class="text-muted">{{ r.Email }}</small>
+        </div>
+        <span class="badge" [ngClass]="statusBadgeClass(r.Status)">{{ r.Status }}</span>
+      </div>
+      <small class="text-muted" *ngIf="r.SigningOrder">Order: {{ r.SigningOrder }}</small>
+    </div>
+  </div>
+</div>

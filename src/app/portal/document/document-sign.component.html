@@ -1,0 +1,101 @@
+<div class="d-flex align-items-center justify-content-between py-3">
+  <h5 class="m-0">Sign: {{ doc?.Name }}</h5>
+  <button *ngIf="!loading" class="btn btn-main-fill" [disabled]="isSubmitting || !allRequiredFilled()"
+    (click)="submit()">
+    Submit Signed Document
+  </button>
+</div>
+
+<div *ngIf="loading" class="text-center p-5 text-muted">Loading document...</div>
+
+<div *ngIf="!loading && doc" class="position-relative border mx-auto" style="max-width: 900px; min-height: 500px;">
+  <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="w-100 d-block" alt="Document page">
+
+  <div class="position-absolute top-0 start-0 w-100 h-100">
+    <div *ngFor="let f of fieldsOnPage(currentPage)"
+      class="position-absolute d-flex align-items-center justify-content-center rounded-1" [ngStyle]="boxStyle(f)"
+      [style.border]="isFilled(f.Id) ? '2px solid #28a745' : '2px dashed #E29B3E'"
+      [style.background]="isFilled(f.Id) ? '#28a74522' : '#E29B3E22'"
+      [style.cursor]="f.FieldType === 'Text' ? 'text' : 'pointer'" (click)="onFieldClick(f)">
+
+      <!-- <ng-container *ngIf="f.FieldType === 'Signature' || f.FieldType === 'Stamp'">
+        <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+        <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">Click to sign</span>
+      </ng-container> -->
+      <!-- SIGNATURE -->
+      <ng-container *ngIf="f.FieldType === 'Signature'">
+        <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+
+        <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
+          Click to sign
+        </span>
+      </ng-container>
+
+      <!-- STAMP -->
+      <ng-container *ngIf="f.FieldType === 'Stamp'">
+        <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+
+        <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
+          Click to stamp
+        </span>
+      </ng-container>
+
+      <input *ngIf="f.FieldType === 'Checkbox'" type="checkbox" [checked]="fieldValues[f.Id] === 'true'"
+        (click)="$event.stopPropagation()" (change)="onFieldClick(f)">
+
+      <input *ngIf="f.FieldType === 'Text' || f.FieldType === 'Date'" type="text"
+        class="form-control form-control-sm border-0 bg-transparent text-center" [(ngModel)]="fieldValues[f.Id]"
+        (click)="$event.stopPropagation()">
+    </div>
+  </div>
+</div>
+
+<p *ngIf="!loading && pageImages.length > 1" class="text-center mt-2">
+  <button class="btn btn-sm btn-link" [disabled]="currentPage===1" (click)="currentPage=currentPage-1">&lt;</button>
+  {{ currentPage }}/{{ pageImages.length }}
+  <button class="btn btn-sm btn-link" [disabled]="currentPage===pageImages.length"
+    (click)="currentPage=currentPage+1">&gt;</button>
+</p>
+
+<div *ngIf="activeSignatureFieldId !== null"
+  class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+  style="background: rgba(0,0,0,0.5); z-index: 1050;">
+  <div class="bg-white rounded-3 p-3" style="width: 420px;">
+    <h6>Draw your signature</h6>
+    <canvas id="sigCanvas" width="380" height="150" class="border rounded-2 bg-light" (mousedown)="startDraw($event)"
+      (mousemove)="draw($event)" (mouseup)="endDraw()" (mouseleave)="endDraw()"></canvas>
+    <div class="d-flex justify-content-between mt-2">
+      <button class="btn btn-main-outline btn-sm" (click)="clearSignature()">Clear</button>
+      <div>
+        <button class="btn btn-danger-outline btn-sm me-2" (click)="cancelSignature()">Cancel</button>
+        <button class="btn btn-main-fill btn-sm" (click)="applySignature()">Use this signature</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="activeStampFieldId !== null"
+     class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+     style="background:rgba(0,0,0,.5); z-index:1050;">
+
+    <div class="bg-white rounded-3 p-3" style="width:420px">
+
+        <h6>Select Stamp</h6>
+
+        <div class="d-flex gap-3 flex-wrap">
+
+            <img *ngFor="let stamp of stampOptions"
+                 [src]="stamp"
+                 style="width:100px;height:100px;object-fit:contain;cursor:pointer"
+                 class="border rounded p-2"
+                 (click)="applyStamp(stamp)">
+
+        </div>
+
+        <button class="btn btn-secondary mt-3"
+                (click)="activeStampFieldId = null">
+            Cancel
+        </button>
+
+    </div>
+</div>

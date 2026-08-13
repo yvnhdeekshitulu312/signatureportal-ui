@@ -1,0 +1,105 @@
+
+// Primary COLORS
+
+$primary-50: #ECF6F8;
+$primary-100: #DAEEF1;
+$primary-200: #B4DDE4;
+$primary-300: #8ECBD7;
+$primary-400: #69BAC9;
+$primary-500: #43A9BC;
+$primary-600: #368796;
+$primary-700: #286571;
+$primary-800: #1B444B;
+$primary-900: #0D2226;
+
+//Secondary COLORS
+$secondary-50: #F7F8FC;
+$secondary-100: #D9DDF2;
+$secondary-200: #B3BBE5;
+$secondary-300: #8C99D9;
+$secondary-400: #6677CC;
+$secondary-500: #4357BC;
+$secondary-600: #334499;
+$secondary-700: #263373;
+$secondary-800: #1A224C;
+$secondary-900: #0D1126;
+
+//Neutral COLORS
+$neutral-50: #F2F3F3;
+$neutral-100: #E4E6E6;
+$neutral-200: #CACDCE;
+$neutral-300: #B0B4B5;
+$neutral-400: #969B9C;
+$neutral-500: #7C8283;
+$neutral-600: #636869;
+$neutral-700: #4A4E4F;
+$neutral-800: #313435;
+$neutral-900: #191A1B;
+
+
+//Success COLORS
+$success-50: #E7FEF6;
+$success-100: #CFFCED;
+$success-200: #9EFADB;
+$success-300: #6EF7C9;
+$success-400: #3DF5B8;
+$success-500: #43BC94;
+$success-600: #0AC285;
+$success-700: #089163;
+$success-800: #056142;
+$success-900: #023121;
+
+//Warning COLORS
+$warning-50: #FDF2CE;
+$warning-100: #FCE69C;
+$warning-200: #FAD96B;
+$warning-300: #F9CC39;
+$warning-400: #F7BF08;
+$warning-500: #F7BF08;
+$warning-600: #C69906;
+$warning-700: #947305;
+$warning-800: #634D03;
+$warning-900: #322701;
+
+
+//Destructive COLORS
+$destructive-50: #FCEBE8;
+$destructive-100: #FAD8D1;
+$destructive-200: #F5B1A3;
+$destructive-300: #F08A75;
+$destructive-400: #EB6247;
+$destructive-500: #E53C1A;
+$destructive-600: #B82F14;
+$destructive-700: #8A240F;
+$destructive-800: #5C180A;
+$destructive-900: #2E0C05;
+
+//Shades
+$white:#ffffff;
+$black:#000000;
+
+.clr-grey{
+    color:$neutral-600;
+}
+.clr-primary{
+    color:$primary-600;
+}
+.bg-light{
+    background-color: $neutral-50;
+}
+.clr-light{
+    color: $white;
+}
+.clr-dark{
+    color: $neutral-800;
+}
+
+.bg-primary{
+    background-color: $primary-500 !important;
+}
+.bg-primary-50{
+    background-color: $primary-50 !important;
+}
+.bg-primary-100{
+    background-color: $primary-100 !important;
+}

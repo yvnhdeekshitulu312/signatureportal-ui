@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+
+html,
+body{
+    direction:rtl !important;
+    font-family: 'Tajawal', sans-serif !important;
+    font-size:16px !important;
+}
+*{
+    font-family: 'Tajawal', sans-serif !important;  
+}
+
+// FOMRS
+.custom-upload{
+    &::before{
+        left: unset;
+        right: 0;
+    }
+}
+
+label{
+    padding-left:0.75rem;
+    &[required]{
+        background-position: 4% top;
+        padding-right:0.5rem;
+    }
+}
+
+//Sub-heading
+.sub-heading {
+    padding: 0.5rem;
+    display: flex;
+
+    h4 {
+        color: $primary-600;
+        font-size: 1.25rem;
+        font-weight: $medium;
+        margin-bottom: 0;
+    }
+
+    a {
+        text-decoration: none;
+        color: $secondary-500;
+        padding: 0.45rem 2.25rem;
+    }
+}
+
+//MODAL MENU
+#profile-info{
+    .modal-dialog{
+        margin-left:unset;
+        margin-right:auto;
+    }
+}
+
+.service-card {
+    background-color: $white;
+    padding: 1rem;
+    border-radius: 1.25rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    .service-icon {
+        background-color: $primary-50;
+        padding: 1rem;
+        border-radius: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+
+        img {
+            width: 1.5rem;
+            height: auto;
+        }
+    }
+
+    h3,
+    p {
+        color: $neutral-700;
+    }
+
+    h3 {
+        font-size: 1rem;
+    }
+
+    p {
+        font-size: 0.75rem;
+    }
+
+    .btn {
+        height: inherit;
+        min-width: 3rem;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: 1rem;
+
+        svg{
+            transform: rotate(180deg);
+        }
+    }
+}
+
+//Doc Card
+.doc-card {
+    background-color: $white;
+    border-radius: 0.5rem;
+    text-align: center;
+    height: 100%;
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    .profile-photo {
+        width: 6rem;
+        height: 6rem;
+        // display: flex;
+        // align-items: center;
+        // justify-content: center;
+        border-radius: 50%;
+        overflow: hidden;
+        // margin-left: auto;
+        // margin-right: auto;
+        border: 1px solid $primary-200;
+        display: inherit;
+        align-self: center;
+
+        img {
+            width: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .doc-details {
+        text-align: center;
+
+        h4 {
+            font-weight: $regular;
+            font-size: 1rem;
+            margin-bottom: 0.345rem;
+            margin-top: 0.345rem;
+        }
+
+        p {
+            color: $neutral-500;
+            margin-bottom: 0.25rem;
+        }
+    }
+
+    &.selected {
+        border: 1px solid $success-500;
+        box-shadow: 0 2px 8px $success-50;
+        background-image: url(../../images/icons/toast-success.svg);
+        background-repeat: no-repeat;
+        background-position: 95% 3%;
+    }
+
+    &.doc-card-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 1rem;
+        gap: 1.25rem;
+        border: 1px solid $primary-300;
+
+        .doc-details {
+            text-align: left;
+            flex: 2;
+        }
+    }
+    button{
+        padding:0.35rem 2.25rem;
+    }
+}
+
+.table-cards{
+    border-collapse: separate;
+    border-spacing:0 0.75rem;
+    border:0px;
+    width: 100%;
+    tr{
+        box-shadow: 0px 4px 8px #EBEDED;
+        border-radius: 0.5rem;
+        td{
+            border-bottom:1px solid $primary-200;
+            border-top:1px solid $primary-200;
+            background-color: $white;
+            padding:0.75rem 0.5rem;
+            &:first-child{
+                border-right:1px solid $primary-200;
+                border-top-right-radius: 0.5rem;
+                border-bottom-right-radius: 0.5rem;
+                border-left:unset;
+                border-top-left-radius: unset;
+                border-bottom-left-radius: unset;
+            }
+            &:last-child{
+                border-left:1px solid $primary-200;
+                border-top-left-radius: 0.5rem;
+                border-bottom-left-radius: 0.5rem;
+                border-right:unset;
+                border-top-right-radius: unset;
+                border-bottom-right-radius: unset;
+            }
+        }
+
+        &.selected{
+            td{
+                background-color: $primary-50;
+            }
+        }
+    }
+}

@@ -1,0 +1,43 @@
+.red-border-class {
+    border: 1px solid red;
+    color: red;
+}
+
+.login__wrapper {
+
+  .input-container {
+    position: relative;
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      z-index: 2;
+
+      svg { display: block; }
+    }
+
+    .form-control {
+      padding-left: 48px;
+      height: 52px;
+    }
+  }
+
+  .login__form-card form {
+    button[type="submit"] {
+      display: block;
+      width: 100% !important;
+      height: 52px !important;
+      min-height: 52px !important;
+      border-radius: 12px !important;
+      font-size: 16px !important;
+      font-weight: 500 !important;
+      margin-top: 8px !important;
+      padding: 0 !important; // reset btn-sm's small padding, which was likely constraining width
+    }
+  }
+}

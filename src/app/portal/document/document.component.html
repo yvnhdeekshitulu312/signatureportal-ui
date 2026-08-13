@@ -1,0 +1,31 @@
+<div class="page-content-wrapper p-3">
+  <div class="page-header"><h5 class="page-heading">Documents</h5></div>
+
+  <ul class="doc-tabs d-flex gap-3 mt-2 mb-3 p-0 list-unstyled">
+    <li>
+      <a class="doc-tab-link" [class.active]="activeTab==='pending'" (click)="setTab('pending')">
+        Pending my signature ({{pendingDocs.length}})
+      </a>
+    </li>
+    <li>
+      <a class="doc-tab-link" [class.active]="activeTab==='sent'" (click)="setTab('sent')">
+        Sent by me
+      </a>
+    </li>
+  </ul>
+
+  <div *ngIf="activeTab==='pending'" class="doc_list_vertical mt-3">
+    <div *ngFor="let d of pendingDocs" class="border rounded-2 p-2 mb-2" style="cursor:pointer" (click)="openPending(d)">
+      <h6 class="m-0">{{ d.Name }}</h6>
+      <small class="text-muted">Status: {{ d.Status }}</small>
+    </div>
+    <div *ngIf="!loading && pendingDocs.length === 0" class="text-muted p-3">No documents pending your signature.</div>
+  </div>
+
+  <div *ngIf="activeTab==='sent'" class="doc_list_vertical mt-3">
+    <div *ngFor="let d of sentDocs" class="border rounded-2 p-2 mb-2" style="cursor:pointer" (click)="openSent(d)">
+      <h6 class="m-0">{{ d.Name }}</h6>
+      <small class="text-muted">Status: {{ d.Status }}</small>
+    </div>
+  </div>
+</div>

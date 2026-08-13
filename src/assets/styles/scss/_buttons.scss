@@ -1,0 +1,204 @@
+button{
+    border:0;
+    height: 100%;
+    padding:0.875rem;
+    background-color: transparent;
+}
+.btn{
+    border-radius: 5rem;
+    font-size:0.875rem;
+    padding-top:0.25rem;
+    padding-bottom:0.25rem;
+    white-space: nowrap;
+    min-width: 4.5rem;
+    &:hover,
+    &:active,
+    &:focus{
+        border-color: transparent;
+        box-shadow: unset!important;
+    }
+}
+.btn-sm{
+    min-width: 2rem;
+}
+//Button Main
+.btn-main-outline{
+    background-color: $secondary-50;
+    border-color:$secondary-500;
+    color:$secondary-500;
+    &:hover,
+    &:active,
+    &:focus{
+        background-color: $secondary-100;
+        border-color:$secondary-600 !important;
+        color:$secondary-600;
+    }
+}
+.btn-main-fill{
+    background-color: $secondary-500;
+    border-color:$secondary-500;
+    color:$secondary-50;
+    &:hover,
+    &:active,
+    &:focus{
+        background-color: $secondary-600;
+        border-color:$secondary-600 !important;
+        color:$secondary-100;
+    }
+}
+
+//Button Secondary
+
+.btn-secondary-outline{
+    background-color: $primary-50;
+    border-color:$primary-500;
+    color:$primary-500;
+    &:hover,
+    &:active,
+    &:focus{
+        background-color: $primary-100;
+        border-color:$primary-600 !important;
+        color:$primary-600;
+    }
+}
+.btn-secondary-fill{
+    background-color: $primary-500;
+    border-color:$primary-500;
+    color:$primary-50;
+    &:hover,
+    &:active,
+    &:focus{
+        background-color: $primary-600;
+        border-color:$primary-600 !important;
+        color:$primary-100;
+    }
+}
+
+.btn-icon{
+    border-radius:0.25rem;
+    padding-bottom:0.275rem;
+    min-width: 2rem;
+    img{
+        filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(75deg) brightness(103%) contrast(101%);
+        width:1.25rem;
+        height: 1.25rem;
+    }
+}
+.btn-danger-outline{
+    background-color: $destructive-50;
+    border-color:$destructive-500;
+    color:$destructive-500;
+    &:hover,
+    &:active,
+    &:focus{
+        background-color: $destructive-100;
+        border-color:$destructive-600 !important;
+        color:$destructive-600;
+    }
+}
+
+//Toggle Swithcer
+
+.toggle__switch{
+    align-self: end;
+    background-color: #F8FCFC;
+    border:1px solid $primary-400;
+    border-radius: 1.75rem;
+    display: flex;
+    padding:0.25rem;
+    gap:0.125rem;
+    .btn{
+        color:$primary-500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        min-width: 6rem;
+        transition: all 400ms ease-in-out;
+        &.selected{
+            background-color: $primary-500;
+            color:$white;
+        }
+    }
+    &.switch-sm{
+        .btn{
+            height: 1.75rem;
+            min-width: 4.5rem;
+        }
+    }
+}
+//3D Buttons
+.btn-primary-3d{
+	cursor: pointer;
+	position: relative;
+	padding: 1.5rem 1rem;
+	border-radius: 0.5rem;
+    border:1px solid $primary-400;
+	// line-height: 2.5rem;
+	font-size: 0.875rem;
+	font-weight: $medium;
+    color:#fff;
+	// border: 1px solid #012880;
+    background-image:linear-gradient(-180deg, #52c9df 0%, #368796 100%);
+	box-shadow: 0 0.125rem 0.5rem 0 rgb(8, 152, 214), 
+                0 -0.25rem 1.5rem #175a8d inset,
+                0 0.75rem 0.5rem rgba(190, 248, 255, 40%) inset, 
+                0 0.25rem 0.5rem 0 #3ed0ee inset;
+    span{
+        color: #fff;
+        background-clip: text;
+        filter: drop-shadow(0 2px 2px rgba(8, 57, 73, 0.65));
+    }
+    &::before{
+        content: "";
+        display: block;
+        height: 0.2rem;
+        position: absolute;
+        top: 0.2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 4rem);
+        background: #fff;
+        border-radius: 100%;
+        opacity: 0.6;
+        background-image: linear-gradient(-270deg, rgba(255,255,255,0.00) 0%, #FFFFFF 20%, #FFFFFF 80%, rgba(255,255,255,0.00) 100%);
+    }
+}
+
+/* Button ICON 3D */
+.btn-icon-3d{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width:2.375rem;
+    height: 2.375rem;
+    min-width: 2.375rem;
+    max-width: 2.375rem;
+    background: linear-gradient(180deg, #F0F8FA 0%, rgba(180, 221, 228, 0.91) 100%);
+    border: 1px solid #368796;
+    box-shadow: inset 0px -2px 1px 3px #F0F8F9;
+    border-radius: 0.5rem;
+    transition: all 0.25s ease-in-out;
+      img{
+
+            transition: all 0.5s ease-in-out;
+        }
+
+    &:hover,
+    &:focus{
+        box-shadow: inset 0px 0px 1px 3px #F0F8F9;
+        border: 1px solid #368796;
+    }
+    &.btn-icon-3d-danger{
+        background: linear-gradient(180deg, #FFFFFF 0%, rgba(234, 214, 214, 0.91) 100%);
+        border: 1px solid #F08A75;
+        box-shadow: inset 0px -2px 1px 3px #F0F8F9;
+    }
+    &.collapsed{
+        img{
+            transform: rotate(180deg);
+        }
+    }
+
+}
+/* Button ICON 3D END */

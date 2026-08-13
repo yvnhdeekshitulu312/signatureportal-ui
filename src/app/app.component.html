@@ -1,0 +1,19 @@
+<app-loader></app-loader>
+<router-outlet></router-outlet>
+<div class="modal" id="confirmIdle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-toast modal-toast-success">
+        <div class="modal-content">
+            <img class="modal-header-icon" src="assets/images/icons/toast-info.svg" alt="">
+            <div class="modal-body">
+                <!-- <h3>Thank You!</h3> -->
+                <p> {{langData?.common?.idleMsg}}</p>
+                <div class="modal-footer">
+                    <a href="javascript:void(0)" type="button" class="btn btn-main-outline"
+                        (click)="confirmCancelApp('Yes')">{{langData?.common?.yes}}</a>
+                    <button type="button" class="btn btn-danger-outline" data-bs-dismiss="modal"
+                        (click)="confirmCancelApp('No')">{{langData?.common?.no}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
