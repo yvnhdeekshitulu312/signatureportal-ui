@@ -9,7 +9,7 @@ export class DocumentViewComponent implements OnInit {
   currentPage = 1;
   loading = true;
 
-  constructor(private route: ActivatedRoute, private router: Router, private esignService: EsignService) {}
+  constructor(private route: ActivatedRoute, private router: Router, private esignService: EsignService) { }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -53,5 +53,17 @@ export class DocumentViewComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/dashboard/document']);
+  }
+
+  download(): void {
+    const path = this.doc.ViewerGcsUrl.split('path=')[1]; // extract the raw GCS object key
+    this.esignService.downloadFile(decodeURIComponent(path)).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = this.doc.Name + '.pdf';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
   }
 }

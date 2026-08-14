@@ -145,6 +145,7 @@ export class DocumentSignComponent implements OnInit {
   }
 
   submit(): void {
+    if (this.isSubmitting) return;
     if (!this.allRequiredFilled()) { alert('Please fill all required fields before submitting.'); return; }
     const fieldValues = Object.keys(this.fieldValues).map(id => ({ fieldId: Number(id), value: this.fieldValues[Number(id)] }));
     this.isSubmitting = true;

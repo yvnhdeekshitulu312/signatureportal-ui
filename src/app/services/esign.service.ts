@@ -56,4 +56,16 @@ export class EsignService {
   signAsUser(documentId: number, fieldValues: { fieldId: number; value: string }[]): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/SignAsUser`, { documentId, fieldValues });
   }
+
+  getDownloadUrl(documentId: number): Observable<DocumentDetailResponse> {
+    return this.http.get<DocumentDetailResponse>(`${this.baseUrl}/GetDocument/${documentId}`);
+  }
+
+  deleteDocument(documentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/DeleteDocument/${documentId}`);
+  }
+
+  downloadFile(path: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/GetFile`, { params: { path }, responseType: 'blob' });
+  }
 }

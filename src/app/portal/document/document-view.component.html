@@ -4,6 +4,7 @@
     <span *ngIf="!loading" class="badge" [ngClass]="statusBadgeClass(doc.Status)">{{ doc.Status }}</span>
   </div>
   <button class="btn btn-main-outline" (click)="goBack()">Back to Documents</button>
+  <button class="btn btn-main-outline" (click)="download()">Download</button>
 </div>
 
 <div *ngIf="loading" class="text-center p-5 text-muted">Loading document...</div>
