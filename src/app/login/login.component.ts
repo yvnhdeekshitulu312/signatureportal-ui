@@ -69,7 +69,8 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       UserName: ['', Validators.required],
-      Password: ['', Validators.required]
+      Password: ['', Validators.required],
+      Location: ['', Validators.required]
     });
     this.FetchFetchHospitalLocations();
   }
@@ -89,26 +90,26 @@ export class LoginComponent implements OnInit {
       })
   }
 
-  onSubmit(): void {
-    this.errorMessage = '';
-    this.isSubmitted = true;
-    if (this.loginForm.invalid) return;
+  // onSubmit(): void {
+  //   this.errorMessage = '';
+  //   this.isSubmitted = true;
+  //   if (this.loginForm.invalid) return;
 
-    const username = this.loginForm.get('UserName')?.value;
-    const password = this.loginForm.get('Password')?.value;
+  //   const username = this.loginForm.get('UserName')?.value;
+  //   const password = this.loginForm.get('Password')?.value;
 
-    // TEMPORARY dev auth -- any email works, password is fixed at "12345".
-    // Real credential check happens nowhere yet; swap this out before go-live.
-    if (password !== '12345') {
-      this.errorMessage = 'Invalid User Name / Password';
-      return;
-    }
+  //   // TEMPORARY dev auth -- any email works, password is fixed at "12345".
+  //   // Real credential check happens nowhere yet; swap this out before go-live.
+  //   if (password !== '12345') {
+  //     this.errorMessage = 'Invalid User Name / Password';
+  //     return;
+  //   }
 
-    localStorage.setItem('authUserName', username);
-    localStorage.setItem('authPassword', password);
-    localStorage.setItem('isLoggedIn', 'true');
-    this.router.navigate(['/dashboard']);
-  }
+  //   localStorage.setItem('authUserName', username);
+  //   localStorage.setItem('authPassword', password);
+  //   localStorage.setItem('isLoggedIn', 'true');
+  //   this.router.navigate(['/dashboard']);
+  // }
 
   // onSubmit(): void {
   //   localStorage.setItem("isLoggedIn", 'true');
@@ -124,6 +125,42 @@ export class LoginComponent implements OnInit {
 
   //   //  localStorage.setItem("loginDetails", JSON.stringify(this.loginForm.value))
   // }
+
+  onSubmit(): void {
+    this.errorMessage = '';
+    this.isSubmitted = true;
+    if (this.loginForm.invalid) return;
+
+    const username = this.loginForm.get('UserName')?.value;
+    const password = this.loginForm.get('Password')?.value;
+    const location = this.loginForm.get('Location')?.value;
+
+    var payload = {
+      username: this.loginForm.get('UserName').value,
+      password: this.loginForm.get('Password').value,
+      HostName: '127.0.0.1',
+      _intTrialCount: 0,
+      location: this.loginForm.get('Location').value,
+      Checklogin: 0,
+    }
+
+    this.config.ValidateUser(payload).subscribe({
+      next: (response) => {
+        if (!response || response.Code != 200) {
+          this.errorMessage = 'Invalid User Name / Password';
+          return;
+        }
+        const user = response.SmartDataList[0];
+        localStorage.setItem('authUserName', user.Email);  
+        localStorage.setItem('authPassword', password);
+        localStorage.setItem('loginUserName', user.UserName + ' - ' + user.LoginUsername);
+        localStorage.setItem('empDesignation', user.EmpDesignation || '');
+        localStorage.setItem('isLoggedIn', 'true');
+        this.router.navigate(['/dashboard']);
+      },
+      error: () => { this.errorMessage = 'Invalid User Name / Password'; }
+    });
+  }
 
   validateDoctorLogin() {
     this.errorMessage ="";

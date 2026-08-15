@@ -14,6 +14,7 @@ export class ConfigService {
   
   //public devApiUrl = "http://localhost:54166/API/";
   public devApiUrl = "https://his.alhammadi.med.sa/ZOHOAPI/API/";
+  private hisUrl = 'https://his.alhammadi.med.sa/ClinicalsAPiT/API';
  // public devApiUrl = "http://172.18.17.219/ZOHOAPI/API/";
   public hijApiUrl = "http://172.18.17.219/DEVAPI/API/";
   baseApiUrl = "https://file.io";//
@@ -62,7 +63,7 @@ export class ConfigService {
   }
   
    fetchFetchHospitalLocations() {
-    return this.https.get<any>(this.devApiUrl + '/FetchHospitalLocations?type=0&filter=blocked=0&UserId=0&WorkstationId=0', this.httpOptions);
+    return this.https.get<any>(this.hisUrl + '/FetchHospitalLocations?type=0&filter=blocked=0&UserId=0&WorkstationId=0', this.httpOptions);
   }
 
   validateDoctorLogin(username: string, password: string, location: string) {
@@ -169,5 +170,9 @@ export class ConfigService {
 
   PdfToImage(formData: FormData) {
     return this.https.post<any>(this.devApiUrl + 'PdfToImage', formData);
+  }
+  
+  ValidateUser(payload: any) {
+    return this.https.post<any>(this.hisUrl + '/ValidateLoginUserHIS', payload);
   }
 }

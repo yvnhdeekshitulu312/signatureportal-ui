@@ -182,6 +182,52 @@ $font:'Noto Kufi Arabic', sans-serif;
   @media (max-width:900px) { .lv-left { display:none; } }
 }
 
+.lv-select-wrap {
+  position: relative;
+
+  svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+    z-index: 2;
+    color: #368796;
+  }
+
+  .lv-select {
+    width: 100%;
+    height: 52px;
+    padding: 0 40px 0 44px; // left clears the icon, right clears the custom arrow
+    border: 1px solid #d7dee3;
+    border-radius: 12px;
+    font-size: 15px;
+    color: #1c2b39;
+    background-color: #fff;
+    appearance: none;         // removes the plain browser arrow
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+
+    // custom dropdown arrow, replacing the ugly native one
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23368796' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+
+    &:focus {
+      outline: none;
+      border-color: #368796;
+      box-shadow: 0 0 0 3px rgba(54, 135, 150, 0.12);
+    }
+
+    option {
+      color: #1c2b39;
+    }
+  }
+}
+
 /* keyframes (prefixed to avoid global clashes) */
 @keyframes lvFloatGlow { 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-20px,20px) scale(1.08);} }
 @keyframes lvDrift { 0%,100%{ transform:translateY(0) rotate(0deg);} 50%{ transform:translateY(-26px) rotate(8deg);} }
@@ -193,3 +239,5 @@ $font:'Noto Kufi Arabic', sans-serif;
   .login-v5 .lv-left::before, .login-v5 .lv-particle, .login-v5 .lv-sig-path,
   .login-v5 .lv-ring, .login-v5 .lv-ring2, .login-v5 .lv-ring3, .login-v5 .lv-orbit, .login-v5 .lv-logo-halo::before { animation: none !important; }
 }
+
+
