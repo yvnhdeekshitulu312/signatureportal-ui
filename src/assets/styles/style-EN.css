@@ -1434,7 +1434,7 @@ body {
   /* Handle on hover */
 }
 *::-webkit-scrollbar {
-  width: 0.25rem;
+  width: 0.7rem;
 }
 *::-webkit-scrollbar-track {
   background: #DAEEF1;
@@ -1443,12 +1443,64 @@ body {
   margin-bottom: 0.125rem;
 }
 *::-webkit-scrollbar-thumb {
-  background: #69BAC9;
+  background: #89aede;
   border-radius: 0.5rem;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: #69BAC9;
+  background: #89aede;
 }
+
+.bluescroll::-webkit-scrollbar{
+  width: 0.7rem;
+}
+.bluescroll::-webkit-scrollbar-thumb {
+  background: #89aede;
+  border-radius: 0.5rem;
+}
+
+.bluescroll::-webkit-scrollbar-thumb:hover {
+  background: #89aede;
+}
+
+/* .bluescroll::-webkit-scrollbar-button:single-button {
+  background-color: #e3eefb;
+  display: block;
+  border-style: solid;
+  height: 0.9rem;
+  width: 0.9rem;
+} */
+/* UP arrow (vertical scrollbar, top button) */
+/* .bluescroll::-webkit-scrollbar-button:single-button:vertical:decrement {
+  border-width: 0 0.3rem 0.45rem 0.3rem;
+  border-color: transparent transparent #1855a4 transparent;
+  background-position: center;
+} */
+
+/* DOWN arrow (vertical scrollbar, bottom button) */
+/* .bluescroll::-webkit-scrollbar-button:single-button:vertical:increment {
+  border-width: 0.45rem 0.3rem 0 0.3rem;
+  border-color: #1855a4 transparent transparent transparent;
+  background-position: center;
+} */
+
+/* LEFT arrow (horizontal scrollbar, left button) */
+/* .bluescroll::-webkit-scrollbar-button:single-button:horizontal:decrement {
+  border-width: 0.3rem 0.45rem 0.3rem 0;
+  border-color: transparent #1855a4 transparent transparent;
+  background-position: center;
+} */
+
+/* RIGHT arrow (horizontal scrollbar, right button) */
+/* .bluescroll::-webkit-scrollbar-button:single-button:horizontal:increment {
+  border-width: 0.3rem 0 0.3rem 0.45rem;
+  border-color: transparent transparent transparent #1855a4;
+  background-position: center;
+} */
+
+/* Hover effect for all arrow buttons */
+/* .bluescroll::-webkit-scrollbar-button:single-button:hover {
+  background-color: #c9def7;
+}  */
 
 .container__wrapper {
   border-radius: 0.75rem;
@@ -1815,7 +1867,7 @@ p.label {
 }
 
 .recipients_list {
-  height: calc(100vh - 25rem);
+  height: calc(100vh - 28rem);
   overflow: auto;
 }
 .recipients_list .recipient .img_icon {
@@ -1825,7 +1877,7 @@ p.label {
 }
 .recipients_list .recipient.active {
   background-color: #DAEEF1;
-  border-left: 3px solid #368796;
+  /* border-left: 3px solid #368796; */
 }
 
 .drag_field .field {

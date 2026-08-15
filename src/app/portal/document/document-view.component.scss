@@ -7,7 +7,7 @@ $gray-8:#969696; $gray-5:#C0C0C0; $gray-1:#E5E5E5; $teal:#4FCED2; $teal-light:#7
 $font:'Noto Kufi Arabic', sans-serif;
 
 :host { display: block; font-family: $font; color: $navy; }
-.dview { max-width: 1120px; margin: 0 auto; padding: 20px 24px 60px; }
+// .dview { max-width: 1120px; margin: 0 auto; padding-top: 20px;}
 
 /* buttons */
 .btn { font-family: $font; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
@@ -18,12 +18,18 @@ $font:'Noto Kufi Arabic', sans-serif;
 :host-context([dir="rtl"]) .btn svg { transform: scaleX(-1); }
 
 /* header */
-.dv-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 0 18px; border-bottom: 1px solid $gray-1; margin-bottom: 20px; }
 .dv-head-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .dv-doc-icon { width: 40px; height: 40px; border-radius: 11px; background: rgba(24,85,164,.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.dv-titles { min-width: 0; }
-.dv-title { font-size: 19px; font-weight: 700; color: $navy; margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dv-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.dv-header {
+  position: sticky; top: 0px; z-index: 10;
+  background: rgba(255,255,255,.86); backdrop-filter: blur(8px);
+  border-bottom: 1px solid $gray-1;
+  padding: 8px 20px;
+}
+.dv-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: $gray-8; }
+.dv-title { font-size: 20px; font-weight: 700; color: $navy; margin: 2px 0 0; }
+.dv-actions { display: flex; align-items: center; gap: 10px; }
 
 /* status chips (map from statusBadgeClass returns) */
 .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; padding: 3px 11px; border-radius: 99px; white-space: nowrap;
@@ -40,11 +46,12 @@ $font:'Noto Kufi Arabic', sans-serif;
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* body layout */
-.dv-body { display: grid; grid-template-columns: 1fr 340px; gap: 22px; align-items: start; }
-
+.dv-body { display: grid; grid-template-columns: 1fr 340px; align-items: start;}
+.dv-body::-webkit-scrollbar { width: 0; }
 /* viewer */
 .dv-viewer { min-width: 0; }
-.doc-canvas { position: relative; width: 100%; background: $white; border: 1px solid $gray-1; border-radius: 12px; box-shadow: 0 6px 26px rgba(0,38,84,.10); overflow: hidden; }
+.doc-canvas-wrapper { height: calc(100vh - 9rem);overflow: auto;padding:24px;}
+.doc-canvas { position: relative; width: 100%; background: $white; border: 1px solid $gray-1; border-radius: 12px; box-shadow: 0 6px 26px rgba(0,38,84,.10); overflow: hidden;max-width: 780px;margin: 0 auto; }
 .doc-img { width: 100%; display: block; }
 .page-overlay { position: absolute; top: 0; inset-inline-start: 0; width: 100%; height: 100%; }
 .ro-field {
@@ -63,8 +70,14 @@ $font:'Noto Kufi Arabic', sans-serif;
 :host-context([dir="rtl"]) .pager-btn svg { transform: scaleX(-1); }
 
 /* recipients sidebar */
+.dv-side-wrapper{
+  height: 100%;
+  padding: 16px;
+  background: #fff;
+  border-left: 1px solid $gray-1;
+}
 .dv-side { border: 1px solid $gray-1; border-radius: 14px; overflow: hidden; background: $white; position: sticky; top: 16px; }
-.side-head { background: $teal; color: $navy; padding: 13px 16px; font-size: 14px; font-weight: 700; }
+.side-head { background: $brand; color: $white; padding: 13px 16px; font-size: 14px; font-weight: 700; }
 .side-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .rc-card { display: flex; align-items: flex-start; gap: 11px; padding: 12px; border: 1px solid $gray-1; border-radius: 12px; }
 .rc-avatar { width: 34px; height: 34px; flex-shrink: 0; border-radius: 99px; background: rgba(24,85,164,.1); color: $brand; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; text-transform: uppercase; }

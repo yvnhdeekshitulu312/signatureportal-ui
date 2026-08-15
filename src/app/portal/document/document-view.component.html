@@ -1,10 +1,12 @@
 <!-- Document view (read-only) — rich redesign. All bindings preserved:
      doc · loading · statusBadgeClass · goBack · download · pageImages · currentPage
      · fieldsOnPage · boxStyle · isImageValue · doc.Recipients · SigningOrder -->
+  <!-- Sticky header -->
+
 <div class="dview">
 
   <!-- Header -->
-  <header class="dv-header">
+  <!-- <header class="dv-header">
     <div class="dv-head-left">
       <span class="dv-doc-icon">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -27,7 +29,7 @@
         Download
       </button>
     </div>
-  </header>
+  </header> -->
 
   <!-- Loading -->
   <div *ngIf="loading" class="dv-loading">
@@ -38,20 +40,49 @@
   <div *ngIf="!loading && doc" class="dv-body">
     <!-- Viewer -->
     <main class="dv-viewer">
-      <div class="doc-canvas">
-        <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="doc-img" alt="Document page">
-        <div class="page-overlay">
-          <div *ngFor="let f of fieldsOnPage(currentPage)"
-               class="ro-field" [class.filled]="f.Value"
-               [ngStyle]="boxStyle(f)"
-               [style.borderColor]="f.Value ? '#4FCED2' : '#C0C0C0'"
-               [style.background]="f.Value ? '#CDFCFB' : '#E5E5E522'">
-            <img *ngIf="isImageValue(f.Value)" [src]="f.Value" class="ro-img" alt="">
-            <span *ngIf="!isImageValue(f.Value) && f.Value" class="ro-text">{{ f.Value }}</span>
-            <span *ngIf="!f.Value" class="ro-await">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#969696" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#969696" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Awaiting {{ f.FieldType }}
-            </span>
+        <header class="dv-header">
+          <div class="dv-header-inner">
+            <div class="dv-head-left">
+              <span class="dv-doc-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="4" y="3" width="16" height="18" rx="2.2" stroke="#1855A4" stroke-width="1.6"/>
+                  <path d="M8 8h8M8 12h8M8 16h5" stroke="#7499C8" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <div class="dv-head-titles">
+                <h1 class="dv-title">{{ doc?.Name }}</h1>
+                <span *ngIf="!loading" class="chip" [ngClass]="statusBadgeClass(doc.Status)">{{ doc.Status }}</span>
+              </div>
+            </div>
+            <div class="dv-actions">
+              <button class="btn btn-main-outline" (click)="goBack()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Back to Documents
+              </button>
+              <button class="btn btn-main-fill" (click)="download()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Download
+              </button>
+            </div>
+          </div>
+        </header>
+        
+      <div class="doc-canvas-wrapper">
+        <div class="doc-canvas">
+          <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="doc-img" alt="Document page">
+          <div class="page-overlay">
+            <div *ngFor="let f of fieldsOnPage(currentPage)"
+                class="ro-field" [class.filled]="f.Value"
+                [ngStyle]="boxStyle(f)"
+                [style.borderColor]="f.Value ? '#4FCED2' : '#C0C0C0'"
+                [style.background]="f.Value ? '#CDFCFB' : '#E5E5E522'">
+              <img *ngIf="isImageValue(f.Value)" [src]="f.Value" class="ro-img" alt="">
+              <span *ngIf="!isImageValue(f.Value) && f.Value" class="ro-text">{{ f.Value }}</span>
+              <span *ngIf="!f.Value" class="ro-await">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#969696" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#969696" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Awaiting {{ f.FieldType }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -68,17 +99,19 @@
     </main>
 
     <!-- Recipients status sidebar -->
-    <aside class="dv-side">
-      <div class="side-head"><span>Recipients</span></div>
-      <div class="side-body">
-        <div class="rc-card" *ngFor="let r of doc.Recipients">
-          <span class="rc-avatar">{{ (r.Name || '?').charAt(0) }}</span>
-          <div class="rc-info">
-            <div class="rc-name">{{ r.Name }}</div>
-            <div class="rc-email">{{ r.Email }}</div>
-            <div class="rc-order" *ngIf="r.SigningOrder">Signing order: {{ r.SigningOrder }}</div>
+    <aside class="dv-side-wrapper">
+      <div class="dv-side">
+        <div class="side-head"><span>Recipients</span></div>
+        <div class="side-body">
+          <div class="rc-card" *ngFor="let r of doc.Recipients">
+            <span class="rc-avatar">{{ (r.Name || '?').charAt(0) }}</span>
+            <div class="rc-info">
+              <div class="rc-name">{{ r.Name }}</div>
+              <div class="rc-email">{{ r.Email }}</div>
+              <div class="rc-order" *ngIf="r.SigningOrder">Signing order: {{ r.SigningOrder }}</div>
+            </div>
+            <span class="chip" [ngClass]="statusBadgeClass(r.Status)">{{ r.Status }}</span>
           </div>
-          <span class="chip" [ngClass]="statusBadgeClass(r.Status)">{{ r.Status }}</span>
         </div>
       </div>
     </aside>

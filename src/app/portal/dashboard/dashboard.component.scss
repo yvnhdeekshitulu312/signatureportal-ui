@@ -33,7 +33,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 }
 .ac-glow {
   position: absolute; inset-inline-end: -40px; top: -40px; width: 140px; height: 140px; border-radius: 99px;
-  background: rgba(79,206,210,.18); filter: blur(6px); pointer-events: none;
+  background: #f1f7ff; filter: blur(6px); pointer-events: none;
 }
 .ac-icon {
   width: 54px; height: 54px; border-radius: 15px; display: flex; align-items: center; justify-content: center;
