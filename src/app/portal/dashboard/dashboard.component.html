@@ -1,85 +1,111 @@
-<!-- Dashboard landing — redesigned. Behaviour unchanged: gotoSignature(). -->
-<div class="dash">
-  <section class="dash-hero">
-    <span class="brand-chip">
-      <span class="chip-dot"></span> e-Signature
-    </span>
-    <h1 class="dash-h1">Send documents for signature — securely, internally</h1>
-    <p class="dash-lead">
-      Upload a PDF, place signature fields, and route it to colleagues to sign via SSO.
-      Documents stay in internal storage the whole way through.
-    </p>
-  </section>
+<!-- Dashboard main content — redesigned to match dashboard_final.html.
+     Header logo + sidebar are separate components and are NOT touched here.
+     gotoSignature() preserved; recent documents + View wired to real data. -->
+<div class="dv">
 
-  <section class="dash-cards">
-    <!-- Primary: Send for signatures -->
-    <button type="button" class="action-card primary" (click)="gotoSignature()">
-      <span class="ac-glow" aria-hidden="true"></span>
-      <span class="ac-icon">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M21.5 2.5L11 13" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M21.5 2.5l-6.7 19-3.8-8.5L2.5 9.2l19-6.7z" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <span class="ac-body">
-        <span class="ac-title">Send for signatures</span>
-        <span class="ac-desc">Upload a document and assign signers</span>
-      </span>
-      <span class="ac-cta">
-        Start
-        <svg class="cta-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-    </button>
-
-    <!-- Secondary: My documents -->
-    <a class="action-card" routerLink="/dashboard/pendingdocuments" [queryParams]="{ tab: 'sent' }">
-      <span class="ac-icon ghost">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <rect x="4" y="3" width="16" height="18" rx="2.2" stroke="#1855A4" stroke-width="1.7"/>
-          <path d="M8 8h8M8 12h8M8 16h5" stroke="#7499C8" stroke-width="1.7" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <span class="ac-body">
-        <span class="ac-title">My documents</span>
-        <span class="ac-desc">Track status and sign pending requests</span>
-      </span>
-      <span class="ac-cta ghost">
-        Open
-        <svg class="cta-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-    </a>
-  </section>
-
-  <section class="how">
-    <div class="how-title">How it works</div>
-    <div class="how-steps">
-      <div class="how-step">
-        <span class="hs-num">1</span>
-        <div class="hs-text">
-          <div class="hs-h">Upload</div>
-          <div class="hs-p">Add a PDF — pages are rendered securely on the server.</div>
-        </div>
+  <!-- ===== HERO ===== -->
+  <section class="dv-hero">
+    <div class="dv-hero-left">
+      <span class="dv-eyebrow"><span class="dot"></span> Live · Suwaidi &amp; Nuzha</span>
+      <h1>Send documents for signature — securely, internally.</h1>
+      <p>Upload a PDF, place signature fields, and route it to colleagues to sign via SSO. Documents never leave internal storage.</p>
+      <div class="dv-hero-btns">
+        <button type="button" class="dv-btn teal" (click)="gotoSignature()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+          Send for signatures
+        </button>
+        <button type="button" class="dv-btn outline" (click)="gotoDocuments()">View documents</button>
       </div>
-      <span class="hs-line" aria-hidden="true"></span>
-      <div class="how-step">
-        <span class="hs-num">2</span>
-        <div class="hs-text">
-          <div class="hs-h">Place fields</div>
-          <div class="hs-p">Drop signature, initials and date fields per recipient.</div>
-        </div>
+    </div>
+    <div class="dv-hero-right">
+      <div class="dv-ring-stat">
+        <div class="dv-ring" [style.--p]="pct(pendingCount)"></div>
+        <div class="dv-ring-txt"><div class="num">{{ pendingCount }}</div><div class="lbl">Pending</div></div>
       </div>
-      <span class="hs-line" aria-hidden="true"></span>
-      <div class="how-step">
-        <span class="hs-num">3</span>
-        <div class="hs-text">
-          <div class="hs-h">Track &amp; sign</div>
-          <div class="hs-p">Recipients sign via SSO; you follow status in real time.</div>
-        </div>
+      <div class="dv-ring-stat">
+        <div class="dv-ring" [style.--p]="pct(signedCount)"></div>
+        <div class="dv-ring-txt"><div class="num">{{ signedCount }}</div><div class="lbl">Signed</div></div>
+      </div>
+      <div class="dv-ring-stat">
+        <div class="dv-ring" [style.--p]="100"></div>
+        <div class="dv-ring-txt"><div class="num">{{ totalCount }}</div><div class="lbl">Total documents</div></div>
       </div>
     </div>
   </section>
+
+  <!-- ===== STEPS STRIP ===== -->
+  <div class="dv-steps">
+    <div class="dv-step"><div class="n">1</div><div><h4>Upload</h4><p>Pages render securely server-side.</p></div></div>
+    <span class="dv-sep"></span>
+    <div class="dv-step"><div class="n">2</div><div><h4>Place fields</h4><p>Signature, initials &amp; date per recipient.</p></div></div>
+    <span class="dv-sep"></span>
+    <div class="dv-step"><div class="n">3</div><div><h4>Track &amp; sign</h4><p>Recipients sign via SSO in real time.</p></div></div>
+  </div>
+
+  <!-- ===== ACTION CARDS ===== -->
+  <div class="dv-actions">
+    <button type="button" class="dv-card" (click)="gotoSignature()">
+      <span class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></span>
+      <h3>Send for signatures</h3>
+      <p>Upload a document and assign signers.</p>
+      <span class="go">Start →</span>
+    </button>
+    <button type="button" class="dv-card on" (click)="gotoDocuments()">
+      <span class="ic teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+      <h3>My documents</h3>
+      <p>Track status and sign pending requests.</p>
+      <span class="go">Open →</span>
+    </button>
+    <button type="button" class="dv-card" (click)="gotoPending()">
+      <span class="ic royal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+      <h3>Pending my signature</h3>
+      <p>Open documents that are waiting on you.</p>
+      <span class="go">View →</span>
+    </button>
+  </div>
+
+  <!-- ===== RECENT DOCUMENTS ===== -->
+  <div class="dv-panel">
+    <div class="dv-panel-head">
+      <h3>Recent documents</h3>
+      <a href="javascript:void(0)" (click)="gotoDocuments()">View all →</a>
+    </div>
+
+    <div class="dv-filters">
+      <span class="dv-chip" [class.on]="activeFilter==='all'" (click)="setFilter('all')">All</span>
+      <span class="dv-chip" [class.on]="activeFilter==='pending'" (click)="setFilter('pending')">Pending</span>
+      <span class="dv-chip" [class.on]="activeFilter==='signed'" (click)="setFilter('signed')">Signed</span>
+      <span class="dv-chip" [class.on]="activeFilter==='progress'" (click)="setFilter('progress')">In progress</span>
+    </div>
+
+    <!-- loading -->
+    <div *ngIf="loading" class="dv-skeleton">
+      <div class="skrow" *ngFor="let s of [1,2,3]"><span class="skdot"></span><span class="skline"></span></div>
+    </div>
+
+    <table *ngIf="!loading && filteredDocs.length">
+      <thead><tr><th>Document</th><th>Signer</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let d of filteredDocs" (click)="openDocument(d)" class="dv-row">
+          <td>
+            <div class="dv-doc-name">
+              <span class="dv-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+              <span>{{ d.Name }}</span>
+            </div>
+          </td>
+          <td><div class="dv-signer"><span class="dv-sig-dot">{{ signerInitials(d) }}</span>{{ signerName(d) }}</div></td>
+          <td><span class="dv-pill" [ngClass]="statusClass(d)">{{ d.Status }}</span></td>
+          <td class="dv-view-cell">
+            <span class="dv-view">View
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!loading && !filteredDocs.length" class="dv-empty">
+      No documents to show{{ activeFilter !== 'all' ? ' for this filter' : '' }}.
+    </div>
+  </div>
 </div>
