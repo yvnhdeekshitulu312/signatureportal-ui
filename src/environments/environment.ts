@@ -5,7 +5,8 @@
 // environment.ts
 export const environment = {
   production: false,
-  esignApiUrl: 'http://localhost:54166/API/Esign'
+  //esignApiUrl: 'http://localhost:54166/API/Esign'
+  esignApiUrl: 'https://his.alhammadi.med.sa/ZOHOAPI/API/Esign'
 };
 
 /*

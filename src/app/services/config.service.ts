@@ -12,7 +12,8 @@ import { BYPASS_LOG } from './headers.interceptor';
 export class ConfigService {
   //public devApiUrl = "http://172.18.17.219/DoctorPortalAPI/API/";
   
-  public devApiUrl = "http://localhost:54166/API/";
+  //public devApiUrl = "http://localhost:54166/API/";
+  public devApiUrl = "https://his.alhammadi.med.sa/ZOHOAPI/API/";
  // public devApiUrl = "http://172.18.17.219/ZOHOAPI/API/";
   public hijApiUrl = "http://172.18.17.219/DEVAPI/API/";
   baseApiUrl = "https://file.io";//

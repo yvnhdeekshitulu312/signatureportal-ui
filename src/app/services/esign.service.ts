@@ -11,7 +11,8 @@ import {
 export class EsignService {
   // Matches EsignController's [Route("API/Esign/...")] attributes exactly --
   // update the host/port to wherever ALHMobileAppAPI is actually running.
-  private baseUrl = 'http://localhost:54166/API/Esign';
+  // private baseUrl = 'http://localhost:54166/API/Esign';
+  private baseUrl = 'https://his.alhammadi.med.sa/ZOHOAPI/API/Esign';
 
   constructor(private http: HttpClient) { }
 
