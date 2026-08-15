@@ -1,31 +1,105 @@
-<div class="page-content-wrapper p-3">
-  <div class="page-header"><h5 class="page-heading">Documents</h5></div>
+<!-- Documents list — rich redesign. All bindings preserved:
+     setTab · activeTab · pendingDocs · sentDocs · openPending · openSent · loading -->
+<div class="docs">
+  <header class="docs-header">
+    <div>
+      <span class="eyebrow">e-Signature</span>
+      <h1 class="docs-title">Documents</h1>
+    </div>
+  </header>
 
-  <ul class="doc-tabs d-flex gap-3 mt-2 mb-3 p-0 list-unstyled">
+  <!-- Tabs -->
+  <ul class="doc-tabs">
     <li>
       <a class="doc-tab-link" [class.active]="activeTab==='pending'" (click)="setTab('pending')">
-        Pending my signature ({{pendingDocs.length}})
+        Pending my signature
+        <span class="tab-count">{{ pendingDocs.length }}</span>
       </a>
     </li>
     <li>
       <a class="doc-tab-link" [class.active]="activeTab==='sent'" (click)="setTab('sent')">
         Sent by me
+        <span class="tab-count">{{ sentDocs.length }}</span>
       </a>
     </li>
   </ul>
 
-  <div *ngIf="activeTab==='pending'" class="doc_list_vertical mt-3">
-    <div *ngFor="let d of pendingDocs" class="border rounded-2 p-2 mb-2" style="cursor:pointer" (click)="openPending(d)">
-      <h6 class="m-0">{{ d.Name }}</h6>
-      <small class="text-muted">Status: {{ d.Status }}</small>
+  <!-- Loading skeletons -->
+  <div *ngIf="loading" class="doc-list">
+    <div class="skeleton-row" *ngFor="let s of [1,2,3]">
+      <span class="sk-icon"></span>
+      <span class="sk-lines"><span class="sk-line"></span><span class="sk-line short"></span></span>
     </div>
-    <div *ngIf="!loading && pendingDocs.length === 0" class="text-muted p-3">No documents pending your signature.</div>
   </div>
 
-  <div *ngIf="activeTab==='sent'" class="doc_list_vertical mt-3">
-    <div *ngFor="let d of sentDocs" class="border rounded-2 p-2 mb-2" style="cursor:pointer" (click)="openSent(d)">
-      <h6 class="m-0">{{ d.Name }}</h6>
-      <small class="text-muted">Status: {{ d.Status }}</small>
+  <!-- Pending -->
+  <div *ngIf="!loading && activeTab==='pending'" class="doc-list">
+    <button type="button" class="doc-card" *ngFor="let d of pendingDocs" (click)="openPending(d)">
+      <span class="doc-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="4" y="3" width="16" height="18" rx="2.2" stroke="#1855A4" stroke-width="1.6"/>
+          <path d="M8 8h8M8 12h8M8 16h5" stroke="#7499C8" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="doc-main">
+        <span class="doc-name">{{ d.Name }}</span>
+        <span class="doc-sub">Awaiting your signature</span>
+      </span>
+      <span class="chip"
+            [class.chip-done]="d.Status?.toLowerCase()?.includes('complet') || d.Status?.toLowerCase()?.includes('sign')"
+            [class.chip-draft]="d.Status?.toLowerCase()?.includes('draft')"
+            [class.chip-progress]="!(d.Status?.toLowerCase()?.includes('complet') || d.Status?.toLowerCase()?.includes('sign') || d.Status?.toLowerCase()?.includes('draft'))">
+        {{ d.Status }}
+      </span>
+      <svg class="doc-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div *ngIf="pendingDocs.length === 0" class="empty-state">
+      <span class="empty-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M9 12l2 2 4-4" stroke="#4FCED2" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="9" stroke="#A3BBDB" stroke-width="1.6"/>
+        </svg>
+      </span>
+      <div class="empty-title">You're all caught up</div>
+      <div class="empty-sub">No documents are pending your signature.</div>
+    </div>
+  </div>
+
+  <!-- Sent -->
+  <div *ngIf="!loading && activeTab==='sent'" class="doc-list">
+    <button type="button" class="doc-card" *ngFor="let d of sentDocs" (click)="openSent(d)">
+      <span class="doc-icon sent">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21.5 2.5L11 13" stroke="#1855A4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M21.5 2.5l-6.7 19-3.8-8.5L2.5 9.2l19-6.7z" stroke="#1855A4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="doc-main">
+        <span class="doc-name">{{ d.Name }}</span>
+        <span class="doc-sub">Sent by you</span>
+      </span>
+      <span class="chip"
+            [class.chip-done]="d.Status?.toLowerCase()?.includes('complet')"
+            [class.chip-draft]="d.Status?.toLowerCase()?.includes('draft')"
+            [class.chip-progress]="!(d.Status?.toLowerCase()?.includes('complet') || d.Status?.toLowerCase()?.includes('draft'))">
+        {{ d.Status }}
+      </span>
+      <svg class="doc-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div *ngIf="sentDocs.length === 0" class="empty-state">
+      <span class="empty-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21.5 2.5l-6.7 19-3.8-8.5L2.5 9.2l19-6.7z" stroke="#A3BBDB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <div class="empty-title">Nothing sent yet</div>
+      <div class="empty-sub">Documents you send for signature will appear here.</div>
     </div>
   </div>
 </div>

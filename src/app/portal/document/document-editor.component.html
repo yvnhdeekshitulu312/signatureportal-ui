@@ -1,129 +1,145 @@
-<div class="container-fluid p-0 bg-white">
-    <div class="row mx-0 min-vh-100">
+<!-- Document editor — rich redesign. CDK drag-drop geometry preserved:
+     #pageOverlay stays absolutely sized over the page <img> (send()/drop math depend on it).
+     All bindings kept: cdkDropList/(cdkDropListDropped), cdkDrag/(cdkDragEnded), selectField,
+     deleteField, addFieldByClick, selectRecipient, [(ngModel)]="f.isRequired", pager, reject/goBack/send. -->
+<div class="editor">
 
-        <!-- LEFT: kept as-is from your markup (thumbnail list of other pending docs) -->
-        <div class="col-2 pe-0 border-end">
-            <div class="page-heading py-3 text-center border-bottom">
-                <h5 class="m-0 clr-primary">Documents</h5>
-            </div>
-            <div class="doc_list_vertical d-flex flex-column gap-2 mt-3 pe-2">
-                <!-- existing *ngFor over your document list goes here, unchanged -->
-            </div>
-        </div>
-
-        <!-- CENTER: document viewer + field overlay -->
-        <div class="col-7">
-            <div class="d-flex align-items-center justify-content-between sticky-top py-3 bg-light">
-                <h6 class="m-0">{{ documentName }}</h6>
-                <p class="m-0" *ngIf="pageImages.length > 1">
-                    <button class="btn btn-sm btn-link" [disabled]="currentPage === 1"
-                        (click)="currentPage = currentPage - 1">&lt;</button>
-                    {{ currentPage }}/{{ pageImages.length }}
-                    <button class="btn btn-sm btn-link" [disabled]="currentPage === pageImages.length"
-                        (click)="currentPage = currentPage + 1">&gt;</button>
-                </p>
-                <p class="m-0" *ngIf="pageImages.length <= 1">1/1</p>
-                <div class="actions">
-                    <button class="btn btn-danger-outline" (click)="reject()">Reject</button>
-                    <button class="btn btn-main-outline" (click)="goBack()">Back</button>
-                    <button class="btn btn-main-fill" [disabled]="isSending" (click)="send()">Send</button>
-                </div>
-            </div>
-
-            <div class="mt-3 p-3">
-                <div class="view_document border position-relative" style="width: 100%;">
-                    <!-- Aspose-rendered page image instead of a live PDF.js render -->
-                    <img *ngIf="pageImages[currentPage - 1]" [src]="pageImages[currentPage - 1]" class="w-100 d-block"
-                        alt="Document page">
-
-                    <!-- Drop target overlay, matches the image's rendered dimensions exactly
-                         since it's positioned absolute/w-100/h-100 over the <img> -->
-                    <div #pageOverlay class="position-absolute top-0 start-0 w-100 h-100" cdkDropList
-                        (cdkDropListDropped)="onFieldDropped($event, currentPage)">
-
-                        <ng-container *ngFor="let field of placedFields">
-                            <div *ngIf="field.pageNumber === currentPage" cdkDrag
-                                (cdkDragEnded)="onFieldMoved($event, field)" (click)="selectField(field.tempId)"
-                                class="position-absolute d-flex align-items-center justify-content-center rounded-1"
-                                [style.left.px]="field.xPx" [style.top.px]="field.yPx" [style.width.px]="field.widthPx"
-                                [style.height.px]="field.heightPx"
-                                [style.border]="'2px solid ' + recipientColor(field.recipientClientId)"
-                                [style.background]="recipientColor(field.recipientClientId) + '22'"
-                                style="cursor: move;">
-
-                                <span class="small">{{ field.fieldType }}</span>
-
-                                <button type="button" class="btn-close btn-close-sm position-absolute top-0 end-0"
-                                    style="transform: scale(0.6);"
-                                    (click)="deleteField(field.tempId); $event.stopPropagation()">
-                                </button>
-
-                            </div>
-                        </ng-container>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT: recipients + fields palette -->
-        <div class="col-3 p-0 border-start">
-            <div class="drag_recipient">
-                <div class="bg-primary p-3">
-                    <h6 class="m-0 clr-light">Recipients</h6>
-                </div>
-                <div class="recipients_list d-flex flex-column gap-2 mt-3">
-                    <div class="recipient d-flex align-items-center" *ngFor="let r of recipients"
-                        [class.active]="r.clientId === activeRecipientClientId" (click)="selectRecipient(r.clientId)"
-                        style="cursor: pointer;">
-                        <div class="img_icon d-flex align-items-center justify-content-center">
-                            <img src="./assets/images/mic.svg" alt="">
-                        </div>
-                        <div>
-                            <h6 class="m-0">{{ r.name }}</h6>
-                            <p class="m-0">{{ r.email }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="drag_field mt-3">
-                <div class="bg-primary p-3">
-                    <h6 class="m-0 clr-light">Fields</h6>
-                    <p class="m-0 clr-light small" *ngIf="!activeRecipientClientId">Select a recipient first</p>
-                </div>
-                <div class="p-3">
-                    <div class="row mx-0 g-2" cdkDropListGroup>
-                        <div class="col-lg-6 col-md-12" *ngFor="let item of fieldPalette">
-                            <div class="field d-flex justify-content-between" cdkDrag [cdkDragData]="item"
-                                [cdkDragDisabled]="!activeRecipientClientId" [class.disabled]="!activeRecipientClientId"
-                                style="cursor: pointer;">
-                                <div class="p-2 d-flex align-items-center" (click)="addFieldByClick(item)">
-                                    <!-- existing svg icon unchanged -->
-                                    <p class="m-0">{{ item.label }}</p>
-                                </div>
-                                <div class="field_icon bg-primary p-2" (click)="addFieldByClick(item)">
-                                    <img src="./assets/images/icons/icon-edit.svg" alt="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Field settings panel, shown when a placed field is selected -->
-            <div class="p-3 edit_recipient" *ngIf="selectedFieldId">
-                <h6 class="mb-2">Field settings</h6>
-                <div class="mb-3">
-                    <div class="d-flex align-items-center mb-2" *ngFor="let f of placedFields"
-                        [hidden]="f.tempId !== selectedFieldId">
-                        <input type="checkbox" class="form-check-input mt-0 me-2" [(ngModel)]="f.isRequired">
-                        <label class="form-label mb-0">Required</label>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <button class="btn btn-main-outline" (click)="deleteSelectedField()">Delete field</button>
-                </div>
-            </div>
-        </div>
+  <!-- LEFT rail (kept as-is: thumbnail list of other pending docs) -->
+  <aside class="rail-left">
+    <div class="rail-left-head">Documents</div>
+    <div class="doc_list_vertical">
+      <!-- existing *ngFor over your document list goes here, unchanged -->
     </div>
+  </aside>
+
+  <!-- CENTER: viewer + field overlay -->
+  <main class="editor-center">
+    <div class="editor-toolbar">
+      <div class="tb-left">
+        <span class="tb-doc-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="4" y="3" width="16" height="18" rx="2.2" stroke="#1855A4" stroke-width="1.6"/>
+            <path d="M8 8h8M8 12h8M8 16h5" stroke="#7499C8" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <h6 class="tb-title">{{ documentName }}</h6>
+      </div>
+
+      <div class="pager" *ngIf="pageImages.length > 1">
+        <button type="button" class="pager-btn" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1" aria-label="Previous page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span class="pager-count">{{ currentPage }} / {{ pageImages.length }}</span>
+        <button type="button" class="pager-btn" [disabled]="currentPage === pageImages.length" (click)="currentPage = currentPage + 1" aria-label="Next page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="pager single" *ngIf="pageImages.length <= 1"><span class="pager-count">1 / 1</span></div>
+
+      <div class="toolbar-actions">
+        <button class="btn btn-reject" (click)="reject()">Reject</button>
+        <button class="btn btn-main-outline" (click)="goBack()">Back</button>
+        <button class="btn btn-main-fill" [disabled]="isSending" (click)="send()">
+          <svg *ngIf="!isSending" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M21.5 2.5l-6.7 19-3.8-8.5L2.5 9.2l19-6.7z" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ isSending ? 'Sending…' : 'Send' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="canvas-scroll">
+      <div class="doc-canvas">
+        <!-- Aspose-rendered page image -->
+        <img *ngIf="pageImages[currentPage - 1]" [src]="pageImages[currentPage - 1]" class="doc-img" alt="Document page">
+
+        <!-- Drop target overlay — absolutely sized over the <img> (geometry unchanged) -->
+        <div #pageOverlay class="page-overlay" cdkDropList (cdkDropListDropped)="onFieldDropped($event, currentPage)">
+          <ng-container *ngFor="let field of placedFields">
+            <div *ngIf="field.pageNumber === currentPage" cdkDrag
+                 (cdkDragEnded)="onFieldMoved($event, field)" (click)="selectField(field.tempId)"
+                 class="placed-field" [class.selected]="field.tempId === selectedFieldId"
+                 [style.left.px]="field.xPx" [style.top.px]="field.yPx"
+                 [style.width.px]="field.widthPx" [style.height.px]="field.heightPx"
+                 [style.borderColor]="recipientColor(field.recipientClientId)"
+                 [style.background]="recipientColor(field.recipientClientId) + '22'">
+              <span class="pf-label" [style.color]="recipientColor(field.recipientClientId)">{{ field.fieldType }}</span>
+              <button type="button" class="pf-remove"
+                      (click)="deleteField(field.tempId); $event.stopPropagation()" aria-label="Delete field">×</button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT: recipients + fields + settings -->
+  <aside class="rail-right">
+    <!-- Recipients -->
+    <section class="panel">
+      <div class="panel-head"><span>Recipients</span></div>
+      <div class="panel-body recipients_list">
+        <div class="recipient" *ngFor="let r of recipients"
+             [class.active]="r.clientId === activeRecipientClientId" (click)="selectRecipient(r.clientId)">
+          <span class="r-accent" [style.background]="recipientColor(r.clientId)"></span>
+          <span class="r-avatar" [style.background]="recipientColor(r.clientId) + '22'">
+            <img src="./assets/images/mic.svg" alt="" class="r-mic">
+          </span>
+          <div class="r-info">
+            <h6 class="r-name">{{ r.name }}</h6>
+            <p class="r-email">{{ r.email }}</p>
+          </div>
+          <svg class="r-check" *ngIf="r.clientId === activeRecipientClientId" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12l4 4 10-10" stroke="#1855A4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fields palette -->
+    <section class="panel">
+      <div class="panel-head">
+        <span>Fields</span>
+        <span class="panel-hint" *ngIf="!activeRecipientClientId">Select a recipient first</span>
+      </div>
+      <div class="panel-body">
+        <div class="fields-grid" cdkDropListGroup>
+          <div class="field-item" *ngFor="let item of fieldPalette"
+               cdkDrag [cdkDragData]="item" [cdkDragDisabled]="!activeRecipientClientId"
+               [class.disabled]="!activeRecipientClientId">
+            <div class="fi-main" (click)="addFieldByClick(item)">
+              <span class="fi-glyph" [ngSwitch]="item.type">
+                <svg *ngSwitchCase="'Signature'" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 18c3-1 4-3 5-6s2-5 3-5 1 2 0 5-2 6 0 6 3-2 4-3" stroke="#1855A4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 21h18" stroke="#7499C8" stroke-width="1.6" stroke-linecap="round"/></svg>
+                <svg *ngSwitchCase="'Stamp'" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 3h6v3a3 3 0 01-1 2l-1 1v3h4a2 2 0 012 2v2H5v-2a2 2 0 012-2h4v-3l-1-1a3 3 0 01-1-2V3z" stroke="#1855A4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 21h16" stroke="#7499C8" stroke-width="1.6" stroke-linecap="round"/></svg>
+                <svg *ngSwitchDefault width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 5h14M12 5v14M9 19h6" stroke="#1855A4" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </span>
+              <span class="fi-label">{{ item.label }}</span>
+            </div>
+            <button type="button" class="fi-add" (click)="addFieldByClick(item)" aria-label="Add field">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="fields-tip">Drag onto the page, or click to drop a field for the selected recipient.</p>
+      </div>
+    </section>
+
+    <!-- Field settings (shown when a placed field is selected) -->
+    <section class="panel" *ngIf="selectedFieldId">
+      <div class="panel-head subtle"><span>Field settings</span></div>
+      <div class="panel-body">
+        <div class="fs-row" *ngFor="let f of placedFields" [hidden]="f.tempId !== selectedFieldId">
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="f.isRequired">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+            <span class="switch-label">Required</span>
+          </label>
+        </div>
+        <button class="btn btn-main-outline full" (click)="deleteSelectedField()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Delete field
+        </button>
+      </div>
+    </section>
+  </aside>
 </div>

@@ -5,7 +5,8 @@ import { EsignService } from '../../services/esign.service';
 
 @Component({
   selector: 'app-send-for-signature',
-  templateUrl: './send-for-signature.component.html'
+  templateUrl: './send-for-signature.component.html',
+  styleUrls: ['./send-for-signature.component.scss']   // ← added (was template-only)
 })
 export class SendForSignatureComponent implements OnInit {
   form!: FormGroup;

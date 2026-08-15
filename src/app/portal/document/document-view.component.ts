@@ -3,7 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EsignService } from '../../services/esign.service';
 import { DocumentDetailResponse, FieldSummaryDto, RecipientSummaryDto } from '../../models/esign.models';
 
-@Component({ selector: 'app-document-view', templateUrl: './document-view.component.html' })
+@Component({
+  selector: 'app-document-view',
+  templateUrl: './document-view.component.html',
+  styleUrls: ['./document-view.component.scss']   // ← added (was template-only)
+})
 export class DocumentViewComponent implements OnInit {
   doc!: DocumentDetailResponse;
   currentPage = 1;
@@ -41,13 +45,15 @@ export class DocumentViewComponent implements OnInit {
     return this.doc.Recipients.find(r => r.Id === recipientId);
   }
 
+  // Returns an approved-palette chip class (was Bootstrap bg-success/info/warning/danger/secondary,
+  // which aren't in the approved palette). Same status → tone mapping.
   statusBadgeClass(status: string): string {
     switch (status) {
-      case 'Signed': return 'bg-success';
-      case 'Viewed': return 'bg-info';
-      case 'Sent': return 'bg-warning text-dark';
-      case 'Rejected': return 'bg-danger';
-      default: return 'bg-secondary';
+      case 'Signed': return 'chip-signed';
+      case 'Viewed': return 'chip-viewed';
+      case 'Sent': return 'chip-sent';
+      case 'Rejected': return 'chip-rejected';
+      default: return 'chip-default';
     }
   }
 

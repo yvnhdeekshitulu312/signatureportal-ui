@@ -1,0 +1,81 @@
+/* Document view (read-only) — rich redesign. Approved palette + Noto Kufi Arabic only.
+   Tints are rgba()/alpha of approved colours (no new hex). RTL-safe.
+   Field overlay uses % coords via boxStyle() — resolution independent. */
+
+$brand:#1855A4; $navy:#002654; $med-blue:#7499C8; $royal:#3B7DC4; $light-blue:#A3BBDB;
+$gray-8:#969696; $gray-5:#C0C0C0; $gray-1:#E5E5E5; $teal:#4FCED2; $teal-light:#7FE2E5; $mint:#CDFCFB; $white:#FFFFFF;
+$font:'Noto Kufi Arabic', sans-serif;
+
+:host { display: block; font-family: $font; color: $navy; }
+.dview { max-width: 1120px; margin: 0 auto; padding: 20px 24px 60px; }
+
+/* buttons */
+.btn { font-family: $font; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 16px; border-radius: 10px; border: 1px solid $gray-5; background: $white; color: $navy; transition: all .15s ease;
+  &:focus-visible { outline: 2px solid $royal; outline-offset: 2px; } }
+.btn-main-fill { background: $brand; color: $white; border-color: $brand; box-shadow: 0 6px 16px rgba(24,85,164,.24); &:hover { background: $navy; border-color: $navy; } }
+.btn-main-outline { &:hover { border-color: $brand; color: $brand; } }
+:host-context([dir="rtl"]) .btn svg { transform: scaleX(-1); }
+
+/* header */
+.dv-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 0 18px; border-bottom: 1px solid $gray-1; margin-bottom: 20px; }
+.dv-head-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.dv-doc-icon { width: 40px; height: 40px; border-radius: 11px; background: rgba(24,85,164,.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dv-titles { min-width: 0; }
+.dv-title { font-size: 19px; font-weight: 700; color: $navy; margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dv-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* status chips (map from statusBadgeClass returns) */
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; padding: 3px 11px; border-radius: 99px; white-space: nowrap;
+  &::before { content: ''; width: 7px; height: 7px; border-radius: 99px; background: currentColor; opacity: .6; } }
+.chip-signed    { background: $mint; color: $navy; }
+.chip-viewed    { background: rgba(59,125,196,.14); color: $royal; }
+.chip-sent      { background: rgba(24,85,164,.1); color: $brand; }
+.chip-rejected  { background: $gray-1; color: $gray-8; }
+.chip-default   { background: $gray-1; color: $gray-8; }
+
+/* loading */
+.dv-loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 60px; font-size: 14px; font-weight: 600; color: $brand; }
+.spinner { width: 18px; height: 18px; border-radius: 99px; border: 2px solid rgba(24,85,164,.25); border-top-color: $brand; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* body layout */
+.dv-body { display: grid; grid-template-columns: 1fr 340px; gap: 22px; align-items: start; }
+
+/* viewer */
+.dv-viewer { min-width: 0; }
+.doc-canvas { position: relative; width: 100%; background: $white; border: 1px solid $gray-1; border-radius: 12px; box-shadow: 0 6px 26px rgba(0,38,84,.10); overflow: hidden; }
+.doc-img { width: 100%; display: block; }
+.page-overlay { position: absolute; top: 0; inset-inline-start: 0; width: 100%; height: 100%; }
+.ro-field {
+  position: absolute; border: 2px solid $gray-5; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center;
+  &.filled { box-shadow: 0 2px 8px rgba(79,206,210,.35); }
+}
+.ro-img { width: 100%; height: 100%; object-fit: contain; }
+.ro-text { font-size: 12px; font-weight: 700; color: $navy; padding: 0 4px; }
+.ro-await { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: $gray-8; padding: 0 4px; }
+
+.dv-pager { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
+.pager-btn { width: 32px; height: 32px; border-radius: 9px; border: 1px solid $gray-5; background: $white; color: $navy; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  &:hover:not(:disabled) { border-color: $brand; color: $brand; } &:disabled { opacity: .4; cursor: not-allowed; } }
+.pager-count { font-size: 13px; font-weight: 600; color: $gray-8; min-width: 48px; text-align: center; }
+:host-context([dir="rtl"]) .pager-btn svg { transform: scaleX(-1); }
+
+/* recipients sidebar */
+.dv-side { border: 1px solid $gray-1; border-radius: 14px; overflow: hidden; background: $white; position: sticky; top: 16px; }
+.side-head { background: $teal; color: $navy; padding: 13px 16px; font-size: 14px; font-weight: 700; }
+.side-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.rc-card { display: flex; align-items: flex-start; gap: 11px; padding: 12px; border: 1px solid $gray-1; border-radius: 12px; }
+.rc-avatar { width: 34px; height: 34px; flex-shrink: 0; border-radius: 99px; background: rgba(24,85,164,.1); color: $brand; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; text-transform: uppercase; }
+.rc-info { flex: 1; min-width: 0; }
+.rc-name { font-size: 13.5px; font-weight: 700; color: $navy; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-email { font-size: 11.5px; color: $gray-8; direction: ltr; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[dir="rtl"] .rc-email { text-align: right; }
+.rc-order { font-size: 11px; color: $gray-8; margin-top: 3px; }
+
+@media (max-width: 900px) {
+  .dv-body { grid-template-columns: 1fr; }
+  .dv-side { position: static; }
+  .dv-header { flex-direction: column; align-items: flex-start; }
+}

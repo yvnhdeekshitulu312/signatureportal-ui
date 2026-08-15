@@ -13,7 +13,8 @@ interface FieldPaletteItem {
 
 @Component({
   selector: 'app-document-editor',
-  templateUrl: './document-editor.component.html'
+  templateUrl: './document-editor.component.html',
+  styleUrls: ['./document-editor.component.scss']   // ← added (was template-only)
 })
 export class DocumentEditorComponent implements OnInit {
   @ViewChild('pageOverlay', { static: false }) pageOverlay!: ElementRef<HTMLDivElement>;
@@ -145,7 +146,8 @@ export class DocumentEditorComponent implements OnInit {
 
   recipientColor(clientId: string): string {
     const idx = this.recipients.findIndex((r) => r.clientId === clientId);
-    const palette = ['#43A9BC', '#E29B3E', '#8B5CF6', '#EF4444'];
+    // Approved brand palette only (was #43A9BC/#E29B3E/#8B5CF6/#EF4444).
+    const palette = ['#1855A4', '#3B7DC4', '#4FCED2', '#7499C8'];
     return palette[idx % palette.length];
   }
 

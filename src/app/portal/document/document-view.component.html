@@ -1,53 +1,86 @@
-<div class="d-flex align-items-center justify-content-between py-3">
-  <div>
-    <h5 class="m-0">{{ doc?.Name }}</h5>
-    <span *ngIf="!loading" class="badge" [ngClass]="statusBadgeClass(doc.Status)">{{ doc.Status }}</span>
-  </div>
-  <button class="btn btn-main-outline" (click)="goBack()">Back to Documents</button>
-  <button class="btn btn-main-outline" (click)="download()">Download</button>
-</div>
+<!-- Document view (read-only) — rich redesign. All bindings preserved:
+     doc · loading · statusBadgeClass · goBack · download · pageImages · currentPage
+     · fieldsOnPage · boxStyle · isImageValue · doc.Recipients · SigningOrder -->
+<div class="dview">
 
-<div *ngIf="loading" class="text-center p-5 text-muted">Loading document...</div>
-
-<div *ngIf="!loading && doc" class="row mx-0">
-  <!-- Document + fields, read-only -->
-  <div class="col-8">
-    <div class="position-relative border mx-auto" style="max-width: 900px; min-height: 500px;">
-      <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="w-100 d-block" alt="Document page">
-
-      <div class="position-absolute top-0 start-0 w-100 h-100">
-        <div *ngFor="let f of fieldsOnPage(currentPage)"
-             class="position-absolute d-flex align-items-center justify-content-center rounded-1"
-             [ngStyle]="boxStyle(f)"
-             [style.border]="'2px solid ' + (f.Value ? '#28a745' : '#adb5bd')"
-             [style.background]="(f.Value ? '#28a74522' : '#adb5bd22')">
-
-          <img *ngIf="isImageValue(f.Value)" [src]="f.Value" class="w-100 h-100" style="object-fit: contain;">
-          <span *ngIf="!isImageValue(f.Value) && f.Value" class="small">{{ f.Value }}</span>
-          <span *ngIf="!f.Value" class="small text-muted">Awaiting {{ f.FieldType }}</span>
-        </div>
+  <!-- Header -->
+  <header class="dv-header">
+    <div class="dv-head-left">
+      <span class="dv-doc-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="4" y="3" width="16" height="18" rx="2.2" stroke="#1855A4" stroke-width="1.6"/>
+          <path d="M8 8h8M8 12h8M8 16h5" stroke="#7499C8" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div class="dv-titles">
+        <h1 class="dv-title">{{ doc?.Name }}</h1>
+        <span *ngIf="!loading" class="chip" [ngClass]="statusBadgeClass(doc.Status)">{{ doc.Status }}</span>
       </div>
     </div>
+    <div class="dv-actions">
+      <button class="btn btn-main-outline" (click)="goBack()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to Documents
+      </button>
+      <button class="btn btn-main-fill" (click)="download()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download
+      </button>
+    </div>
+  </header>
 
-    <p *ngIf="pageImages.length > 1" class="text-center mt-2">
-      <button class="btn btn-sm btn-link" [disabled]="currentPage===1" (click)="currentPage=currentPage-1">&lt;</button>
-      {{ currentPage }}/{{ pageImages.length }}
-      <button class="btn btn-sm btn-link" [disabled]="currentPage===pageImages.length" (click)="currentPage=currentPage+1">&gt;</button>
-    </p>
+  <!-- Loading -->
+  <div *ngIf="loading" class="dv-loading">
+    <span class="spinner" aria-hidden="true"></span> Loading document…
   </div>
 
-  <!-- Recipient status sidebar -->
-  <div class="col-4">
-    <h6 class="clr-primary">Recipients</h6>
-    <div *ngFor="let r of doc.Recipients" class="border rounded-2 p-2 mb-2">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <div class="fw-bold">{{ r.Name }}</div>
-          <small class="text-muted">{{ r.Email }}</small>
+  <!-- Content -->
+  <div *ngIf="!loading && doc" class="dv-body">
+    <!-- Viewer -->
+    <main class="dv-viewer">
+      <div class="doc-canvas">
+        <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="doc-img" alt="Document page">
+        <div class="page-overlay">
+          <div *ngFor="let f of fieldsOnPage(currentPage)"
+               class="ro-field" [class.filled]="f.Value"
+               [ngStyle]="boxStyle(f)"
+               [style.borderColor]="f.Value ? '#4FCED2' : '#C0C0C0'"
+               [style.background]="f.Value ? '#CDFCFB' : '#E5E5E522'">
+            <img *ngIf="isImageValue(f.Value)" [src]="f.Value" class="ro-img" alt="">
+            <span *ngIf="!isImageValue(f.Value) && f.Value" class="ro-text">{{ f.Value }}</span>
+            <span *ngIf="!f.Value" class="ro-await">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#969696" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#969696" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Awaiting {{ f.FieldType }}
+            </span>
+          </div>
         </div>
-        <span class="badge" [ngClass]="statusBadgeClass(r.Status)">{{ r.Status }}</span>
       </div>
-      <small class="text-muted" *ngIf="r.SigningOrder">Order: {{ r.SigningOrder }}</small>
-    </div>
+
+      <div class="dv-pager" *ngIf="pageImages.length > 1">
+        <button type="button" class="pager-btn" [disabled]="currentPage===1" (click)="currentPage=currentPage-1" aria-label="Previous page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span class="pager-count">{{ currentPage }} / {{ pageImages.length }}</span>
+        <button type="button" class="pager-btn" [disabled]="currentPage===pageImages.length" (click)="currentPage=currentPage+1" aria-label="Next page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </main>
+
+    <!-- Recipients status sidebar -->
+    <aside class="dv-side">
+      <div class="side-head"><span>Recipients</span></div>
+      <div class="side-body">
+        <div class="rc-card" *ngFor="let r of doc.Recipients">
+          <span class="rc-avatar">{{ (r.Name || '?').charAt(0) }}</span>
+          <div class="rc-info">
+            <div class="rc-name">{{ r.Name }}</div>
+            <div class="rc-email">{{ r.Email }}</div>
+            <div class="rc-order" *ngIf="r.SigningOrder">Signing order: {{ r.SigningOrder }}</div>
+          </div>
+          <span class="chip" [ngClass]="statusBadgeClass(r.Status)">{{ r.Status }}</span>
+        </div>
+      </div>
+    </aside>
   </div>
 </div>
