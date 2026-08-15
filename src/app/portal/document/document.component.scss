@@ -7,18 +7,26 @@ $font:'Noto Kufi Arabic', sans-serif;
 
 :host { display: block; font-family: $font; color: $navy; }
 
-.docs { max-width: 860px; margin: 0 auto; padding: 28px 24px 60px; }
+.docs { padding: 10px; }
 
 /* header */
-.docs-header { margin-bottom: 20px; }
+// .doc-header { margin-bottom: 20px; }
+/* header */
+.doc-header {
+  position: sticky; top: 56px; z-index: 10;
+  background: rgba(255,255,255,.86); backdrop-filter: blur(8px);
+  border-bottom: 1px solid $gray-1;
+  padding: 8px 20px;
+}
+.doc-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: $gray-8; }
-.docs-title { font-size: 24px; font-weight: 700; color: $navy; margin: 2px 0 0; }
+.doc-title { font-size: 20px; font-weight: 700; color: $navy; margin: 0; }
 
 /* tabs */
 .doc-tabs { display: flex; gap: 6px; list-style: none; padding: 6px; margin: 0 0 20px;
   background: rgba(24,85,164,.05); border-radius: 12px; width: fit-content; }
 .doc-tab-link {
-  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;text-decoration: none;
   font-size: 13.5px; font-weight: 600; color: $gray-8; padding: 9px 16px; border-radius: 9px;
   transition: all .15s ease;
   &:hover { color: $navy; }
@@ -67,7 +75,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 
 /* empty state */
 .empty-state { text-align: center; padding: 56px 24px; }
-.empty-icon { width: 76px; height: 76px; margin: 0 auto 16px; border-radius: 20px; background: rgba(79,206,210,.1); display: flex; align-items: center; justify-content: center; }
+.empty-icon { width: 76px; height: 76px; margin: 0 auto 16px; border-radius: 20px; background: #D5E0EF; display: flex; align-items: center; justify-content: center; }
 .empty-title { font-size: 16px; font-weight: 700; color: $navy; }
 .empty-sub { font-size: 13px; color: $gray-8; margin-top: 5px; }
 

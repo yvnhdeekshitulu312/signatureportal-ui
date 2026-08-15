@@ -7,7 +7,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 
 :host { display: block; font-family: $font; color: $navy; }
 
-.dash { max-width: 960px; margin: 0 auto; padding: 48px 24px 64px; }
+.dash { padding: 10px; }
 
 /* hero */
 .dash-hero { text-align: center; margin-bottom: 40px; }
