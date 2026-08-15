@@ -157,5 +157,27 @@ export class DocumentComponent implements OnInit {
     this.selected.delete(d.Id);
   }
 
+  // ── toolbar / bulk actions (Variant B) ──
+  newDocument(): void { this.router.navigate(['/dashboard/sendforsignature']); }
+
+  clearSelection(): void { this.selected.clear(); }
+
+  bulkDelete(): void {
+    if (!this.selected.size) { return; }
+    if (!confirm(`Delete ${this.selected.size} document(s)? This can't be undone.`)) { return; }
+    // TODO: call your bulk delete endpoint for the selected ids before removing locally
+    this.allDocs = this.allDocs.filter(d => !this.selected.has(d.Id));
+    this.selected.clear();
+  }
+
+  // Placeholder bulk actions shown in the selection bar — wire to real endpoints when ready.
+  bulkTodo(_action: string): void { /* no-op placeholder */ }
+
+  // Map statusTone() to the pill class names used in the template.
+  statusPill(status: string): 'draft' | 'progress' | 'completed' | 'default' {
+    const t = this.statusTone(status);
+    return t === 'done' ? 'completed' : t;
+  }
+
   trackId = (_: number, d: any) => d.Id;
 }
