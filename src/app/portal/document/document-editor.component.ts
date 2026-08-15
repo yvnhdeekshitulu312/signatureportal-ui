@@ -195,33 +195,54 @@ export class DocumentEditorComponent implements OnInit {
     if (this.placedFields.length === 0) { alert('Place at least one field before sending.'); return; }
 
     const draft = JSON.parse(sessionStorage.getItem('esign_draft') || '{}');
+    const user = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
     const overlayRect = this.pageOverlay.nativeElement.getBoundingClientRect();
 
-    const toPct = (f: EditorField) => ({
-      recipientClientId: f.recipientClientId,
-      fieldType: f.fieldType,
-      pageNumber: f.pageNumber,
-      xPct: (f.xPx / overlayRect.width) * 100,
-      yPct: (f.yPx / overlayRect.height) * 100,
-      widthPct: (f.widthPx / overlayRect.width) * 100,
-      heightPct: (f.heightPx / overlayRect.height) * 100,
-      isRequired: f.isRequired
+    // field placement → percentages (top-left origin; backend converts to PDF points)
+    const toField = (f: EditorField) => ({
+      FieldType: f.fieldType,
+      PageNumber: f.pageNumber,
+      RecipientClientId: f.recipientClientId,
+      XPct: (f.xPx / overlayRect.width) * 100,
+      YPct: (f.yPx / overlayRect.height) * 100,
+      WidthPct: (f.widthPx / overlayRect.width) * 100,
+      HeightPct: (f.heightPx / overlayRect.height) * 100,
+      IsRequired: f.isRequired
     });
 
-    // Send one request per document that has fields (each PDF is its own signable document).
+    // recipients → ReciepientsXML (property names match the C# recipient model;
+    // adjust here if yours differ). SigningOrder follows row position when ordered.
+    const buildRecipients = () => this.recipients.map((r: any, idx: number) => ({
+      Email: r.email,
+      ReciepientName: r.name,
+      
+      Role: r.role,
+      SigningOrder: draft.isOrdered ? idx + 1 : (r.signingOrder ?? null),
+      ReciepientUserID: r.userId ?? r.reciepientUserID ?? null,
+      DeliveryMethod: r.deliveryMethod
+    }));
+
+    // one signable document per uploaded PDF that has fields
     const docsToSend = this.documents.filter(d => this.placedFields.some(f => f.documentId === d.documentId));
     if (!docsToSend.length) { alert('Place at least one field before sending.'); return; }
 
-    const requests = docsToSend.map(doc => this.esignService.sendDocument({
-      documentId: doc.documentId,
-      documentName: doc.name,
-      isOrdered: draft.isOrdered,
-      daysToComplete: draft.daysToComplete,
-      reminderDays: draft.reminderDays,
-      note: draft.note,
-      recipients: this.recipients,
-      fields: this.placedFields.filter(f => f.documentId === doc.documentId).map(toPct)
-    } as SendDocumentRequest));
+    // Build a SignatureModel-shaped payload → POST /API/SaveSignatureRequests (via sendDocument)
+    const requests = docsToSend.map(doc => this.esignService.sendDocumentMail({
+      DocumentId: doc.documentId,
+      Patientid: draft.patientId ?? user.Patientid ?? 0,
+      RequestDocumentName: doc.name || this.documentName,
+      SendInOrder: !!draft.isOrdered,
+      DaysToComplete: draft.daysToComplete ?? 0,
+      Remainder: draft.reminderDays ?? 0,
+      Notes: draft.note ?? '',
+      HTMLDocumentName: doc.name || this.documentName,
+      HTMLStringForSignature: '',                 // fill if you serialize placements as HTML
+      UserId: user.UserId ?? user.userId ?? 0,
+      WorkStationID: user.WorkStationID ?? user.workStationID ?? 0,
+      HospitalId: user.HospitalId ?? user.hospitalId ?? 0,
+      ReciepientsXML: buildRecipients(),
+      Fields: this.placedFields.filter(f => f.documentId === doc.documentId).map(toField)
+    } as any));
 
     this.isSending = true;
     forkJoin(requests).subscribe({

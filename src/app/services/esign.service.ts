@@ -25,6 +25,11 @@ export class EsignService {
   sendDocument(request: SendDocumentRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/SendDocument`, request);
   }
+  sendDocumentMail(model: any): Observable<any> {
+  // `model` is the SignatureModel-shaped object the editor builds
+  // (ReciepientsXML, RequestDocumentName, SendInOrder, Remainder, Notes, ...)
+  return this.http.post(`${this.baseUrl}/API/SaveSignatureRequests`, model);
+}
 
   getDocument(documentId: number): Observable<DocumentDetailResponse> {
     return this.http.get<DocumentDetailResponse>(`${this.baseUrl}/GetDocument/${documentId}`);
@@ -69,4 +74,5 @@ export class EsignService {
   downloadFile(path: string): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/GetFile`, { params: { path }, responseType: 'blob' });
   }
+  
 }
