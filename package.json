@@ -27,6 +27,7 @@
     "guid-typescript": "^1.0.9",
     "highcharts": "^10.3.2",
     "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
     "moment": "^2.29.4",
     "ng2-pdf-viewer": "^9.1.4",
     "ngx-extended-pdf-viewer": "^16.2.15",
