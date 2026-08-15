@@ -1428,13 +1428,8 @@ body {
   font-weight: 600;
 }
 
-* {
-  /* Track */
-  /* Handle */
-  /* Handle on hover */
-}
 *::-webkit-scrollbar {
-  width: 0.7rem;
+  width: 0rem;
 }
 *::-webkit-scrollbar-track {
   background: #DAEEF1;
@@ -1451,7 +1446,7 @@ body {
 }
 
 .bluescroll::-webkit-scrollbar{
-  width: 0.7rem;
+  width: 0rem;
 }
 .bluescroll::-webkit-scrollbar-thumb {
   background: #89aede;
