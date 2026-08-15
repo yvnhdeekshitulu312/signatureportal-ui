@@ -64,7 +64,7 @@
     <div class="lv-card">
       <div class="lv-card-top">
         <div class="lv-logo-halo">
-          <img src="assets/images/AHH-Logo.svg" alt="Al Hammadi Hospital">
+          <img src="assets/images/AHH-Logo.png" alt="Al Hammadi Hospital">
         </div>
         <div>
           <div class="lv-hi">{{ selectedLang?.code === 'ar' ? 'مرحباً بعودتك' : 'WELCOME BACK' }}</div>
@@ -72,10 +72,10 @@
         </div>
       </div>
 
-      <div class="lv-sub">{{ selectedLang?.code === 'ar' ? 'استخدم دخول الشركة الموحّد (SSO) لتسجيل دخول أسرع وأكثر أماناً.' : 'Use your company SSO for the fastest, most secure sign-in.' }}</div>
+      <div class="lv-sub d-none">{{ selectedLang?.code === 'ar' ? 'استخدم دخول الشركة الموحّد (SSO) لتسجيل دخول أسرع وأكثر أماناً.' : 'Use your company SSO for the fastest, most secure sign-in.' }}</div>
 
       <!-- SSO button (visual — wire to your SSO provider when ready) -->
-      <button type="button" class="lv-sso">
+      <button type="button" class="lv-sso d-none">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         <span>{{ selectedLang?.code === 'ar' ? 'المتابعة عبر الدخول الموحّد' : 'Continue with Company SSO' }}</span>
       </button>
