@@ -34,6 +34,7 @@ export class SidebarComponent implements OnInit {
   }
 
   gotoSendForSignature(): void {
-    this.router.navigate(['/dashboard/sendforsignature']);
+    //this.router.navigate(['/dashboard/sendforsignature']);
+    this.router.navigate(['/dashboard']);
   }
 }

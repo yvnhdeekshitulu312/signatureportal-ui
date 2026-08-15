@@ -13,8 +13,14 @@ export class DashboardComponent implements OnInit {
   recentDocs: DocumentDetailResponse[] = [];
   loading = false;
   activeFilter: 'all' | 'pending' | 'signed' | 'progress' = 'all';
+  owner = 'You';
 
-  constructor(private router: Router, private esignService: EsignService) { }
+  constructor(private router: Router, private esignService: EsignService) {
+    try {
+      const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
+      this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
+    } catch { /* keep default */ }
+  }
 
   ngOnInit(): void {
     this.loadRecent();
@@ -49,6 +55,31 @@ export class DashboardComponent implements OnInit {
     return this.recentDocs;
   }
 
+  // ── row helpers (match the All-documents table) ──
+  recipients(d: DocumentDetailResponse): any[] { return (d as any).Recipients || []; }
+  visibleRecipients(d: DocumentDetailResponse): any[] { return this.recipients(d).slice(0, 2); }
+  moreCount(d: DocumentDetailResponse): number { return Math.max(0, this.recipients(d).length - 2); }
+
+  roleTone(role: string): 'sign' | 'view' | 'approve' {
+    const r = (role || '').toLowerCase();
+    if (r.includes('approve')) return 'approve';
+    if (r.includes('view') || r.includes('cc') || r.includes('copy')) return 'view';
+    return 'sign';
+  }
+
+  /** Created On derived from the date in ViewerGcsUrl (…/Documents/YYYY-MM-DD/…). */
+  createdOn(d: DocumentDetailResponse): string {
+    const url = (d as any).ViewerGcsUrl || '';
+    const m = /Documents(?:%2F|\/)(\d{4}-\d{2}-\d{2})/.exec(url);
+    if (!m) { return '—'; }
+    const dt = new Date(m[1]);
+    return isNaN(dt.getTime()) ? '—' : dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  initials(name: string): string {
+    return (name || '?').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+  }
+
   signerName(d: DocumentDetailResponse): string {
     const r: any = (d as any).Recipients?.[0];
     return r?.Name || '—';
@@ -58,8 +89,11 @@ export class DashboardComponent implements OnInit {
     const n: string = r?.Name || '';
     return n.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '—';
   }
-  statusClass(d: DocumentDetailResponse): 'signed' | 'progress' | 'pending' {
-    return this.isSigned(d) ? 'signed' : this.isProgress(d) ? 'progress' : 'pending';
+  statusClass(d: DocumentDetailResponse): 'signed' | 'progress' | 'pending' | 'draft' {
+    if (this.isSigned(d)) return 'signed';
+    if (this.isProgress(d)) return 'progress';
+    if (this.statusOf(d).includes('draft')) return 'draft';
+    return 'pending';
   }
 
   // ── navigation ──
