@@ -1,12 +1,22 @@
 <!-- Documents list — rich redesign. All bindings preserved:
      setTab · activeTab · pendingDocs · sentDocs · openPending · openSent · loading -->
+
+<!-- Sticky header -->
+  <header class="doc-header">
+    <div class="doc-header-inner">
+      <div class="doc-head-titles">
+        <span class="eyebrow">e-Signature</span>
+        <h1 class="doc-title">Documents</h1>
+      </div>
+    </div>
+  </header>
 <div class="docs">
-  <header class="docs-header">
+  <!-- <header class="docs-header">
     <div>
       <span class="eyebrow">e-Signature</span>
       <h1 class="docs-title">Documents</h1>
     </div>
-  </header>
+  </header> -->
 
   <!-- Tabs -->
   <ul class="doc-tabs">
@@ -59,8 +69,8 @@
     <div *ngIf="pendingDocs.length === 0" class="empty-state">
       <span class="empty-icon">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M9 12l2 2 4-4" stroke="#4FCED2" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="12" r="9" stroke="#A3BBDB" stroke-width="1.6"/>
+          <path d="M9 12l2 2 4-4" stroke="#154B90" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="9" stroke="#154B90" stroke-width="1.6"/>
         </svg>
       </span>
       <div class="empty-title">You're all caught up</div>
@@ -95,7 +105,7 @@
     <div *ngIf="sentDocs.length === 0" class="empty-state">
       <span class="empty-icon">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M21.5 2.5l-6.7 19-3.8-8.5L2.5 9.2l19-6.7z" stroke="#A3BBDB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M21.5 2.5l-6.7 19-3.8-8.5L2.5 9.2l19-6.7z" stroke="#154B90" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
       <div class="empty-title">Nothing sent yet</div>

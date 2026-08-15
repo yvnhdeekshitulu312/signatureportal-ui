@@ -1276,16 +1276,16 @@ ICONS
 
 /** Login CSS END **/
 .header {
-  background-color: #F4FAFB;
+  background-color: #f5f9ff;
   width: 100%;
   position: sticky;
   top: 0;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
-  border-bottom: 1px solid #368796;
+  border-bottom: 1px solid #154B90;
   z-index: 1021;
   max-height: 4rem;
-  filter: drop-shadow(0px 5px 8px rgba(51, 128, 142, 0.16));
+  /* filter: drop-shadow(0px 5px 8px rgba(51, 128, 142, 0.16)); */
 }
 .header__wrapper {
   display: flex;
@@ -1305,7 +1305,8 @@ ICONS
   }
 }
 .header__hospital-logo img {
-  width: 192px;
+     width: 15rem;
+    padding: 0.5rem;
 }
 @media (max-width: 991.98px) {
   .header__hospital-logo img {
@@ -1835,7 +1836,7 @@ p.label {
 }
 
 .main-container {
-  margin-left: 5rem;
+  /* margin-left: 5rem; */
   padding: 1rem;
   padding-top: 0;
 }
@@ -1844,7 +1845,7 @@ p.label {
 NAV LINK
 **/
 header {
-  height: 3.5rem;
+  /* height: 3.5rem; */
   position: fixed;
   top: 0;
 }
