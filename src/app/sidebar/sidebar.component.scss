@@ -1,4 +1,38 @@
-// background-color: #69BAC9;
-// border-radius: 0.5rem;
-// color: #ECF6F8;
-// padding: 16px;
+/* Sidebar — rich redesign. Approved palette + Noto Kufi Arabic only.
+   Active state: teal fill + navy content (matches the screenshot's teal nav). RTL-safe. */
+
+$brand:#1855A4; $navy:#002654; $med-blue:#7499C8; $royal:#3B7DC4; $light-blue:#A3BBDB;
+$gray-8:#969696; $gray-5:#C0C0C0; $gray-1:#E5E5E5; $teal:#4FCED2; $teal-light:#7FE2E5; $mint:#CDFCFB; $white:#FFFFFF;
+$font:'Noto Kufi Arabic', sans-serif;
+
+:host { display: block; height: 100%; font-family: $font; }
+
+.sidebar {
+  height: 100%; min-height: 100vh; width: 92px; background: $white;
+  border-inline-end: 1px solid $gray-1; padding: 14px 10px;
+}
+
+.nav-list { display: flex; flex-direction: column; gap: 8px; list-style: none; margin: 0; padding: 0; }
+
+.nav-item {
+  width: 100%; font-family: $font; cursor: pointer; text-decoration: none;
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding: 14px 6px; border-radius: 14px; border: none; background: transparent;
+  color: $gray-8; transition: all .15s ease;
+
+  &:hover { background: rgba(24,85,164,.06); color: $brand; }
+  &:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
+
+  &.active {
+    background: $teal; color: $navy;
+    box-shadow: 0 8px 18px rgba(79,206,210,.35);
+    .ni-label { font-weight: 700; }
+  }
+}
+
+.ni-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  svg { width: 20px; height: 20px; } /* fill=currentColor inherits nav-item colour */ }
+.ni-label { font-size: 11.5px; font-weight: 600; line-height: 1.2; text-align: center; }
+
+/* wider screens can breathe a little */
+@media (min-width: 1200px) { .sidebar { width: 104px; } }

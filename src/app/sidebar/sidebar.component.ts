@@ -20,6 +20,8 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.doctorDetails = JSON.parse(localStorage.getItem("doctorDetails") || '{}');
 
+    this.pageUrl = this.router.url; // ← set initial URL so active-state highlights on first load
+
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(event => {
       this.pageUrl = this.router.url;
       console.log("Page Url", this.pageUrl)
