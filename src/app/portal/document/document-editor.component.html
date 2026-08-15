@@ -8,7 +8,16 @@
   <aside class="rail-left">
     <div class="rail-left-head">Documents</div>
     <div class="doc_list_vertical">
-      <!-- existing *ngFor over your document list goes here, unchanged -->
+      <button type="button" class="doc-item" *ngFor="let doc of documents; let di = index"
+              [class.active]="di === currentDocIndex" (click)="selectDocument(di)">
+        <span class="di-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.7"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.7"/></svg>
+        </span>
+        <span class="di-info">
+          <span class="di-name" [title]="doc.name">{{ doc.name }}</span>
+          <span class="di-meta">{{ doc.pages.length }} pg · {{ fieldCountFor(doc) }} field{{ fieldCountFor(doc) === 1 ? '' : 's' }}</span>
+        </span>
+      </button>
     </div>
   </aside>
 
@@ -22,19 +31,20 @@
             <path d="M8 8h8M8 12h8M8 16h5" stroke="#7499C8" stroke-width="1.6" stroke-linecap="round"/>
           </svg>
         </span>
-        <h6 class="tb-title">{{ documentName }}</h6>
+        <h6 class="tb-title">{{ currentDoc?.name || documentName }}</h6>
+        <span class="tb-docpos" *ngIf="documents.length > 1">Doc {{ currentDocIndex + 1 }} / {{ documents.length }}</span>
       </div>
 
-      <div class="pager" *ngIf="pageImages.length > 1">
+      <div class="pager" *ngIf="currentPages.length > 1">
         <button type="button" class="pager-btn" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1" aria-label="Previous page">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <span class="pager-count">{{ currentPage }} / {{ pageImages.length }}</span>
-        <button type="button" class="pager-btn" [disabled]="currentPage === pageImages.length" (click)="currentPage = currentPage + 1" aria-label="Next page">
+        <span class="pager-count">{{ currentPage }} / {{ currentPages.length }}</span>
+        <button type="button" class="pager-btn" [disabled]="currentPage === currentPages.length" (click)="currentPage = currentPage + 1" aria-label="Next page">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
-      <div class="pager single" *ngIf="pageImages.length <= 1"><span class="pager-count">1 / 1</span></div>
+      <div class="pager single" *ngIf="currentPages.length <= 1"><span class="pager-count">1 / 1</span></div>
 
       <div class="toolbar-actions">
         <button class="btn btn-reject" (click)="reject()">Reject</button>
@@ -51,12 +61,12 @@
     <div class="canvas-scroll bluescroll">
       <div class="doc-canvas">
         <!-- Aspose-rendered page image -->
-        <img *ngIf="pageImages[currentPage - 1]" [src]="pageImages[currentPage - 1]" class="doc-img" alt="Document page">
+        <img *ngIf="currentPages[currentPage - 1]" [src]="currentPages[currentPage - 1]" class="doc-img" alt="Document page">
 
         <!-- Drop target overlay — absolutely sized over the <img> (geometry unchanged) -->
         <div #pageOverlay class="page-overlay" cdkDropList (cdkDropListDropped)="onFieldDropped($event, currentPage)">
           <ng-container *ngFor="let field of placedFields">
-            <div *ngIf="field.pageNumber === currentPage" cdkDrag
+            <div *ngIf="isFieldOnCurrentPage(field)" cdkDrag
                  (cdkDragEnded)="onFieldMoved($event, field)" (click)="selectField(field.tempId)"
                  class="placed-field" [class.selected]="field.tempId === selectedFieldId"
                  [style.left.px]="field.xPx" [style.top.px]="field.yPx"

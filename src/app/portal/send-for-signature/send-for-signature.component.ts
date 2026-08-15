@@ -3,6 +3,12 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EsignService } from '../../services/esign.service';
 
+interface UploadedDoc {
+  documentId: number;
+  name: string;
+  pages: string[]; // base64 data URLs
+}
+
 @Component({
   selector: 'app-send-for-signature',
   templateUrl: './send-for-signature.component.html',
@@ -10,8 +16,12 @@ import { EsignService } from '../../services/esign.service';
 })
 export class SendForSignatureComponent implements OnInit {
   form!: FormGroup;
-  pageImages: string[] = []; // base64 JPEGs, one per page -- rendered server-side by Aspose
-  uploadedDocumentId: number | null = null;
+
+  // Multiple documents — each PDF uploaded becomes one UploadedDoc.
+  uploadedDocs: UploadedDoc[] = [];
+  uploadedDocumentId: number | null = null; // first doc (kept for backward-compat routing)
+  private pending = 0;
+
   isUploading = false;
   isSending = false;
 
@@ -36,6 +46,15 @@ export class SendForSignatureComponent implements OnInit {
     return this.form.get('recipients') as FormArray;
   }
 
+  /** Combined pages across all uploaded documents (preview + editor draft). */
+  get pageImages(): string[] {
+    return this.uploadedDocs.reduce<string[]>((all, d) => all.concat(d.pages), []);
+  }
+
+  get sendInOrder(): boolean {
+    return !!this.form?.get('sendInOrder')?.value;
+  }
+
   buildRecipientGroup(order: number): FormGroup {
     return this.fb.group({
       clientId: [`r${order}_${Date.now()}`],
@@ -48,75 +67,113 @@ export class SendForSignatureComponent implements OnInit {
   }
 
   addRecipient(): void {
-    const nextOrder = this.recipients.length + 1;
-    this.recipients.push(this.buildRecipientGroup(nextOrder));
+    this.recipients.push(this.buildRecipientGroup(this.recipients.length + 1));
+    this.renumber();
   }
 
   removeRecipient(index: number): void {
     if (this.recipients.length > 1) {
       this.recipients.removeAt(index);
+      this.renumber();
     }
   }
 
+  // ── reorder recipients (drives signing order when "Send in order" is on) ──
+  moveRecipient(from: number, to: number): void {
+    if (to < 0 || to >= this.recipients.length || from === to) { return; }
+    const ctrl = this.recipients.at(from);
+    this.recipients.removeAt(from);
+    this.recipients.insert(to, ctrl);
+    this.renumber();
+  }
+  moveUp(i: number): void { this.moveRecipient(i, i - 1); }
+  moveDown(i: number): void { this.moveRecipient(i, i + 1); }
+
+  private renumber(): void {
+    this.recipients.controls.forEach((c, idx) => c.get('order')?.setValue(idx + 1));
+  }
+
+  // ── file upload (multiple) ──
   uploadFile(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-    this.handleFile(input.files[0]);
+    if (!input.files || input.files.length === 0) { return; }
+    this.handleFiles(input.files);
     input.value = '';
   }
 
   onFileDropped(event: DragEvent): void {
     event.preventDefault();
-    const file = event.dataTransfer?.files?.[0];
-    if (file) this.handleFile(file);
+    const files = event.dataTransfer?.files;
+    if (files && files.length) { this.handleFiles(files); }
   }
 
-  private handleFile(file: File): void {
-    if (this.isUploading) return; // guard against any residual double-fire
+  private handleFiles(files: FileList): void {
+    const pdfs = Array.from(files).filter(f => f.type === 'application/pdf');
+    if (!pdfs.length) { alert('Please upload PDF documents.'); return; }
 
-    if (file.type !== 'application/pdf') {
-      alert('Please upload a PDF document.');
-      return;
+    // seed the document name from the first file if the field is empty
+    if (!this.form.get('documentName')?.value && pdfs[0]) {
+      this.form.patchValue({ documentName: pdfs[0].name.replace(/\.pdf$/i, '') });
     }
+    pdfs.forEach(f => this.uploadOne(f));
+  }
 
-    if (!this.form.get('documentName')?.value) {
-      this.form.patchValue({ documentName: file.name.replace(/\.pdf$/i, '') });
-    }
-
+  private uploadOne(file: File): void {
+    this.pending++;
     this.isUploading = true;
     this.esignService.uploadDocument(file).subscribe({
       next: (res) => {
-        this.isUploading = false; // reset first, so a bad response shape can't leave the UI stuck
-        this.uploadedDocumentId = res.DocumentId;
-        this.pageImages = (res.PageImages || []).map((b64) => 'data:image/jpeg;base64,' + b64);
+        this.uploadedDocs.push({
+          documentId: res.DocumentId,
+          name: file.name.replace(/\.pdf$/i, ''),
+          pages: (res.PageImages || []).map((b64) => 'data:image/jpeg;base64,' + b64)
+        });
+        if (this.uploadedDocumentId == null) { this.uploadedDocumentId = res.DocumentId; }
+        this.settle();
       },
-      error: () => {
-        this.isUploading = false;
-        alert('Upload failed. Please try again.');
-      }
+      error: () => { this.settle(); alert(`Upload failed for "${file.name}". Please try again.`); }
     });
   }
 
+  private settle(): void {
+    this.pending = Math.max(0, this.pending - 1);
+    if (this.pending === 0) { this.isUploading = false; }
+  }
+
+  removeDoc(index: number): void {
+    const removed = this.uploadedDocs.splice(index, 1)[0];
+    if (removed && removed.documentId === this.uploadedDocumentId) {
+      this.uploadedDocumentId = this.uploadedDocs[0]?.documentId ?? null;
+    }
+  }
+
+  triggerFilePicker(el: HTMLInputElement): void { el.click(); }
+
+  // ── continue to the editor ──
   gotoDocument(): void {
-    if (this.form.invalid || !this.uploadedDocumentId) {
+    if (this.form.invalid || !this.uploadedDocumentId || !this.uploadedDocs.length) {
       this.form.markAllAsTouched();
       return;
     }
 
     const draft = {
-      documentId: this.uploadedDocumentId,
+      documentId: this.uploadedDocumentId,                 // first doc (backward compat)
+      documents: this.uploadedDocs.map(d => ({             // full list for multi-doc editors
+        documentId: d.documentId, name: d.name, pageCount: d.pages.length
+      })),
       documentName: this.form.value.documentName,
       isOrdered: this.form.value.sendInOrder,
       daysToComplete: this.form.value.daysToComplete,
       reminderDays: this.form.value.reminderDays,
       note: this.form.value.note,
-      pageImages: this.pageImages, // handed to the editor screen so it doesn't re-fetch
-      recipients: this.recipients.value.map((r: any) => ({
+      pageImages: this.pageImages,                         // combined pages
+      recipients: this.recipients.value.map((r: any, idx: number) => ({
         clientId: r.clientId,
         email: r.email,
         name: r.name,
         role: r.role,
-        signingOrder: this.form.value.sendInOrder ? r.order : null,
+        // signing order follows the current row position when "Send in order" is on
+        signingOrder: this.form.value.sendInOrder ? idx + 1 : null,
         deliveryMethod: r.deliveryMethod
       }))
     };
