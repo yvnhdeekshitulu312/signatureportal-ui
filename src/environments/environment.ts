@@ -6,7 +6,10 @@
 export const environment = {
   production: false,
   //esignApiUrl: 'http://localhost:54166/API/Esign'
-  esignApiUrl: 'https://his.alhammadi.med.sa/ZOHOAPI/API/Esign'
+  // esignApiUrl: 'https://his.alhammadi.med.sa/ZOHOAPI/API/Esign',
+  // clinicalApiUrl: 'https://his.alhammadi.med.sa/ClinicalsAPiT/API'
+  esignApiUrl: 'http://localhost:54166/API/Esign', //local
+  clinicalApiUrl: 'https://his.alhammadi.med.sa/ClinicalsAPiT/API' //local
 };
 
 /*

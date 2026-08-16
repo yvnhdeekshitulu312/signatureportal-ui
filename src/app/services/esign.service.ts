@@ -6,13 +6,14 @@ import {
   SendDocumentRequest,
   DocumentDetailResponse
 } from '../models/esign.models';
+import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class EsignService {
   // Matches EsignController's [Route("API/Esign/...")] attributes exactly --
   // update the host/port to wherever ALHMobileAppAPI is actually running.
   // private baseUrl = 'http://localhost:54166/API/Esign';
-  private baseUrl = 'https://his.alhammadi.med.sa/ZOHOAPI/API/Esign';
+  private baseUrl = environment.esignApiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -25,11 +26,12 @@ export class EsignService {
   sendDocument(request: SendDocumentRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/SendDocument`, request);
   }
+
   sendDocumentMail(model: any): Observable<any> {
-  // `model` is the SignatureModel-shaped object the editor builds
-  // (ReciepientsXML, RequestDocumentName, SendInOrder, Remainder, Notes, ...)
-  return this.http.post(`${this.baseUrl}/API/SaveSignatureRequests`, model);
-}
+    // `model` is the SignatureModel-shaped object the editor builds
+    // (ReciepientsXML, RequestDocumentName, SendInOrder, Remainder, Notes, ...)
+    return this.http.post(`${this.baseUrl}/SaveSignatureRequests`, model);
+  }
 
   getDocument(documentId: number): Observable<DocumentDetailResponse> {
     return this.http.get<DocumentDetailResponse>(`${this.baseUrl}/GetDocument/${documentId}`);
