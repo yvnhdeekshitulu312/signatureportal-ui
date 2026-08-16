@@ -48,6 +48,7 @@ export class DocumentEditorComponent implements OnInit {
     { type: 'Signature', label: 'Signature', defaultWidthPx: 160, defaultHeightPx: 50 },
     { type: 'Stamp', label: 'Stamp', defaultWidthPx: 120, defaultHeightPx: 120 },
     { type: 'Text', label: 'Text', defaultWidthPx: 160, defaultHeightPx: 30 },
+    { type: 'DateTime', label: 'Date', defaultWidthPx: 160, defaultHeightPx: 34 },
   ];
 
   selectedFieldId: string | null = null;
@@ -160,10 +161,16 @@ export class DocumentEditorComponent implements OnInit {
   }
 
   onFieldMoved(event: CdkDragEnd, field: EditorField): void {
-    const overlayRect = this.pageOverlay.nativeElement.getBoundingClientRect();
-    const finalPoint = event.dropPoint;
-    field.xPx = Math.max(0, finalPoint.x - overlayRect.left - field.widthPx / 2);
-    field.yPx = Math.max(0, finalPoint.y - overlayRect.top - field.heightPx / 2);
+    // CDK free-drag moves the element with a CSS transform that it does NOT clear on
+    // its own. Persist the net drag distance onto the stored px position, then reset the
+    // transform so the element rests exactly at its [style.left/top]. Without the reset,
+    // the leftover transform stacks on top of left/top and the field jumps every drag.
+    const rect = this.pageOverlay.nativeElement.getBoundingClientRect();
+    const maxX = Math.max(0, rect.width - field.widthPx);
+    const maxY = Math.max(0, rect.height - field.heightPx);
+    field.xPx = Math.min(Math.max(0, field.xPx + event.distance.x), maxX);
+    field.yPx = Math.min(Math.max(0, field.yPx + event.distance.y), maxY);
+    event.source.reset();
   }
 
   selectField(fieldId: string): void { this.selectedFieldId = fieldId; }

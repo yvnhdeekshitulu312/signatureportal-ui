@@ -1,6 +1,6 @@
 export type RecipientRole = 'Sign' | 'Approve' | 'View' | 'CC';
 export type DeliveryMethod = 'Email' | 'Teams' | 'Slack';
-export type FieldType = 'Signature' | 'Stamp' | 'Text' | 'Date' | 'Initial' | 'Checkbox';
+export type FieldType = 'Signature' | 'Stamp' | 'Text' | 'Date' | 'Initial' | 'Checkbox'| 'DateTime';;
 export interface DocumentDetailResponse {
   Id: number;
   Name: string;
