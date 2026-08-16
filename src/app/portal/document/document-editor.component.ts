@@ -272,17 +272,34 @@ export class DocumentEditorComponent implements OnInit {
   }
   send(): void {
     if (this.isSending) { return; }
-    if (this.placedFields.length === 0) { alert('Place at least one field before sending.'); return; }
+    if (this.placedFields.length === 0) { this.toast.warning('Place at least one field before sending'); return; }
+
+    // Every field must belong to a recipient, or the server can't bind it
+    // (and rightly refuses for multi-recipient documents).
+    if (this.placedFields.some(f => !f.recipientClientId)) {
+      this.toast.warning('Every field must be assigned to a recipient');
+      return;
+    }
 
     const draft = JSON.parse(sessionStorage.getItem('esign_draft') || '{}');
     const overlayRect = this.pageOverlay.nativeElement.getBoundingClientRect();
 
+    // field placement -> percentages (top-left origin; backend converts to PDF points).
+    // recipientClientId is REQUIRED so the server can bind each field to its signer.
     const toPct = (f: EditorField) => ({
+      recipientClientId: f.recipientClientId,
+      fieldType: f.fieldType,
+      pageNumber: f.pageNumber,
+      xPct: (f.xPx / overlayRect.width) * 100,
+      yPct: (f.yPx / overlayRect.height) * 100,
+      widthPct: (f.widthPx / overlayRect.width) * 100,
+      heightPct: (f.heightPx / overlayRect.height) * 100,
+      isRequired: f.isRequired
     });
 
     // Send one request per document that has fields (each PDF is its own signable document).
     const docsToSend = this.documents.filter(d => this.placedFields.some(f => f.documentId === d.documentId));
-    if (!docsToSend.length) { alert('Place at least one field before sending.'); return; }
+    if (!docsToSend.length) { this.toast.warning('Place at least one field before sending'); return; }
 
     const requests = docsToSend.map(doc => this.esignService.sendDocument({
       documentId: doc.documentId,
@@ -300,11 +317,18 @@ export class DocumentEditorComponent implements OnInit {
       next: () => {
         sessionStorage.removeItem('esign_draft');
         this.isSending = false;
+        const count = docsToSend.length;
+        this.toast.success(
+          count > 1
+            ? `${count} documents sent for signature`
+            : 'Document sent for signature',
+          { title: 'Sent' }
+        );
         this.router.navigate(['/dashboard']);
       },
       error: () => {
         this.isSending = false;
-        alert('Failed to send document(s). Please try again.');
+        this.toast.error('Failed to send document(s). Please try again', { title: 'Send failed' });
       }
     });
   }
