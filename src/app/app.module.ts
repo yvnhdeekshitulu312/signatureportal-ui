@@ -15,6 +15,7 @@ import { PortalComponent } from './portal/portal.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { SafePipe } from './safe.pipe';
 import { BnNgIdleService } from 'bn-ng-idle';
+import { ToastContainerComponent } from './toast/toast-container.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { BnNgIdleService } from 'bn-ng-idle';
     LoaderComponent,
     LoginComponent,
     SidebarComponent,
-    PortalComponent
+    PortalComponent,
+    ToastContainerComponent
     // SafePipe
   ],
   imports: [

@@ -11,7 +11,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 
 /* hero */
 .dv-hero { display:grid; grid-template-columns:1.5fr 1fr; border-radius:22px; overflow:hidden; margin-bottom:10px;
-  background:linear-gradient(120deg, $navy 0%, $brand 55%, $royal 100%); box-shadow:0 22px 50px -26px rgba(0,38,84,.55); }
+  background:linear-gradient(120deg, var(--brand-blue), var(--royal-blue)); box-shadow:0 22px 50px -26px rgba(0,38,84,.55); }
 .dv-hero-left { padding:40px 42px; color:$white; }
 .dv-eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:800; letter-spacing:.5px;
   color:$teal-light; background:rgba(79,206,210,.14); border:1px solid rgba(79,206,210,.35); padding:6px 13px;
@@ -50,8 +50,8 @@ $font:'Noto Kufi Arabic', sans-serif;
 /* action cards */
 .dv-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:10px; }
 .dv-card { text-align:start; font-family:$font; cursor:pointer; background:$white; border:1.5px solid $gray-1;
-  border-radius:18px; padding:24px; transition:.2s; display:block;
-  &.on { border-color:$teal; box-shadow:0 16px 30px -20px rgba(79,206,210,.5); }
+  border-radius:18px; padding:24px; transition:.2s; display:block;border-top: 2.5px solid #8eadd4;
+  &.on { border-color:$teal; box-shadow:0 16px 30px -20px rgba(79,206,210,.5);    border-top: 2.5px solid #8eadd4; }
   &:hover { border-color:$teal; transform:translateY(-2px); }
   &:focus-visible { outline:2px solid $royal; outline-offset:2px; }
   .ic { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:14px;
@@ -128,6 +128,27 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
 .skrow { display:flex; align-items:center; gap:12px; }
 .skdot { width:36px; height:36px; border-radius:10px; background:$gray-1; }
 .skline { flex:1; height:12px; border-radius:6px; background:$gray-1; }
+
+.A-action {
+    background: #fff;
+    border: 1px solid var(--light-gray);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: all .18s ease;
+    cursor: pointer;
+}
+.A-action::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,var(--brand-blue),var(--teal));
+}
+
 
 @media(max-width:1050px){
   .dv-hero { grid-template-columns:1fr; }

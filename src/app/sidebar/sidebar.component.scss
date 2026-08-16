@@ -24,7 +24,7 @@ $font:'Noto Kufi Arabic', sans-serif;
   &:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
 
   &.active {
-    background: $brand; color: $white;
+    background: linear-gradient(120deg, var(--brand-blue), var(--royal-blue)); color: $white;
     box-shadow: 0 8px 18px #1855a46b;
     .ni-label { font-weight: 700; }
   }

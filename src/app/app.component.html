@@ -1,4 +1,7 @@
 <app-loader></app-loader>
+<!-- App-wide toasts. Kept at root, outside <router-outlet>, so a toast fired
+     right before a navigate (e.g. send() → /dashboard) still shows. -->
+<app-toast-container></app-toast-container>
 <router-outlet></router-outlet>
 <div class="modal" id="confirmIdle" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-toast modal-toast-success">

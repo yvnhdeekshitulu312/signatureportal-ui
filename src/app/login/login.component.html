@@ -108,7 +108,7 @@
     <div class="lv-orbit"><i></i></div>
 
     <!-- Language toggle (existing logic) -->
-    <div class="lv-topbar">
+    <div class="lv-topbar d-none">
       <button type="button" *ngFor="let language of listOfLanguages" [class.active]="language.Id === selectedLang?.Id"
         (click)="selectedLanguage(language)">{{ language?.value }}</button>
     </div>
@@ -215,7 +215,7 @@
       <div class="lv-badges">
         <div class="lv-badge">{{ selectedLang?.code === 'ar' ? 'السويدي' : 'SUWAIDI' }}</div>
         <div class="lv-badge">{{ selectedLang?.code === 'ar' ? 'النزهة' : 'NUZHA' }}</div>
-        <div class="lv-badge">ISO 27001</div>
+       
       </div>
     </div>
 

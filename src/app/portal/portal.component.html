@@ -20,22 +20,81 @@
                     </div>
                     </header> -->
 
-    <header class="header sticky-top">
-        <div class="header__wrapper">
-            <div class="header__hospital-logo">
-                <img src="assets/images/AHH-Logo.png" alt="Al Hammadi Hospital">
+    <!-- ============================================================
+         Portal header — two-tier "Layered Clinical" design
+         Tier 1: utility strip (portal context + live clock)
+         Tier 2: working bar (brand · search · actions · user)
+         Palette & type locked to Al Hammadi brand standards.
+         ============================================================ -->
+    <header class="app-header sticky-top">
+
+        <!-- Tier 1 · utility strip -->
+        <div class="app-header__utility">
+            <div class="app-header__context">
+                <b>{{ portalTitle }}</b>
+                <!-- <span class="app-header__sep"></span> -->
+                <!-- <span>{{ facilityName }}</span>
+                <span class="app-header__sep"></span>
+                <span>{{ sessionStatus }}</span> -->
             </div>
-            <div class="header__container">
-                <div class="d-flex align-items-center gap-3 ms-auto">
-                    <span class="small">
-                        UserName - {{ loginUserName }}<span *ngIf="empDesignation"> | {{ empDesignation }}</span>
-                    </span>
-                    <span class="small">{{ currentTime }}</span>
-                    <div class="header__actions">
-                        <button (click)="logout()">
-                            <img src="assets/images/icons/icon-log-out.svg" alt="">
-                        </button>
+            <div class="app-header__meta">
+                <span>{{ currentDate }}</span>
+                <span>{{ currentTime }}</span>
+            </div>
+        </div>
+
+        <!-- Tier 2 · working bar -->
+        <div class="app-header__main">
+
+            <!-- Brand -->
+            <div class="app-header__brand">
+                <img src="assets/images/AHH-Logo.png" alt="" style="height: 40px;">
+                <!-- <div class="app-header__mark">AH</div>
+                <div class="app-header__brand-text">
+                    <div class="app-header__ar">مستشفيات الحمادي</div>
+                    <div class="app-header__en">Al Hammadi Hospitals</div>
+                </div> -->
+            </div>
+
+            <!-- Search -->
+            <div class="app-header__search">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input #searchBox type="text" placeholder="Search patients, forms, modules…"
+                       (keyup.enter)="onSearch(searchBox.value)">
+            </div>
+
+            <!-- Actions + user -->
+            <div class="app-header__actions">
+                <button class="app-header__iconbtn" type="button" title="Notifications" (click)="openNotifications()">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="app-header__dot" *ngIf="hasNotifications"></span>
+                </button>
+
+                <button class="app-header__iconbtn" type="button" title="Log out" (click)="logout()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+
+                <div class="app-header__user">
+                    <div class="app-header__avatar">{{ avatarInitials }}</div>
+                    <div class="app-header__user-info">
+                        <div class="app-header__user-name">{{ loginUserName }}</div>
+                        <div class="app-header__user-role">
+                            {{ empDesignation }}<span *ngIf="empId"> · #{{ empId }}</span>
+                        </div>
                     </div>
+                    <svg class="app-header__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
                 </div>
             </div>
         </div>

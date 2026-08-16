@@ -1,0 +1,177 @@
+/* Toast notifications — approved palette + Noto Kufi Arabic only.
+   Tints are rgba() of approved colours (no new hex). RTL-safe via logical
+   props + a direction-aware slide offset (--tx).
+
+   Semantic note: the brand palette has no red/amber, so status is carried by
+   icon shape + accent hue, and ERROR uses an inverted navy card so a failure
+   can never be mistaken for a success in the blue family. If a dedicated
+   alert colour is ever approved, only the `.toast--error` block needs to change. */
+
+$brand:#1855A4; $navy:#002654; $med-blue:#7499C8; $royal:#3B7DC4; $light-blue:#A3BBDB;
+$gray-8:#969696; $gray-5:#C0C0C0; $gray-1:#E5E5E5; $teal:#4FCED2; $teal-light:#7FE2E5; $mint:#CDFCFB; $white:#FFFFFF;
+$font:'Noto Kufi Arabic', sans-serif;
+
+:host { font-family: $font; }
+
+/* ---- viewport: fixed stack, top inline-end (right in LTR, left in RTL) ---- */
+.toast-viewport {
+  position: fixed;
+  inset-block-start: 18px;
+  inset-inline-end: 18px;
+  z-index: 1090;                 /* above the sticky app header (1030) and modals */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(380px, calc(100vw - 32px));
+  pointer-events: none;          /* never block the page… */
+}
+
+/* ---- card ---- */
+.toast {
+  --tx: 112%;                    /* slide-in offset; flipped for RTL below */
+  pointer-events: auto;          /* …but the toast itself is interactive */
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 14px 13px 16px;
+  background: $white;
+  border: 1px solid $gray-1;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 38, 84, .16), 0 2px 6px rgba(0, 38, 84, .08);
+  overflow: hidden;
+  animation: toast-in .28s cubic-bezier(.21, 1.02, .73, 1) both;
+}
+.toast--leaving { animation: toast-out .24s ease forwards; }
+
+/* left accent rail */
+.toast__accent {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 5px;
+  background: $brand;
+}
+
+/* icon chip */
+.toast__icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(24, 85, 164, .10);
+  color: $brand;
+  svg { width: 20px; height: 20px; }
+}
+
+/* text */
+.toast__body { flex: 1; min-width: 0; padding-block-start: 1px; }
+.toast__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: $navy;
+  line-height: 1.35;
+  margin-block-end: 2px;
+}
+.toast__message {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: $gray-8;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+/* close */
+.toast__close {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin-inline-start: 2px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: $gray-8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s ease, color .15s ease;
+  svg { width: 15px; height: 15px; }
+  &:hover { background: rgba(150, 150, 150, .14); color: $navy; }
+  &:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
+}
+
+/* auto-dismiss progress bar */
+.toast__progress {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: left center;
+  background: $brand;
+  animation-name: toast-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+[dir="rtl"] .toast__progress { transform-origin: right center; }
+
+/* ---- per-type theming ---------------------------------------------------- */
+/* SUCCESS → teal (the brand's positive hue) */
+.toast--success {
+  .toast__accent   { background: $teal; }
+  .toast__icon     { background: rgba(79, 206, 210, .18); color: $navy; }
+  .toast__progress { background: $teal; }
+}
+
+/* INFO → brand blue */
+.toast--info {
+  .toast__accent   { background: $brand; }
+  .toast__icon     { background: rgba(24, 85, 164, .10); color: $brand; }
+  .toast__progress { background: $brand; }
+}
+
+/* WARNING → royal blue (distinct from info by hue + triangle icon) */
+.toast--warning {
+  .toast__accent   { background: $royal; }
+  .toast__icon     { background: rgba(59, 125, 196, .14); color: $royal; }
+  .toast__progress { background: $royal; }
+}
+
+/* ERROR → inverted navy card: unmistakable without needing red */
+.toast--error {
+  background: $navy;
+  border-color: $navy;
+  box-shadow: 0 14px 32px rgba(0, 38, 84, .34), 0 2px 6px rgba(0, 38, 84, .18);
+  .toast__accent   { background: $teal; }
+  .toast__icon     { background: rgba(255, 255, 255, .10); color: $teal-light; }
+  .toast__title    { color: $white; }
+  .toast__message  { color: $light-blue; }
+  .toast__close    { color: $light-blue; &:hover { background: rgba(255, 255, 255, .12); color: $white; } }
+  .toast__progress { background: $teal; }
+}
+
+/* ---- motion ---- */
+@keyframes toast-in  { from { opacity: 0; transform: translateX(var(--tx)); } to { opacity: 1; transform: none; } }
+@keyframes toast-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(var(--tx)); } }
+@keyframes toast-progress { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+[dir="rtl"] .toast { --tx: -112%; }
+
+/* ---- responsive: full-width stack on small screens ---- */
+@media (max-width: 480px) {
+  .toast-viewport {
+    inset-inline: 12px;
+    width: auto;
+  }
+}
+
+/* ---- reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: none; }
+  .toast--leaving { animation: none; opacity: 0; }
+  .toast__progress { display: none; }
+}

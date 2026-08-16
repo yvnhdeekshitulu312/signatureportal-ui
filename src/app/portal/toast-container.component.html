@@ -1,0 +1,54 @@
+<!-- Mounted once at app root. pointer-events are off on the viewport and back
+     on each toast, so toasts never block the page underneath. -->
+<div class="toast-viewport" aria-live="polite" aria-atomic="false">
+
+  <div *ngFor="let t of toasts; trackBy: trackById"
+       class="toast"
+       [ngClass]="'toast--' + t.type"
+       [class.toast--leaving]="t.leaving"
+       [attr.role]="role(t.type)"
+       (mouseenter)="pause(t)"
+       (mouseleave)="resume(t)">
+
+    <span class="toast__accent" aria-hidden="true"></span>
+
+    <span class="toast__icon" [ngSwitch]="t.type" aria-hidden="true">
+      <svg *ngSwitchCase="'success'" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M8 12.4l2.6 2.6 5-5.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <svg *ngSwitchCase="'error'" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M12 7.4v5.4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        <circle cx="12" cy="16.4" r="1.1" fill="currentColor"/>
+      </svg>
+      <svg *ngSwitchCase="'warning'" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3.6l8.7 15.1H3.3L12 3.6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        <path d="M12 9.5v4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        <circle cx="12" cy="16.2" r="1.05" fill="currentColor"/>
+      </svg>
+      <svg *ngSwitchDefault viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M12 11v5.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        <circle cx="12" cy="7.7" r="1.1" fill="currentColor"/>
+      </svg>
+    </span>
+
+    <div class="toast__body">
+      <div class="toast__title" *ngIf="t.title">{{ t.title }}</div>
+      <div class="toast__message">{{ t.message }}</div>
+    </div>
+
+    <button type="button" class="toast__close" (click)="remove(t.id)" aria-label="Dismiss">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <span class="toast__progress"
+          *ngIf="t.duration > 0 && !t.leaving"
+          [style.animation-duration.ms]="t.duration"
+          [style.animation-play-state]="t.paused ? 'paused' : 'running'"
+          aria-hidden="true"></span>
+  </div>
+</div>

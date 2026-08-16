@@ -118,14 +118,31 @@ export class DocumentComponent implements OnInit {
 
   /** Created On is derived from the date segment in ViewerGcsUrl
       (…/Documents/YYYY-MM-DD/…), since MyDocuments doesn't return a date. */
+  // createdOn(d: any): string {
+  //   const url = d?.ViewerGcsUrl || '';
+  //   const m = /Documents(?:%2F|\/)(\d{4}-\d{2}-\d{2})/.exec(url);
+  //   if (!m) { return '—'; }
+  //   const dt = new Date(m[1]);
+  //   if (isNaN(dt.getTime())) { return '—'; }
+  //   return dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  // }
   createdOn(d: any): string {
-    const url = d?.ViewerGcsUrl || '';
-    const m = /Documents(?:%2F|\/)(\d{4}-\d{2}-\d{2})/.exec(url);
-    if (!m) { return '—'; }
-    const dt = new Date(m[1]);
-    if (isNaN(dt.getTime())) { return '—'; }
-    return dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
+  const url = d?.ViewerGcsUrl || '';
+  const m = /Documents(?:%2F|\/)(\d{4}-\d{2}-\d{2}(?:[T%20_]\d{2}[:\-]\d{2}(?:[:\-]\d{2})?)?)/i.exec(url);
+  if (!m) { return '—'; }
+
+  const rawDateStr = decodeURIComponent(m[1]).replace('_', 'T');
+  const dt = new Date(rawDateStr);
+  if (isNaN(dt.getTime())) { return '—'; }
+
+  const day = dt.toLocaleDateString('en-GB', { day: '2-digit' });
+  const month = dt.toLocaleDateString('en-GB', { month: 'short' });
+  const year = dt.getFullYear();
+  const hours = String(dt.getHours()).padStart(2, '0');
+  const minutes = String(dt.getMinutes()).padStart(2, '0');
+
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
+}
 
   initials(name: string): string {
     return (name || '?').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';

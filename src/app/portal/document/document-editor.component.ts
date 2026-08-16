@@ -4,6 +4,7 @@ import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { forkJoin } from 'rxjs';
 import { EsignService } from '../../services/esign.service';
 import { FieldType, PlacedField, RecipientDto, SendDocumentRequest } from '../../models/esign.models';
+import { ToastService } from '../../services/toast.service';
 
 interface FieldPaletteItem {
   type: FieldType;
@@ -55,7 +56,8 @@ export class DocumentEditorComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private esignService: EsignService
+    private esignService: EsignService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -118,7 +120,7 @@ export class DocumentEditorComponent implements OnInit {
   }
 
   onFieldDropped(event: CdkDragDrop<any>, pageNumber: number): void {
-    if (!this.activeRecipientClientId) { alert('Select a recipient first.'); return; }
+    if (!this.activeRecipientClientId) { this.toast.warning('Select a recipient first'); return; }
     const paletteItem: FieldPaletteItem = event.item.data;
     const overlayRect = this.pageOverlay.nativeElement.getBoundingClientRect();
     const dropX = event.dropPoint.x - overlayRect.left;
@@ -127,7 +129,7 @@ export class DocumentEditorComponent implements OnInit {
   }
 
   addFieldByClick(item: FieldPaletteItem): void {
-    if (!this.activeRecipientClientId) { alert('Select a recipient first.'); return; }
+    if (!this.activeRecipientClientId) { this.toast.warning('Select a recipient first'); return; }
     const overlayRect = this.pageOverlay?.nativeElement.getBoundingClientRect();
     const baseX = overlayRect ? overlayRect.width / 2 - item.defaultWidthPx / 2 : 40;
     const baseY = overlayRect ? overlayRect.height / 2 - item.defaultHeightPx / 2 : 40;
@@ -186,13 +188,14 @@ export class DocumentEditorComponent implements OnInit {
   reject(): void {
     if (confirm('Discard this document?')) {
       sessionStorage.removeItem('esign_draft');
+      this.toast.info('Document discarded');
       this.router.navigate(['/dashboard']);
     }
   }
 
-  send(): void {
+  sendOld(): void {
     if (this.isSending) { return; }
-    if (this.placedFields.length === 0) { alert('Place at least one field before sending.'); return; }
+    if (this.placedFields.length === 0) { this.toast.warning('Place at least one field before sending'); return; }
 
     const draft = JSON.parse(sessionStorage.getItem('esign_draft') || '{}');
     const user = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
@@ -213,18 +216,20 @@ export class DocumentEditorComponent implements OnInit {
     // recipients → ReciepientsXML (property names match the C# recipient model;
     // adjust here if yours differ). SigningOrder follows row position when ordered.
     const buildRecipients = () => this.recipients.map((r: any, idx: number) => ({
-      Email: r.email,
-      ReciepientName: r.name,
-      
+      //Email: r.email,
+      //ReciepientName: r.name,
+      EMAIL: r.email,
+      NAME: r.name,
       Role: r.role,
       SigningOrder: draft.isOrdered ? idx + 1 : (r.signingOrder ?? null),
-      ReciepientUserID: r.userId ?? r.reciepientUserID ?? null,
+      // ReciepientUserID: r.userId ?? r.reciepientUserID ?? null,
+      RUSERID: r.userId ?? r.reciepientUserID ?? null,
       DeliveryMethod: r.deliveryMethod
     }));
 
     // one signable document per uploaded PDF that has fields
     const docsToSend = this.documents.filter(d => this.placedFields.some(f => f.documentId === d.documentId));
-    if (!docsToSend.length) { alert('Place at least one field before sending.'); return; }
+    if (!docsToSend.length) { this.toast.warning('Place at least one field before sending'); return; }
 
     // Build a SignatureModel-shaped payload → POST /API/SaveSignatureRequests (via sendDocument)
     const requests = docsToSend.map(doc => this.esignService.sendDocumentMail({
@@ -236,13 +241,59 @@ export class DocumentEditorComponent implements OnInit {
       Remainder: draft.reminderDays ?? 0,
       Notes: draft.note ?? '',
       HTMLDocumentName: doc.name || this.documentName,
-      HTMLStringForSignature: '',                 // fill if you serialize placements as HTML
+      HTMLStringForSignature: '',       
+      SenderEmail: user.EmpEmail ?? user.EmpEmail ?? 0,          // fill if you serialize placements as HTML
       UserId: user.UserId ?? user.userId ?? 0,
       WorkStationID: user.WorkStationID ?? user.workStationID ?? 0,
       HospitalId: user.HospitalId ?? user.hospitalId ?? 0,
       ReciepientsXML: buildRecipients(),
       Fields: this.placedFields.filter(f => f.documentId === doc.documentId).map(toField)
     } as any));
+
+    this.isSending = true;
+    forkJoin(requests).subscribe({
+      next: () => {
+        sessionStorage.removeItem('esign_draft');
+        this.isSending = false;
+        const count = docsToSend.length;
+        this.toast.success(
+          count > 1
+            ? `${count} documents sent for signature`
+            : 'Document sent for signature',
+          { title: 'Sent' }
+        );
+        this.router.navigate(['/dashboard']);
+      },
+      error: () => {
+        this.isSending = false;
+        this.toast.error('Failed to send document(s). Please try again', { title: 'Send failed' });
+      }
+    });
+  }
+  send(): void {
+    if (this.isSending) { return; }
+    if (this.placedFields.length === 0) { alert('Place at least one field before sending.'); return; }
+
+    const draft = JSON.parse(sessionStorage.getItem('esign_draft') || '{}');
+    const overlayRect = this.pageOverlay.nativeElement.getBoundingClientRect();
+
+    const toPct = (f: EditorField) => ({
+    });
+
+    // Send one request per document that has fields (each PDF is its own signable document).
+    const docsToSend = this.documents.filter(d => this.placedFields.some(f => f.documentId === d.documentId));
+    if (!docsToSend.length) { alert('Place at least one field before sending.'); return; }
+
+    const requests = docsToSend.map(doc => this.esignService.sendDocument({
+      documentId: doc.documentId,
+      documentName: doc.name,
+      isOrdered: draft.isOrdered,
+      daysToComplete: draft.daysToComplete,
+      reminderDays: draft.reminderDays,
+      note: draft.note,
+      recipients: this.recipients,
+      fields: this.placedFields.filter(f => f.documentId === doc.documentId).map(toPct)
+    } as SendDocumentRequest));
 
     this.isSending = true;
     forkJoin(requests).subscribe({

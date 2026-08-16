@@ -151,10 +151,13 @@ export class LoginComponent implements OnInit {
           return;
         }
         const user = response.SmartDataList[0];
-        localStorage.setItem('authUserName', user.Email);  
+        localStorage.setItem('authUserName', user.EmpEmail);  
         localStorage.setItem('authPassword', password);
         localStorage.setItem('loginUserName', user.UserName + ' - ' + user.LoginUsername);
         localStorage.setItem('empDesignation', user.EmpDesignation || '');
+         localStorage.setItem("doctorDetails", JSON.stringify(user))
+          localStorage.setItem("hospitalId", this.loginForm.get('Location').value)
+
         localStorage.setItem('isLoggedIn', 'true');
         this.router.navigate(['/dashboard']);
       },
