@@ -38,7 +38,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 .tb-title { margin: 0; font-size: 14.5px; font-weight: 700; color: $navy; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .pager { display: flex; align-items: center; gap: 8px; }
-.pager-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid $gray-5; background: $white; color: $navy; display: flex; align-items: center; justify-content: center; cursor: pointer;
+.pager-btn { width: 30px; height: 30px;padding:unset; border-radius: 8px; border: 1px solid $gray-5; background: $white; color: $navy; display: flex; align-items: center; justify-content: center; cursor: pointer;
   &:hover:not(:disabled) { border-color: $brand; color: $brand; } &:disabled { opacity: .4; cursor: not-allowed; } }
 .pager-count { font-size: 12.5px; font-weight: 600; color: $gray-8; min-width: 44px; text-align: center; }
 :host-context([dir="rtl"]) .pager-btn svg { transform: scaleX(-1); }

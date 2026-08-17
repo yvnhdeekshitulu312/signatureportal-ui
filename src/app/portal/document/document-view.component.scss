@@ -65,7 +65,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 .ro-await { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: $gray-8; padding: 0 4px; }
 
 .dv-pager { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
-.pager-btn { width: 32px; height: 32px; border-radius: 9px; border: 1px solid $gray-5; background: $white; color: $navy; display: flex; align-items: center; justify-content: center; cursor: pointer;
+.pager-btn { width: 32px; height: 32px;padding:unset; border-radius: 9px; border: 1px solid $gray-5; background: $white; color: $navy; display: flex; align-items: center; justify-content: center; cursor: pointer;
   &:hover:not(:disabled) { border-color: $brand; color: $brand; } &:disabled { opacity: .4; cursor: not-allowed; } }
 .pager-count { font-size: 13px; font-weight: 600; color: $gray-8; min-width: 48px; text-align: center; }
 :host-context([dir="rtl"]) .pager-btn svg { transform: scaleX(-1); }

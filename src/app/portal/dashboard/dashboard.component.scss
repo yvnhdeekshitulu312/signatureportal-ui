@@ -52,7 +52,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 .dv-card { text-align:start; font-family:$font; cursor:pointer; background:$white; border:1.5px solid $gray-1;
   border-radius:18px; padding:24px; transition:.2s; display:block;border-top: 2.5px solid #8eadd4;
   &.on { border-color:$teal; box-shadow:0 16px 30px -20px rgba(79,206,210,.5);    border-top: 2.5px solid #8eadd4; }
-  &:hover { border-color:$teal; transform:translateY(-2px); }
+  &:hover { transform:translateY(-2px); }
   &:focus-visible { outline:2px solid $royal; outline-offset:2px; }
   .ic { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:14px;
     svg { width:20px; height:20px; }
@@ -161,7 +161,7 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
 /* ── Draft row actions (edit / delete) — approved palette only ── */
 .dv-rowacts { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end; }
 .dv-iconbtn {
-  width: 30px; height: 30px; border-radius: 8px;
+  width: 30px; height: 30px; border-radius: 8px;padding: 0;
   display: inline-flex; align-items: center; justify-content: center;
   border: 1px solid #E5E5E5; background: #FFFFFF; color: #002654;
   cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease;
