@@ -53,13 +53,18 @@ export class DocumentEditorComponent implements OnInit {
 
   selectedFieldId: string | null = null;
   isSending = false;
-
+owner = 'You';
+  Email:any;
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private esignService: EsignService,
     private toast: ToastService
-  ) {}
+  ) {
+     const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
+      this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
+       this.Email=d?.EmpEmail;
+  }
 
   ngOnInit(): void {
     this.documentId = Number(this.route.snapshot.queryParamMap.get('documentId'));
@@ -311,6 +316,7 @@ export class DocumentEditorComponent implements OnInit {
     const requests = docsToSend.map(doc => this.esignService.sendDocument({
       documentId: doc.documentId,
       documentName: doc.name,
+      email: this.Email,
       isOrdered: draft.isOrdered,
       daysToComplete: draft.daysToComplete,
       reminderDays: draft.reminderDays,

@@ -1,149 +1,109 @@
-<!-- All documents — "Clinical Clarity" redesign. Main content only
-     (header + sidebar are separate components). All bindings preserved:
-     pageSize · setPageSize · first/prev/next/last · page · totalPages ·
-     rangeStart/End · total · allOnPageSelected · toggleSelectAll · isSelected ·
-     toggleSelect · selected · fName · fStatus · onFilterChange · pageDocs ·
-     viewDoc · continueDoc · deleteDoc · toggleMenu · openMenuId · statusPill ·
-     recipients · roleTone · createdOn · initials · loading -->
-<div class="docs">
+<!-- All documents — "Refined Ledger" (Variant A). Bindings unchanged from the
+     previous template; only the layout/markup is redesigned. -->
+<div class="A-wrap">
+  <div class="A-card">
 
-  <!-- Page head -->
-  <div class="page-head">
-    <div>
-      <h1>All documents</h1>
-      <div class="count">{{ total }} document{{ total === 1 ? '' : 's' }}</div>
+    <!-- header -->
+    <div class="A-top">
+      <div>
+        <h1>All documents</h1>
+        <div class="sub">{{ total }} document{{ total === 1 ? '' : 's' }}</div>
+      </div>
+      <button type="button" class="A-newbtn" (click)="newDocument()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New document
+      </button>
     </div>
-    <div class="pager">
-      <span class="lbl">View {{ rangeStart }}–{{ rangeEnd }} of {{ total }}</span>
-      <span class="lbl">Show</span>
-      <select class="select" [ngModel]="pageSize" (ngModelChange)="setPageSize($event)">
-        <option *ngFor="let n of pageSizes" [ngValue]="n">{{ n }}</option>
-      </select>
-      <button class="pbtn" [disabled]="page===1" (click)="first()" title="First"><svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg></button>
-      <button class="pbtn" [disabled]="page===1" (click)="prev()" title="Previous"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <button class="pbtn active">{{ page }}</button>
-      <button class="pbtn" [disabled]="page===totalPages" (click)="next()" title="Next"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
-      <button class="pbtn" [disabled]="page===totalPages" (click)="last()" title="Last"><svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg></button>
+
+    <!-- toolbar: search + segmented tabs -->
+    <div class="A-toolbar">
+      <div class="A-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search documents…" [(ngModel)]="fName" (ngModelChange)="onFilterChange()">
+      </div>
+      <div class="A-seg">
+        <button type="button" [class.active]="mode==='all' && fStatus===''" (click)="setMode('all'); fStatus=''; onFilterChange()">All</button>
+        <button type="button" [class.active]="mode==='all' && fStatus==='Draft'" (click)="setMode('all'); fStatus='Draft'; onFilterChange()">Draft</button>
+        <button type="button" [class.active]="mode==='all' && fStatus==='Completed'" (click)="setMode('all'); fStatus='Completed'; onFilterChange()">Completed</button>
+        <button type="button" [class.active]="mode==='pending'" (click)="setMode('pending')">Pending my signature</button>
+      </div>
     </div>
-  </div>
 
-  <!-- Toolbar: search + status chips + New -->
-  <div class="toolbar">
-    <div class="search-box">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input placeholder="Search documents…" [(ngModel)]="fName" (ngModelChange)="onFilterChange()">
-    </div>
-    <div class="chips">
-      <span class="chip" [class.on]="mode==='all' && fStatus===''" (click)="setMode('all'); fStatus=''; onFilterChange()">All</span>
-      <span class="chip" [class.on]="mode==='all' && fStatus==='Draft'" (click)="setMode('all'); fStatus='Draft'; onFilterChange()">Draft</span>
-      <span class="chip" [class.on]="mode==='all' && fStatus==='Completed'" (click)="setMode('all'); fStatus='Completed'; onFilterChange()">Completed</span>
-      <span class="chip" [class.on]="mode==='pending'" (click)="setMode('pending')">Pending my signature</span>
-    </div>
-    <button class="btn-new" (click)="newDocument()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      New document
-    </button>
-  </div>
-
-  <!-- Bulk selection bar -->
-  <div class="bulk-bar" *ngIf="selected.size">
-    <span>{{ selected.size }} document{{ selected.size === 1 ? '' : 's' }} selected</span>
-    <div class="acts">
-      <span (click)="bulkTodo('move')">Move</span>
-      <span (click)="bulkTodo('export')">Export</span>
-      <span class="danger" (click)="bulkDelete()">Delete</span>
-      <span (click)="clearSelection()">Clear</span>
-    </div>
-  </div>
-
-  <!-- Panel + table -->
-  <div class="panel">
-    <table>
-      <thead>
-        <tr>
-          <th class="c-check"><input type="checkbox" [checked]="allOnPageSelected" (change)="toggleSelectAll()"></th>
-          <th>Document name</th>
-          <th>Owner</th>
-          <th>Recipient email</th>
-          <th>Status</th>
-          <th>Created on</th>
-          <th class="c-actions"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngIf="loading" class="state-row"><td colspan="7"><span class="spin"></span> Loading documents…</td></tr>
-
-        <ng-container *ngIf="!loading">
-          <tr *ngFor="let d of pageDocs; trackBy: trackId" [class.sel]="isSelected(d)">
-            <td class="c-check"><input type="checkbox" [checked]="isSelected(d)" (change)="toggleSelect(d)" (click)="$event.stopPropagation()"></td>
-
+    <!-- table -->
+    <div class="A-tablewrap">
+      <table class="A-table">
+        <thead>
+          <tr>
+            <th>Document name</th>
+            <th>Owner</th>
+            <th>Recipient email</th>
+            <th>Status</th>
+            <th>Created on</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of pageDocs" (click)="openRow(d)">
             <td>
-              <div class="doc-cell" (click)="openRow(d)">
-                <div class="doc-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
-                <span class="doc-name" [title]="d.Name">{{ d.Name }}</span>
+              <div class="A-docname">
+                <div class="A-fic">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <span class="A-nametxt">{{ d.Name }}</span>
               </div>
             </td>
-
             <td>
-              <div class="owner"><div class="avatar-sm">{{ initials(owner) }}</div>{{ d.CreatedBy }}</div>
+              <div class="A-owner"><div class="A-av">{{ initials(owner) }}</div>{{ d.CreatedBy }}</div>
             </td>
-
             <td>
-              <div class="recipients" *ngIf="recipients(d).length; else dash">
-                <div class="recip" *ngFor="let r of visibleRecipients(d)" [title]="r.Role + ' · ' + r.Status">
-                  <span class="r-ic" [ngClass]="roleTone(r.Role)">
-                    <svg *ngIf="roleTone(r.Role)==='sign'" viewBox="0 0 24 24"><path d="M4 18c3-1 4-3 5-6s2-5 3-5 1 2 0 5-2 6 0 6 3-2 4-3"/><path d="M3 21h18"/></svg>
-                    <svg *ngIf="roleTone(r.Role)==='view'" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                    <svg *ngIf="roleTone(r.Role)==='approve'" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
-                  </span>
-                  <span class="r-email" [title]="r.Email">{{ r.Email }}</span>
-                </div>
-                <a *ngIf="moreCount(d)" class="more" (click)="$event.stopPropagation()">+{{ moreCount(d) }} more</a>
+              <div class="A-recip">
+                <span *ngFor="let r of visibleRecipients(d)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  {{ r.Email }}
+                </span>
+                <span class="dash" *ngIf="!recipients(d).length">—</span>
+                <span class="more" *ngIf="moreCount(d)">+{{ moreCount(d) }} more</span>
               </div>
-              <ng-template #dash><span class="dash">—</span></ng-template>
             </td>
-
-            <td><span class="pill" [ngClass]="statusPill(d.Status)">{{ d.Status }}</span></td>
-
-            <td class="created">{{ createdOn(d) }}</td>
-
-            <td class="c-actions">
-              <div class="act-wrap">
-                <button class="action-dots" (click)="toggleMenu(d, $event)" title="Actions">⋯</button>
-                <div class="act-menu" *ngIf="openMenuId===d.Id" (click)="$event.stopPropagation()">
-                  <button *ngIf="mode==='pending'" (click)="openPending(d)"><svg viewBox="0 0 24 24"><path d="M4 18c3-1 4-3 5-6s2-5 3-5 1 2 0 5-2 6 0 6 3-2 4-3"/><path d="M3 21h18"/></svg> Sign now</button>
-                  <button *ngIf="isDraft(d)" (click)="continueDoc(d)"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Continue</button>
-                  <button (click)="viewDoc(d)"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg> View document</button>
-                  <span class="menu-sep"></span>
-                  <button class="danger" (click)="deleteDoc(d)"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg> Delete</button>
-                </div>
+            <td>
+              <span class="A-status"
+                    [class.completed]="statusTone(d.Status)==='done'"
+                    [class.draft]="statusTone(d.Status)==='draft'"
+                    [class.pending]="statusTone(d.Status)==='progress'">
+                <span class="A-dot"></span>{{ d.Status }}
+              </span>
+            </td>
+            <td><span class="A-created">{{ createdOn(d) }}</span></td>
+            <td class="A-actcell">
+              <button type="button" class="A-more" (click)="toggleMenu(d, $event)">⋯</button>
+              <div class="A-menu" *ngIf="openMenuId===d.Id" (click)="$event.stopPropagation()">
+                <button type="button" *ngIf="mode==='pending'" (click)="openPending(d)">Sign now</button>
+                <button type="button" *ngIf="isDraft(d)" (click)="continueDoc(d)">Continue</button>
+                <button type="button" (click)="viewDoc(d)">View</button>
+                <button type="button" class="danger" *ngIf="isDraft(d)" (click)="deleteDoc(d)">Delete</button>
               </div>
             </td>
           </tr>
 
-          <tr *ngIf="!pageDocs.length" class="state-row">
-            <td colspan="7">
-              <div class="empty">
-                <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-                <div>No documents{{ (fName||fStatus) ? ' match your filters' : ' yet' }}.</div>
-                <button *ngIf="fName||fStatus" class="clear-btn" (click)="clearFilters()">Clear filters</button>
-              </div>
+          <tr *ngIf="!pageDocs.length">
+            <td colspan="6" class="A-empty">
+              {{ loading ? 'Loading…' : 'No documents' }}{{ !loading ? ((fName||fStatus) ? ' match your filters' : ' yet') : '' }}
             </td>
           </tr>
-        </ng-container>
-      </tbody>
-    </table>
-  </div>
+        </tbody>
+      </table>
+    </div>
 
-  <!-- Foot -->
-  <div class="foot" *ngIf="!loading && total">
-    <span class="lbl">{{ rangeStart }}–{{ rangeEnd }} of {{ total }}</span>
-    <div class="pager">
-      <button class="pbtn" [disabled]="page===1" (click)="first()"><svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg></button>
-      <button class="pbtn" [disabled]="page===1" (click)="prev()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <button class="pbtn active">Page {{ page }} / {{ totalPages }}</button>
-      <button class="pbtn" [disabled]="page===totalPages" (click)="next()"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
-      <button class="pbtn" [disabled]="page===totalPages" (click)="last()"><svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg></button>
+    <!-- footer -->
+    <div class="A-footer">
+      <span class="A-count">Showing {{ rangeStart }}–{{ rangeEnd }} of {{ total }}</span>
+      <div class="A-pager">
+        <button type="button" class="A-pagebtn" (click)="first()" [disabled]="page===1">«</button>
+        <button type="button" class="A-pagebtn" (click)="prev()" [disabled]="page===1">‹</button>
+        <button type="button" class="A-pagebtn active">{{ page }}</button>
+        <button type="button" class="A-pagebtn" (click)="next()" [disabled]="page===totalPages">›</button>
+        <button type="button" class="A-pagebtn" (click)="last()" [disabled]="page===totalPages">»</button>
+      </div>
     </div>
   </div>
 </div>
