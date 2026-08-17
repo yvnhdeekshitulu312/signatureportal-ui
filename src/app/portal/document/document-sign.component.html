@@ -43,9 +43,8 @@
       <input *ngIf="f.FieldType === 'Checkbox'" type="checkbox" [checked]="fieldValues[f.Id] === 'true'"
         (click)="$event.stopPropagation()" (change)="onFieldClick(f)">
 
-      <input *ngIf="f.FieldType === 'Text' || f.FieldType === 'Date'" type="text"
-        class="form-control form-control-sm border-0 bg-transparent text-center" [(ngModel)]="fieldValues[f.Id]"
-        (click)="$event.stopPropagation()">
+      <span *ngIf="f.FieldType === 'DateTime' && !isFilled(f.Id)" class="small text-nowrap">Click to select date</span>
+      <span *ngIf="f.FieldType === 'DateTime' && isFilled(f.Id)" class="small">{{ fieldValues[f.Id] }}</span>
     </div>
   </div>
 </div>
@@ -133,4 +132,15 @@
         </button>
 
     </div>
+</div>
+
+<div *ngIf="activeDateTimeFieldId !== null" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.5); z-index: 1050;">
+  <div class="bg-white rounded-3 p-3" style="width: 340px;">
+    <h6>Select date & time</h6>
+    <input type="datetime-local" class="form-control" [(ngModel)]="dateTimeValue">
+    <div class="d-flex justify-content-end mt-3">
+      <button class="btn btn-danger-outline btn-sm me-2" (click)="cancelDateTime()">Cancel</button>
+      <button class="btn btn-main-fill btn-sm" (click)="applyDateTime()">Save</button>
+    </div>
+  </div>
 </div>

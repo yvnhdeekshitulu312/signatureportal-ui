@@ -24,6 +24,8 @@ Email:any;
   savedStamp: string | null = null;
   showImport = false;
   loadingSaved = false;
+  activeDateTimeFieldId: number | null = null;
+  dateTimeValue = '';
   constructor(private sanitizer: DomSanitizer, private route: ActivatedRoute, private router: Router, private esignService: EsignService) {}
 
   ngOnInit(): void {
@@ -104,7 +106,7 @@ Email:any;
     }
     // if (f.FieldType === 'Signature' || f.FieldType === 'Stamp') this.openSignaturePad(f.Id);
     else if (f.FieldType === 'Checkbox') this.fieldValues[f.Id] = this.fieldValues[f.Id] === 'true' ? 'false' : 'true';
-    else if (f.FieldType === 'Date') this.fieldValues[f.Id] = new Date().toLocaleDateString();
+    if (f.FieldType === 'DateTime') { this.openDateTimePicker(f.Id); return; }
   }
 
   stampOptions = [
@@ -112,6 +114,28 @@ Email:any;
   ];
 
   activeStampFieldId: number | null = null;
+
+  openDateTimePicker(fieldId: number): void {
+  this.activeDateTimeFieldId = fieldId;
+  const existing = this.fieldValues[fieldId];
+  this.dateTimeValue = existing || this.toLocalDateTimeInputValue(new Date());
+}
+
+private toLocalDateTimeInputValue(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+applyDateTime(): void {
+  if (this.activeDateTimeFieldId === null || !this.dateTimeValue) return;
+  const d = new Date(this.dateTimeValue);
+  this.fieldValues[this.activeDateTimeFieldId] = d.toLocaleString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  }); 
+  this.activeDateTimeFieldId = null;
+}
+
+cancelDateTime(): void { this.activeDateTimeFieldId = null; }
 
   openStampSelector(fieldId: number): void {
     this.activeStampFieldId = fieldId;
