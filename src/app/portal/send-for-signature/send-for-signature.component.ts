@@ -3,6 +3,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EsignService } from '../../services/esign.service';
 import { ConfigService } from '../../services/config.service';
+import { ToastService } from 'src/app/toast.service';
 interface UploadedDoc {
   documentId: number;
   name: string;
@@ -36,7 +37,7 @@ export class SendForSignatureComponent implements OnInit {
     private fb: FormBuilder,
     private esignService: EsignService,
     private ConfigService: ConfigService,
-    private router: Router
+    private router: Router,private toast: ToastService,
   ) {
      const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
@@ -162,6 +163,8 @@ export class SendForSignatureComponent implements OnInit {
       });
       if (this.uploadedDocumentId == null) { this.uploadedDocumentId = res.DocumentId; }
       this.settle();
+
+       this.toast.success(`"${file.name}" uploaded successfully`);
     },
     error: () => { 
       this.settle(); 
