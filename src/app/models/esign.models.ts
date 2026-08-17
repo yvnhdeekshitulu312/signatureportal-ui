@@ -5,6 +5,7 @@ export interface DocumentDetailResponse {
   Id: number;
   Name: string;
   Status: string;
+   CreatedBy: string;
   CreatedOn: string;
   ViewerGcsUrl: string;
   IsOrdered: boolean;

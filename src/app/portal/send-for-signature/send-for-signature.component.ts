@@ -24,7 +24,8 @@ export class SendForSignatureComponent implements OnInit {
 
   isUploading = false;
   isSending = false;
-
+ owner = 'You';
+  Email:any;
   // ── employee smart-search (per recipient row) ──
   empSuggestions: any[] = [];
   suggestFor: number | null = null;
@@ -36,7 +37,11 @@ export class SendForSignatureComponent implements OnInit {
     private esignService: EsignService,
     private ConfigService: ConfigService,
     private router: Router
-  ) {}
+  ) {
+     const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
+      this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
+      this.Email=d?.EmpEmail;
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -125,22 +130,45 @@ export class SendForSignatureComponent implements OnInit {
     pdfs.forEach(f => this.uploadOne(f));
   }
 
+  // private uploadOne(file: File): void {
+  //   this.pending++;
+  //   this.isUploading = true;
+  //   this.esignService.uploadDocument(file).subscribe({
+  //     next: (res) => {
+  //       this.uploadedDocs.push({
+  //         documentId: res.DocumentId,
+  //         name: file.name.replace(/\.pdf$/i, ''),
+  //         pages: (res.PageImages || []).map((b64) => 'data:image/jpeg;base64,' + b64)
+  //       });
+  //       if (this.uploadedDocumentId == null) { this.uploadedDocumentId = res.DocumentId; }
+  //       this.settle();
+  //     },
+  //     error: () => { this.settle(); alert(`Upload failed for "${file.name}". Please try again.`); }
+  //   });
+  // }
   private uploadOne(file: File): void {
-    this.pending++;
-    this.isUploading = true;
-    this.esignService.uploadDocument(file).subscribe({
-      next: (res) => {
-        this.uploadedDocs.push({
-          documentId: res.DocumentId,
-          name: file.name.replace(/\.pdf$/i, ''),
-          pages: (res.PageImages || []).map((b64) => 'data:image/jpeg;base64,' + b64)
-        });
-        if (this.uploadedDocumentId == null) { this.uploadedDocumentId = res.DocumentId; }
-        this.settle();
-      },
-      error: () => { this.settle(); alert(`Upload failed for "${file.name}". Please try again.`); }
-    });
-  }
+  this.pending++;
+  this.isUploading = true;
+
+  // Assuming you have the user's email/username stored in a property like this.userEmail or this.currentUser.email
+  const uploadedBy = this.Email; // or pass it as a method argument: uploadOne(file: File, uploadedBy: string)
+
+  this.esignService.uploadDocument(file, uploadedBy).subscribe({
+    next: (res) => {
+      this.uploadedDocs.push({
+        documentId: res.DocumentId,
+        name: file.name.replace(/\.pdf$/i, ''),
+        pages: (res.PageImages || []).map((b64) => 'data:image/jpeg;base64,' + b64)
+      });
+      if (this.uploadedDocumentId == null) { this.uploadedDocumentId = res.DocumentId; }
+      this.settle();
+    },
+    error: () => { 
+      this.settle(); 
+      alert(`Upload failed for "${file.name}". Please try again.`); 
+    }
+  });
+}
 
   private settle(): void {
     this.pending = Math.max(0, this.pending - 1);

@@ -107,7 +107,7 @@
               </div>
             </td>
             <td class="c-owner">
-              <div class="owner"><span class="ow-av">{{ initials(owner) }}</span><span class="ow-name">{{ owner }}</span></div>
+              <div class="owner"><span class="ow-av">{{ initials(owner) }}</span><span class="ow-name">{{ d.CreatedBy }}</span></div>
             </td>
             <td class="c-recip">
               <div class="recips" *ngIf="recipients(d).length; else noRecip">

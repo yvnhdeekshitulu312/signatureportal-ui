@@ -50,7 +50,7 @@ export class DocumentComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.esignService.getMyDocuments().subscribe({
+    this.esignService.getMyDocuments(this.Email).subscribe({
       next: (docs: any[]) => { this.allDocs = docs || []; this.loading = false; },
       error: () => { this.loading = false; }
     });

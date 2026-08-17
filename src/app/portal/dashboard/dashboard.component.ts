@@ -33,7 +33,7 @@ export class DashboardComponent implements OnInit {
   // Recent documents for the dashboard panel (from the same source as the list)
   loadRecent(): void {
     this.loading = true;
-    this.esignService.getMyDocuments().subscribe({
+    this.esignService.getMyDocuments(this.Email).subscribe({
       next: (docs) => { this.recentDocs = docs || []; this.loading = false; },
       error: () => { this.loading = false; }
     });

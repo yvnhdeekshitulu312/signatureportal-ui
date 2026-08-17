@@ -19,11 +19,21 @@ export class EsignService {
 
   constructor(private http: HttpClient) { }
 
-  uploadDocument(file: File): Observable<UploadDocumentResponse> {
-    const formData = new FormData();
-    formData.append('file', file, file.name);
-    return this.http.post<UploadDocumentResponse>(`${this.baseUrl}/UploadDocument`, formData);
-  }
+  // uploadDocument(file: File): Observable<UploadDocumentResponse> {
+  //   const formData = new FormData();
+  //   formData.append('file', file, file.name);
+  //   return this.http.post<UploadDocumentResponse>(`${this.baseUrl}/UploadDocument`, formData);
+  // }
+  uploadDocument(file: File, uploadedBy: string): Observable<UploadDocumentResponse> {
+  const formData = new FormData();
+  formData.append('file', file, file.name);
+  formData.append('uploadedBy', uploadedBy);
+
+  return this.http.post<UploadDocumentResponse>(
+    `${this.baseUrl}/UploadDocument`, 
+    formData
+  );
+}
 
   sendDocument(request: SendDocumentRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/SendDocument`, request);
@@ -75,11 +85,18 @@ export class EsignService {
   );
 }
   
+getMyDocuments(email: string): Observable<DocumentDetailResponse[]> {
+  const params = new HttpParams().set('email', email);
 
+  return this.http.get<DocumentDetailResponse[]>(
+    `${this.baseUrl}/MyDocuments`, 
+    { params }
+  );
+}
 
-  getMyDocuments(): Observable<DocumentDetailResponse[]> {
-    return this.http.get<DocumentDetailResponse[]>(`${this.baseUrl}/MyDocuments`);
-  }
+  // getMyDocuments(): Observable<DocumentDetailResponse[]> {
+  //   return this.http.get<DocumentDetailResponse[]>(`${this.baseUrl}/MyDocuments`);
+  // }
 
  
 
