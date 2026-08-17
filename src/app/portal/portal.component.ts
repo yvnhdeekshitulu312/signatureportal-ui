@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
+import { EsignService } from 'src/app/services/esign.service';
 
 @Component({
   selector: 'app-portal',
@@ -27,9 +28,14 @@ export class PortalComponent implements OnInit, OnDestroy {
   // User dropdown (Profile / Log out)
   userMenuOpen = false;
 
+  // Notifications = documents pending MY signature
+  notifOpen = false;
+  pendingNotifications: any[] = [];
+  get notifCount(): number { return this.pendingNotifications.length; }
+
   private timerId: any;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private esignService: EsignService) {}
 
   ngOnInit(): void {
     this.loginUserName = localStorage.getItem('loginUserName') || '';
@@ -37,6 +43,7 @@ export class PortalComponent implements OnInit, OnDestroy {
     this.empId = localStorage.getItem('empId') || '';
     this.avatarInitials = this.getInitials(this.loginUserName);
     this.photoUrl = this.getUser().EmpPhotoPath || null;
+    this.loadNotifications();
     this.updateTime();
     this.timerId = setInterval(() => this.updateTime(), 1000);
   }
@@ -79,13 +86,36 @@ export class PortalComponent implements OnInit, OnDestroy {
     // this.router.navigate(['/search'], { queryParams: { q } });
   }
 
-  openNotifications(): void {
-    // TODO: open notifications panel / navigate to notifications.
+  loadNotifications(): void {
+    const email = this.getUser().EmpEmail;
+    if (!email) { return; }
+    this.esignService.getMyPending(email).subscribe({
+      next: (docs: any[]) => { this.pendingNotifications = docs || []; },
+      error: () => { this.pendingNotifications = []; }
+    });
+  }
+
+  toggleNotifications(ev?: Event): void {
+    ev?.stopPropagation();
+    this.userMenuOpen = false;
+    this.notifOpen = !this.notifOpen;
+  }
+
+  /** Open a pending doc straight into the signer view. */
+  openNotification(d: any): void {
+    this.notifOpen = false;
+    this.router.navigate(['/dashboard/pendingdocuments/sign', d.Id]);
+  }
+
+  /** Jump to the All-documents list with the "Pending my signature" tab selected. */
+  viewAllPending(): void {
+    this.notifOpen = false;
+    this.router.navigate(['/dashboard/pendingdocuments'], { queryParams: { mode: 'pending' } });
   }
 
   toggleUserMenu(ev?: Event): void { ev?.stopPropagation(); this.userMenuOpen = !this.userMenuOpen; }
 
-  @HostListener('document:click') closeUserMenu(): void { this.userMenuOpen = false; }
+  @HostListener('document:click') closeMenus(): void { this.userMenuOpen = false; this.notifOpen = false; }
 
   goToProfile(): void {
     this.userMenuOpen = false;

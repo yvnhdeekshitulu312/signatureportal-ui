@@ -136,7 +136,8 @@ createdOn(d: DocumentDetailResponse): string {
   }
 
   gotoPending(): void {
-    this.router.navigate(['dashboard/pendingdocuments'], { queryParams: { tab: 'pending' } });
+    // land on the All-documents list with the "Pending my signature" tab pre-selected
+    this.router.navigate(['dashboard/pendingdocuments'], { queryParams: { mode: 'pending' } });
   }
 
   // ── VIEW: open a document in the read-only viewer ──

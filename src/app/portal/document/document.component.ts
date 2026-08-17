@@ -46,6 +46,9 @@ export class DocumentComponent implements OnInit {
     const st = this.route.snapshot.queryParamMap.get('status');
     if (st) { this.fStatus = st; }
     this.load();
+    // ?mode=pending (e.g. from the dashboard "Pending my signature" card) opens
+    // straight into the pending queue.
+    if (this.route.snapshot.queryParamMap.get('mode') === 'pending') { this.setMode('pending'); }
   }
 
   load(): void {
