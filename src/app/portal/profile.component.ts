@@ -36,6 +36,7 @@ export class ProfileComponent implements OnInit {
   signatureImg: string | null = null;
   initialImg: string | null = null;
   stampImg: string | null = null;
+  photoUrl: string | null = null;
 
   // ── capture modal state ──
   showCapture = false;
@@ -53,12 +54,20 @@ export class ProfileComponent implements OnInit {
 
   constructor(private esignService: EsignService, private toast: ToastService) {}
 
-  get userId(): number {
+  /** doctorDetails may be stored as the array itself, as a { SmartDataList: [...] }
+   *  wrapper, or as a plain object — resolve the user record from any of them. */
+  private getUser(): any {
     try {
       const raw = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
-      const u = Array.isArray(raw) ? raw[0] : raw;
-      return Number(u?.UserId ?? u?.userId ?? 0) || 0;
-    } catch { return 0; }
+      if (Array.isArray(raw)) { return raw[0] || {}; }
+      if (raw && Array.isArray(raw.SmartDataList)) { return raw.SmartDataList[0] || {}; }
+      return raw || {};
+    } catch { return {}; }
+  }
+
+  get userId(): number {
+    const u = this.getUser();
+    return Number(u.UserId ?? u.userId ?? u.EmpId ?? 0) || 0;
   }
 
   get fullName(): string {
@@ -71,15 +80,15 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     // Prime name/email/title from the locally cached user, then load saved images.
-    try {
-      const raw = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
-      const u = Array.isArray(raw) ? raw[0] : raw;
-      const name = (u?.Name || u?.FullName || '').trim();
-      this.firstName = u?.FirstName || name.split(' ')[0] || '';
-      this.lastName = u?.LastName || name.split(' ').slice(1).join(' ') || '';
-      this.email = u?.EmpEmail || u?.Email || '';
-      this.jobTitle = u?.Designation || u?.empDesignation || '';
-    } catch { /* keep defaults */ }
+    const u = this.getUser();
+    const name = (u.EmployeeName || u.LoginUsername || u.Name || '').replace(/\s+/g, ' ').trim();
+    const parts = name.split(' ').filter(Boolean);
+    this.firstName = u.FirstName || parts[0] || '';
+    this.lastName = u.LastName || parts.slice(1).join(' ') || '';
+    this.email = u.EmpEmail || u.Email || '';
+    this.jobTitle = u.EmpDesignation || u.Designation || '';
+    if (u.EmpDepartment) { this.company = String(u.EmpDepartment).trim(); }
+    this.photoUrl = u.EmpPhotoPath || null;
     this.loadProfile();
   }
 
@@ -88,12 +97,13 @@ export class ProfileComponent implements OnInit {
     this.loading = true;
     this.esignService.getUserSignature(this.userId).subscribe({
       next: (res: any) => {
-        const r = res || {};
-        this.signatureImg = r.signatureBase64 ?? r.SignatureBase64 ?? this.signatureImg;
-        this.initialImg = r.initialBase64 ?? r.InitialBase64 ?? this.initialImg;
-        this.stampImg = r.stampBase64 ?? r.StampBase64 ?? this.stampImg;
-        this.dateFormat = r.dateFormat ?? r.DateFormat ?? this.dateFormat;
-        this.timeZone = r.timeZone ?? r.TimeZone ?? this.timeZone;
+        // API wraps the record in an envelope: { Code, Status, Message, Data: {...} }.
+        const r = (res && (res.Data ?? res.data)) ? (res.Data ?? res.data) : (res || {});
+        this.signatureImg = r.SignatureBase64 ?? r.signatureBase64 ?? this.signatureImg;
+        this.initialImg = r.InitialBase64 ?? r.initialBase64 ?? this.initialImg;
+        this.stampImg = r.StampBase64 ?? r.stampBase64 ?? this.stampImg;
+        this.dateFormat = r.DateFormat ?? r.dateFormat ?? this.dateFormat;
+        this.timeZone = r.TimeZone ?? r.timeZone ?? this.timeZone;
         this.loading = false;
       },
       error: () => { this.loading = false; }

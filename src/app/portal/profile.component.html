@@ -16,7 +16,10 @@
 
       <!-- identity -->
       <div class="pf-identity">
-        <div class="pf-avatar">{{ avatarInitials }}</div>
+        <div class="pf-avatar">
+          <img *ngIf="photoUrl" [src]="photoUrl" alt="" (error)="photoUrl = null">
+          <span *ngIf="!photoUrl">{{ avatarInitials }}</span>
+        </div>
         <div class="pf-idtext">
           <h2>{{ fullName }}</h2>
           <p>{{ email || '—' }}</p>

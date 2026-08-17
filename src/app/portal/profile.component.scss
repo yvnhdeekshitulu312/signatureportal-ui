@@ -143,3 +143,8 @@ $font:'Noto Kufi Arabic', sans-serif;
   .pf-capture { flex-direction: column; }
   .pf-row, .pf-field { flex-wrap: wrap; }
 }
+
+
+/* staff photo inside the avatar circle (falls back to initials) */
+.pf-avatar { overflow: hidden; }
+.pf-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }

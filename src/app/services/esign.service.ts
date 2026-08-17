@@ -77,10 +77,10 @@ export class EsignService {
     return this.http.get(`${this.baseUrl}/GetFile`, { params: { path }, responseType: 'blob' });
   }
    getUserSignature(userId: number) {
-    return this.http.get(`${this.baseUrl}/API/Esign/GetUserSignature`, { params: { userId } });
+    return this.http.get(`${this.baseUrl}/GetUserSignature`, { params: { userId } });
   }
   saveUserSignature(payload: any) {
-    return this.http.post(`${this.baseUrl}/API/Esign/SaveUserSignature`, payload);
+    return this.http.post(`${this.baseUrl}/SaveUserSignature`, payload);
   }
    
 }
