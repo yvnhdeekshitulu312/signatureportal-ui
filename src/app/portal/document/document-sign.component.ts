@@ -15,12 +15,24 @@ export class DocumentSignComponent implements OnInit {
   private ctx!: CanvasRenderingContext2D;
   private drawing = false;
   pdfUrl!: SafeResourceUrl;
+Email:any;
 
+  // saved items from the signer's profile (GetUserSignature)
+  userId = 0;
+  savedSignature: string | null = null;
+  savedInitial: string | null = null;
+  savedStamp: string | null = null;
+  showImport = false;
+  loadingSaved = false;
   constructor(private sanitizer: DomSanitizer, private route: ActivatedRoute, private router: Router, private esignService: EsignService) {}
 
   ngOnInit(): void {
+    const d = this.getUser();
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.esignService.getForLoggedInSigner(id).subscribe({
+    this.Email = d?.EmpEmail;
+    this.userId = Number(d?.UserId ?? d?.userId ?? d?.EmpId ?? 0) || 0;
+    this.loadMySignatures();
+    this.esignService.getForLoggedInSigner(id,this.Email).subscribe({
       next: (doc) => { this.doc = doc; 
         
          this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
@@ -29,6 +41,42 @@ export class DocumentSignComponent implements OnInit {
         this.loading = false; },
       error: () => { this.loading = false; alert('Unable to load this document for signing.'); this.router.navigate(['/dashboard/document']); }
     });
+  }
+
+  /** Resolve the cached user record (array | SmartDataList wrapper | plain object). */
+  private getUser(): any {
+    try {
+      const raw = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
+      if (Array.isArray(raw)) { return raw[0] || {}; }
+      if (raw && Array.isArray(raw.SmartDataList)) { return raw.SmartDataList[0] || {}; }
+      return raw || {};
+    } catch { return {}; }
+  }
+
+  /** Pull the signer's saved signature / initial / stamp from their profile. */
+  loadMySignatures(): void {
+    if (!this.userId) { return; }
+    this.loadingSaved = true;
+    this.esignService.getUserSignature(this.userId).subscribe({
+      next: (res: any) => {
+        const r = (res && (res.Data ?? res.data)) ? (res.Data ?? res.data) : (res || {});
+        this.savedSignature = r.SignatureBase64 ?? r.signatureBase64 ?? null;
+        this.savedInitial = r.InitialBase64 ?? r.initialBase64 ?? null;
+        this.savedStamp = r.StampBase64 ?? r.stampBase64 ?? null;
+        this.loadingSaved = false;
+      },
+      error: () => { this.loadingSaved = false; }
+    });
+  }
+
+  toggleImport(): void { this.showImport = !this.showImport; }
+
+  /** Apply a saved profile image (signature or initial) to the active field. */
+  useSaved(img: string | null): void {
+    if (!img || this.activeSignatureFieldId === null) { return; }
+    this.fieldValues[this.activeSignatureFieldId] = img;
+    this.activeSignatureFieldId = null;
+    this.showImport = false;
   }
 
   get pageImages(): string[] {
@@ -72,6 +120,12 @@ export class DocumentSignComponent implements OnInit {
   applyStamp(stampImage: string): void {
     if (this.activeStampFieldId === null) return;
 
+    if (stampImage.startsWith('data:')) {
+      this.fieldValues[this.activeStampFieldId] = stampImage;
+      this.activeStampFieldId = null;
+      return;
+    }
+
     this.convertImageToBase64(stampImage).then(base64 => {
       this.fieldValues[this.activeStampFieldId!] = base64;
       this.activeStampFieldId = null;
@@ -104,6 +158,7 @@ export class DocumentSignComponent implements OnInit {
 
   openSignaturePad(fieldId: number): void {
     this.activeSignatureFieldId = fieldId;
+    this.showImport = false;
     setTimeout(() => this.initCanvas(), 0);
   }
 
@@ -149,7 +204,7 @@ export class DocumentSignComponent implements OnInit {
     if (!this.allRequiredFilled()) { alert('Please fill all required fields before submitting.'); return; }
     const fieldValues = Object.keys(this.fieldValues).map(id => ({ fieldId: Number(id), value: this.fieldValues[Number(id)] }));
     this.isSubmitting = true;
-    this.esignService.signAsUser(this.doc.Id, fieldValues).subscribe({
+    this.esignService.signAsUser(this.doc.Id,this.Email, fieldValues).subscribe({
       next: () => { this.isSubmitting = false; alert('Document signed successfully.'); this.router.navigate(['/dashboard/document']); },
       error: () => { this.isSubmitting = false; alert('Failed to sign document. Please try again.'); }
     });

@@ -12,9 +12,11 @@ type StatusTone = 'draft' | 'progress' | 'done' | 'default';
 export class DocumentComponent implements OnInit {
 
   allDocs: any[] = [];
+  myPending: any[] = [];                 // documents pending MY signature (from getMyPending)
+  mode: 'all' | 'pending' = 'all';       // which source the table shows
   loading = false;
   owner = 'You';
-
+  Email:any;
   // ui state
   showFilters = false;
   compact = false;
@@ -36,6 +38,7 @@ export class DocumentComponent implements OnInit {
     try {
       const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
+       this.Email=d?.EmpEmail;
     } catch { /* keep default */ }
   }
 
@@ -53,9 +56,34 @@ export class DocumentComponent implements OnInit {
     });
   }
 
+  // Documents pending the logged-in user's signature (server decides "my turn"/order).
+  loadPending(): void {
+    this.loading = true;
+    this.esignService.getMyPending(this.Email).subscribe({
+      next: (docs: any[]) => { this.myPending = docs || []; this.loading = false; },
+      error: () => { this.myPending = []; this.loading = false; }
+    });
+  }
+
+  setMode(m: 'all' | 'pending'): void {
+    this.mode = m;
+    this.page = 1;
+    this.openMenuId = null;
+    if (m === 'pending') { this.loadPending(); }
+  }
+
+  /** Open a doc that is pending my signature straight into the signer view. */
+  openPending(d: any): void {
+    this.openMenuId = null;
+    this.router.navigate(['/dashboard/pendingdocuments/sign', d.Id]);
+  }
+
+  /** Row click: sign when in the pending queue, otherwise open the viewer. */
+  openRow(d: any): void { this.mode === 'pending' ? this.openPending(d) : this.viewDoc(d); }
+
   // ── derived ──
   get filtered(): any[] {
-    let list = this.allDocs;
+    let list = this.mode === 'pending' ? this.myPending : this.allDocs;
     const n = this.fName.trim().toLowerCase();
     const o = this.fOwner.trim().toLowerCase();
     const e = this.fEmail.trim().toLowerCase();

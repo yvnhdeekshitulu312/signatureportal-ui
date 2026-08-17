@@ -85,7 +85,10 @@
                 </button>
 
                 <div class="app-header__user" [class.open]="userMenuOpen" (click)="toggleUserMenu($event)">
-                    <div class="app-header__avatar">{{ avatarInitials }}</div>
+                    <div class="app-header__avatar">
+                        <img *ngIf="photoUrl" [src]="photoUrl" alt="" (error)="photoUrl = null">
+                        <span *ngIf="!photoUrl">{{ avatarInitials }}</span>
+                    </div>
                     <div class="app-header__user-info">
                         <div class="app-header__user-name">{{ loginUserName }}</div>
                         <div class="app-header__user-role">

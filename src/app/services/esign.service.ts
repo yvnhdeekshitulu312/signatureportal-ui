@@ -7,6 +7,8 @@ import {
   DocumentDetailResponse
 } from '../models/esign.models';
 import { environment } from 'src/environments/environment';
+import { HttpParams } from '@angular/common/http';
+
 
 @Injectable({ providedIn: 'root' })
 export class EsignService {
@@ -49,20 +51,40 @@ export class EsignService {
     return this.http.post<void>(`${this.baseUrl}/Reject`, { accessToken, reason });
   }
 
-  getMyPending(): Observable<DocumentDetailResponse[]> {
-    return this.http.get<DocumentDetailResponse[]>(`${this.baseUrl}/MyPending`);
-  }
+  // getMyPending(email: string): Observable<DocumentDetailResponse[]> {
+  //   return this.http.get<DocumentDetailResponse[]>(`${this.baseUrl}/MyPending/${email} `);    
+  // }
+
+  getMyPending(email: string): Observable<DocumentDetailResponse[]> {
+  const params = new HttpParams().set('email', email);
+
+  return this.http.get<DocumentDetailResponse[]>(
+    `${this.baseUrl}/MyPending`, 
+    { params }
+  );
+}
+
+ getForLoggedInSigner(documentId: number, email: string): Observable<DocumentDetailResponse> {
+  const params = new HttpParams()
+    .set('documentId', documentId.toString())
+    .set('email', email);
+
+  return this.http.get<DocumentDetailResponse>(
+    `${this.baseUrl}/GetForLoggedInSigner`, 
+    { params }
+  );
+}
+  
+
 
   getMyDocuments(): Observable<DocumentDetailResponse[]> {
     return this.http.get<DocumentDetailResponse[]>(`${this.baseUrl}/MyDocuments`);
   }
 
-  getForLoggedInSigner(documentId: number): Observable<DocumentDetailResponse> {
-    return this.http.get<DocumentDetailResponse>(`${this.baseUrl}/GetForLoggedInSigner/${documentId}`);
-  }
+ 
 
-  signAsUser(documentId: number, fieldValues: { fieldId: number; value: string }[]): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/SignAsUser`, { documentId, fieldValues });
+  signAsUser(documentId: number,email:any, fieldValues: { fieldId: number; value: string }[]): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/SignAsUser`, { documentId,email, fieldValues });
   }
 
   getDownloadUrl(documentId: number): Observable<DocumentDetailResponse> {

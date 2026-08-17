@@ -287,3 +287,8 @@
   &:hover { background: #E5E5E5; }
 }
 .app-header__menusep { height: 1px; background: #E5E5E5; margin: 4px 2px; }
+
+
+/* login photo inside the header avatar (falls back to initials) */
+.app-header__avatar { overflow: hidden; }
+.app-header__avatar img { width: 100%; height: 100%; object-fit: cover; }

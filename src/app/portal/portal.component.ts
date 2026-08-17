@@ -11,6 +11,7 @@ export class PortalComponent implements OnInit, OnDestroy {
   empDesignation = '';
   empId = '';
   avatarInitials = 'AH';
+  photoUrl: string | null = null;
   currentDate = '';
   currentTime = '';
 
@@ -35,6 +36,7 @@ export class PortalComponent implements OnInit, OnDestroy {
     this.empDesignation = localStorage.getItem('empDesignation') || '';
     this.empId = localStorage.getItem('empId') || '';
     this.avatarInitials = this.getInitials(this.loginUserName);
+    this.photoUrl = this.getUser().EmpPhotoPath || null;
     this.updateTime();
     this.timerId = setInterval(() => this.updateTime(), 1000);
   }
@@ -51,6 +53,16 @@ export class PortalComponent implements OnInit, OnDestroy {
     this.currentTime = now.toLocaleTimeString('en-US', {
       hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
+  }
+
+  /** Resolve the cached user record from doctorDetails (array | SmartDataList wrapper | object). */
+  private getUser(): any {
+    try {
+      const raw = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
+      if (Array.isArray(raw)) { return raw[0] || {}; }
+      if (raw && Array.isArray(raw.SmartDataList)) { return raw.SmartDataList[0] || {}; }
+      return raw || {};
+    } catch { return {}; }
   }
 
   private getInitials(name: string): string {

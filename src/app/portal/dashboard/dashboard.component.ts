@@ -11,19 +11,23 @@ import { DocumentDetailResponse } from 'src/app/models/esign.models';
 export class DashboardComponent implements OnInit {
 
   recentDocs: DocumentDetailResponse[] = [];
+  myPending: DocumentDetailResponse[] = [];  // documents pending MY signature (order-aware, from getMyPending)
   loading = false;
   activeFilter: 'all' | 'pending' | 'signed' | 'progress' = 'all';
   owner = 'You';
+  Email:any;
 
   constructor(private router: Router, private esignService: EsignService) {
     try {
       const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
+      this.Email=d?.EmpEmail;
     } catch { /* keep default */ }
   }
 
   ngOnInit(): void {
     this.loadRecent();
+    this.loadPending();
   }
 
   // Recent documents for the dashboard panel (from the same source as the list)
@@ -35,6 +39,14 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // Documents pending the logged-in user's signature (server decides "my turn"/order).
+  loadPending(): void {
+    this.esignService.getMyPending(this.Email).subscribe({
+      next: (docs) => { this.myPending = docs || []; },
+      error: () => { this.myPending = []; }
+    });
+  }
+
   // ── stats (derived from real loaded documents, not hard-coded) ──
   private statusOf(d: DocumentDetailResponse): string { return (d.Status || '').toLowerCase(); }
   isSigned(d: DocumentDetailResponse): boolean { return this.statusOf(d).includes('complet') || this.statusOf(d).includes('sign'); }
@@ -42,14 +54,14 @@ export class DashboardComponent implements OnInit {
   isPending(d: DocumentDetailResponse): boolean { return !this.isSigned(d) && !this.isProgress(d); }
 
   get totalCount(): number { return this.recentDocs.length; }
-  get pendingCount(): number { return this.recentDocs.filter(d => this.isPending(d)).length; }
+  get pendingCount(): number { return this.myPending.length; }
   get signedCount(): number { return this.recentDocs.filter(d => this.isSigned(d)).length; }
-  pct(n: number): number { return this.totalCount ? Math.round((n / this.totalCount) * 100) : 0; }
+  pct(n: number): number { return this.totalCount ? Math.min(100, Math.round((n / this.totalCount) * 100)) : 0; }
 
   // ── table filter ──
   setFilter(f: 'all' | 'pending' | 'signed' | 'progress'): void { this.activeFilter = f; }
   get filteredDocs(): DocumentDetailResponse[] {
-    if (this.activeFilter === 'pending') return this.recentDocs.filter(d => this.isPending(d));
+    if (this.activeFilter === 'pending') return this.myPending;
     if (this.activeFilter === 'signed') return this.recentDocs.filter(d => this.isSigned(d));
     if (this.activeFilter === 'progress') return this.recentDocs.filter(d => this.isProgress(d));
     return this.recentDocs;
@@ -129,7 +141,12 @@ createdOn(d: DocumentDetailResponse): string {
 
   // ── VIEW: open a document in the read-only viewer ──
   openDocument(d: DocumentDetailResponse): void {
-    this.router.navigate(['/dashboard/pendingdocuments/view', (d as any).Id]);
+    const mine = this.myPending.some(x => (x as any).Id === (d as any).Id);
+    if (mine) {
+      this.router.navigate(['/dashboard/pendingdocuments/sign', (d as any).Id]);
+    } else {
+      this.router.navigate(['/dashboard/pendingdocuments/view', (d as any).Id]);
+    }
   }
 
   // ── DRAFT actions (edit / delete) ──
