@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { EsignService } from 'src/app/services/esign.service';
 
 @Component({
@@ -32,6 +34,7 @@ export class PortalComponent implements OnInit, OnDestroy {
   notifOpen = false;
   pendingNotifications: any[] = [];
   get notifCount(): number { return this.pendingNotifications.length; }
+  private navSub?: Subscription;
 
   private timerId: any;
 
@@ -44,11 +47,17 @@ export class PortalComponent implements OnInit, OnDestroy {
     this.avatarInitials = this.getInitials(this.loginUserName);
     this.photoUrl = this.getUser().EmpPhotoPath || null;
     this.loadNotifications();
+    // Re-fetch the pending-signature count after each navigation so the badge
+    // reflects the latest state once a document is signed/sent.
+    this.navSub = this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => this.loadNotifications());
     this.updateTime();
     this.timerId = setInterval(() => this.updateTime(), 1000);
   }
 
   ngOnDestroy(): void {
+    this.navSub?.unsubscribe();
     if (this.timerId) clearInterval(this.timerId);
   }
 
@@ -99,6 +108,7 @@ export class PortalComponent implements OnInit, OnDestroy {
     ev?.stopPropagation();
     this.userMenuOpen = false;
     this.notifOpen = !this.notifOpen;
+    if (this.notifOpen) { this.loadNotifications(); }
   }
 
   /** Open a pending doc straight into the signer view. */
