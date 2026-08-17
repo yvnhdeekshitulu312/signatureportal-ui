@@ -132,4 +132,21 @@ createdOn(d: DocumentDetailResponse): string {
     this.router.navigate(['/dashboard/pendingdocuments/view', (d as any).Id]);
   }
 
+  // ── DRAFT actions (edit / delete) ──
+  isDraft(d: DocumentDetailResponse): boolean { return this.statusOf(d).includes('draft'); }
+
+  /** Resume a draft in the editor (editor keys off documentId). */
+  editDraft(d: DocumentDetailResponse, ev?: Event): void {
+    ev?.stopPropagation();
+    this.router.navigate(['/dashboard/document'], { queryParams: { documentId: (d as any).Id } });
+  }
+
+  deleteDoc(d: DocumentDetailResponse, ev?: Event): void {
+    ev?.stopPropagation();
+    if (!confirm(`Delete "${d.Name}"? This can't be undone.`)) { return; }
+    // TODO: call your delete endpoint before removing locally, e.g.
+    // this.esignService.deleteDocument((d as any).Id).subscribe(() => ...);
+    this.recentDocs = this.recentDocs.filter(x => x !== d);
+  }
+
 }

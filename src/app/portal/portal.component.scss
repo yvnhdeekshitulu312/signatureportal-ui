@@ -267,3 +267,23 @@
     display: none;
   }
 }
+
+
+/* ── user dropdown (Profile / Log out) ── */
+.app-header__user { position: relative; }
+.app-header__user.open { background: #E5E5E5; border-radius: 10px; }
+.app-header__menu {
+  position: absolute; inset-block-start: calc(100% + 10px); inset-inline-end: 0;
+  min-width: 200px; background: #FFFFFF; border: 1px solid #E5E5E5; border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(0, 38, 84, .16); padding: 6px; z-index: 1040;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.app-header__menuitem {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: start;
+  font-family: 'Noto Kufi Arabic', sans-serif; font-size: 13px; font-weight: 600; color: #002654;
+  background: transparent; border: none; border-radius: 8px; padding: 9px 12px; cursor: pointer;
+  transition: background .15s ease;
+  svg { width: 16px; height: 16px; flex-shrink: 0; color: #1855A4; }
+  &:hover { background: #E5E5E5; }
+}
+.app-header__menusep { height: 1px; background: #E5E5E5; margin: 4px 2px; }

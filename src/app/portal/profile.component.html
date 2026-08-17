@@ -1,0 +1,152 @@
+<!-- Self-service profile: signature, initial & stamp + basic details.
+     Rendered inside the portal shell (header + sidebar are separate). -->
+<div class="pf">
+
+  <div class="pf-head"><h1>Profile</h1></div>
+
+  <div class="pf-body">
+    <!-- secondary nav -->
+    <aside class="pf-subnav">
+      <button type="button" class="pf-subitem" [class.on]="section==='profile'" (click)="section='profile'">My profile</button>
+      <button type="button" class="pf-subitem" [class.on]="section==='delegate'" (click)="section='delegate'">Delegate</button>
+    </aside>
+
+    <!-- main -->
+    <section class="pf-main" *ngIf="section==='profile'">
+
+      <!-- identity -->
+      <div class="pf-identity">
+        <div class="pf-avatar">{{ avatarInitials }}</div>
+        <div class="pf-idtext">
+          <h2>{{ fullName }}</h2>
+          <p>{{ email || '—' }}</p>
+        </div>
+      </div>
+
+      <!-- signature + initial -->
+      <div class="pf-row">
+        <label class="pf-label">Signature and initial</label>
+        <div class="pf-previews">
+          <div class="pf-box" [class.empty]="!signatureImg">
+            <img *ngIf="signatureImg" [src]="signatureImg" alt="Signature">
+            <span *ngIf="!signatureImg" class="pf-ph">Signature</span>
+          </div>
+          <div class="pf-box small" [class.empty]="!initialImg">
+            <img *ngIf="initialImg" [src]="initialImg" alt="Initial">
+            <span *ngIf="!initialImg" class="pf-ph">Initial</span>
+          </div>
+          <button type="button" class="pf-edit" title="Edit signature" (click)="openSignature()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- stamp -->
+      <div class="pf-row">
+        <label class="pf-label">Stamp</label>
+        <div class="pf-previews">
+          <div class="pf-box stamp" [class.empty]="!stampImg">
+            <img *ngIf="stampImg" [src]="stampImg" alt="Stamp">
+            <span *ngIf="!stampImg" class="pf-ph">Stamp</span>
+          </div>
+          <button type="button" class="pf-edit" title="Edit stamp" (click)="openStamp()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- details -->
+      <div class="pf-field"><label>First name</label><input type="text" [(ngModel)]="firstName" class="pf-input"></div>
+      <div class="pf-field"><label>Last name</label><input type="text" [(ngModel)]="lastName" class="pf-input"></div>
+      <div class="pf-field"><label>Company</label><input type="text" [(ngModel)]="company" class="pf-input"></div>
+      <div class="pf-field"><label>Job title</label><input type="text" [(ngModel)]="jobTitle" class="pf-input"></div>
+      <div class="pf-field">
+        <label>Date format</label>
+        <select [(ngModel)]="dateFormat" class="pf-input pf-select">
+          <option *ngFor="let f of dateFormats" [ngValue]="f">{{ f }}</option>
+        </select>
+      </div>
+      <div class="pf-field"><label>Time zone</label><input type="text" [(ngModel)]="timeZone" class="pf-input" readonly></div>
+
+      <div class="pf-actions">
+        <button type="button" class="pf-btn" [disabled]="saving" (click)="update()">
+          {{ saving ? 'Saving…' : 'Update' }}
+        </button>
+      </div>
+    </section>
+
+    <section class="pf-main" *ngIf="section==='delegate'">
+      <div class="pf-delegate-empty">Delegation settings are not configured yet.</div>
+    </section>
+  </div>
+
+  <!-- ============ CAPTURE MODAL ============ -->
+  <div class="pf-modal" *ngIf="showCapture" (click)="closeCapture()">
+    <div class="pf-dialog" (click)="$event.stopPropagation()">
+
+      <!-- tabs -->
+      <div class="pf-tabs" *ngIf="captureTarget==='signatureSet'">
+        <button type="button" class="pf-tab" [class.on]="captureTab==='type'" (click)="setTab('type')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg>
+          <span>Type</span>
+        </button>
+        <button type="button" class="pf-tab" [class.on]="captureTab==='draw'" (click)="setTab('draw')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span>Draw</span>
+        </button>
+        <button type="button" class="pf-tab" [class.on]="captureTab==='upload'" (click)="setTab('upload')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 13l3-3 3 3 3-4"/></svg>
+          <span>Upload</span>
+        </button>
+      </div>
+
+      <!-- SIGNATURE + INITIAL -->
+      <div class="pf-capture" *ngIf="captureTarget==='signatureSet'">
+        <div class="pf-col">
+          <h4>Signature</h4>
+          <input *ngIf="captureTab==='type'" type="text" class="pf-input pf-typed" placeholder="Type your signature" [(ngModel)]="typeSignatureText">
+          <div *ngIf="captureTab==='draw'" class="pf-pad">
+            <canvas #sigPad (pointerdown)="padDown('sig', $event)" (pointermove)="padMove('sig', $event)" (pointerup)="padUp()" (pointerleave)="padUp()"></canvas>
+            <button type="button" class="pf-clear" (click)="clearPad('sig')">Clear</button>
+          </div>
+          <label *ngIf="captureTab==='upload'" class="pf-drop">
+            <input type="file" accept="image/*" (change)="onFile($event,'sig')" hidden>
+            <span *ngIf="!tempSignature">Drag &amp; drop or <b>Choose image</b></span>
+            <img *ngIf="tempSignature" [src]="tempSignature" alt="Signature preview">
+          </label>
+        </div>
+
+        <div class="pf-col">
+          <h4>Initial</h4>
+          <input *ngIf="captureTab==='type'" type="text" class="pf-input pf-typed" placeholder="Type your initials" [(ngModel)]="typeInitialText">
+          <div *ngIf="captureTab==='draw'" class="pf-pad">
+            <canvas #initPad (pointerdown)="padDown('init', $event)" (pointermove)="padMove('init', $event)" (pointerup)="padUp()" (pointerleave)="padUp()"></canvas>
+            <button type="button" class="pf-clear" (click)="clearPad('init')">Clear</button>
+          </div>
+          <label *ngIf="captureTab==='upload'" class="pf-drop">
+            <input type="file" accept="image/*" (change)="onFile($event,'init')" hidden>
+            <span *ngIf="!tempInitial">Drag &amp; drop or <b>Choose image</b></span>
+            <img *ngIf="tempInitial" [src]="tempInitial" alt="Initial preview">
+          </label>
+        </div>
+      </div>
+
+      <!-- STAMP (upload only) -->
+      <div class="pf-capture" *ngIf="captureTarget==='stamp'">
+        <div class="pf-col wide">
+          <h4>Stamp</h4>
+          <label class="pf-drop">
+            <input type="file" accept="image/*" (change)="onFile($event,'stamp')" hidden>
+            <span *ngIf="!tempStamp">Drag &amp; drop or <b>Choose image</b></span>
+            <img *ngIf="tempStamp" [src]="tempStamp" alt="Stamp preview">
+          </label>
+        </div>
+      </div>
+
+      <div class="pf-dialog-actions">
+        <button type="button" class="pf-btn ghost" (click)="closeCapture()">Cancel</button>
+        <button type="button" class="pf-btn" (click)="applyCapture()">Ok</button>
+      </div>
+    </div>
+  </div>
+</div>

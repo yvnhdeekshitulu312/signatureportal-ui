@@ -156,3 +156,22 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
   .dv-actions { grid-template-columns:1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .dv-eyebrow .dot { animation:none; } }
+
+
+/* ── Draft row actions (edit / delete) — approved palette only ── */
+.dv-rowacts { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.dv-iconbtn {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #E5E5E5; background: #FFFFFF; color: #002654;
+  cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.dv-iconbtn:hover { background: #E5E5E5; border-color: #A3BBDB; color: #1855A4; }
+.dv-iconbtn.danger:hover { background: #002654; border-color: #002654; color: #FFFFFF; }
+
+
+/* Draft action icons: give the 3 controls room (was 96px) and re-assert the
+   stroke so a global `svg { stroke:none }` reset can't blank the icons out. */
+.dv-table .c-view { width: 150px; }
+.dv-rowacts { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.dv-iconbtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; }

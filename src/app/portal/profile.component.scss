@@ -1,0 +1,145 @@
+/* Profile — approved palette + Noto Kufi Arabic only. Reference layout,
+   Al Hammadi brand colours (the reference's green becomes brand blue/teal). */
+$brand:#1855A4; $navy:#002654; $med:#7499C8; $royal:#3B7DC4; $lblue:#A3BBDB;
+$g8:#969696; $g5:#C0C0C0; $g1:#E5E5E5; $teal:#4FCED2; $tealL:#7FE2E5; $mint:#CDFCFB; $white:#FFFFFF;
+$font:'Noto Kufi Arabic', sans-serif;
+
+:host { display:block; font-family:$font; color:$navy; }
+
+.pf { padding: 22px 28px 60px; }
+.pf-head h1 { font-size: 22px; font-weight: 700; color: $navy; margin: 0 0 18px; }
+
+.pf-body { display: flex; gap: 28px; align-items: flex-start; }
+
+/* secondary nav */
+.pf-subnav {
+  flex: 0 0 210px; display: flex; flex-direction: column; gap: 4px;
+  background: $g1; border-radius: 12px; padding: 10px;
+}
+.pf-subitem {
+  font-family: inherit; text-align: start; font-size: 13px; font-weight: 600;
+  color: $g8; background: transparent; border: none; border-radius: 8px;
+  padding: 10px 14px; cursor: pointer; transition: background .15s, color .15s;
+  &:hover { color: $navy; background: $white; }
+  &.on { color: $brand; background: $white; box-shadow: inset 3px 0 0 $brand; }
+}
+
+/* main */
+.pf-main { flex: 1; max-width: 720px; }
+
+.pf-identity { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; }
+.pf-avatar {
+  width: 74px; height: 74px; border-radius: 50%;
+  background: linear-gradient(145deg, $royal, $navy);
+  color: $white; font-weight: 700; font-size: 24px;
+  display: flex; align-items: center; justify-content: center;
+}
+.pf-idtext h2 { margin: 0; font-size: 20px; font-weight: 700; color: $navy; }
+.pf-idtext p { margin: 2px 0 0; font-size: 13px; color: $g8; }
+
+/* signature / stamp rows */
+.pf-row { display: flex; align-items: center; gap: 18px; padding: 16px 0; border-bottom: 1px solid $g1; }
+.pf-label { flex: 0 0 160px; font-size: 13px; font-weight: 600; color: $navy; }
+.pf-previews { display: flex; align-items: center; gap: 14px; }
+.pf-box {
+  height: 74px; width: 260px; border: 1px solid $g1; border-radius: 10px;
+  background: $white; display: flex; align-items: center; justify-content: center; overflow: hidden;
+  img { max-height: 100%; max-width: 100%; object-fit: contain; }
+  &.small { width: 150px; }
+  &.stamp { width: 150px; height: 90px; }
+  &.empty { border-style: dashed; border-color: $g5; background: #FFFFFF; }
+}
+.pf-ph { font-size: 12px; color: $g8; }
+.pf-edit {
+  width: 36px; height: 36px; border-radius: 9px; border: 1px solid $g1;
+  background: $white; color: $brand; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s;
+  &:hover { background: $mint; border-color: $teal; }
+}
+
+/* details */
+.pf-field {
+  display: flex; align-items: center; gap: 18px; padding: 11px 0;
+  label { flex: 0 0 160px; font-size: 13px; font-weight: 600; color: $navy; }
+}
+.pf-input {
+  flex: 1; max-width: 420px; font-family: inherit; font-size: 13px; color: $navy;
+  background: $white; border: 1px solid $g1; border-radius: 9px; padding: 10px 13px; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  &:focus { border-color: $brand; box-shadow: 0 0 0 3px rgba(24,85,164,.12); }
+  &[readonly] { background: $g1; color: $g8; }
+}
+.pf-select { cursor: pointer; }
+
+.pf-actions { margin-top: 26px; }
+.pf-btn {
+  font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  background: $brand; color: $white; border: 1px solid $brand;
+  border-radius: 9px; padding: 11px 26px; transition: background .15s, opacity .15s;
+  &:hover { background: $navy; border-color: $navy; }
+  &:disabled { opacity: .6; cursor: default; }
+  &.ghost { background: $white; color: $navy; border-color: $g5; &:hover { background: $g1; } }
+}
+
+.pf-delegate-empty { color: $g8; font-size: 13px; padding: 30px 0; }
+
+/* ============ modal ============ */
+.pf-modal {
+  position: fixed; inset: 0; z-index: 1080;
+  background: rgba(0,38,84,.42);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.pf-dialog {
+  width: min(860px, 100%); background: $white; border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0,38,84,.32); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.pf-tabs { display: flex; gap: 6px; padding: 14px 20px 0; border-bottom: 1px solid $g1; }
+.pf-tab {
+  font-family: inherit; font-size: 12px; font-weight: 700; color: $g8;
+  background: transparent; border: none; cursor: pointer;
+  padding: 10px 16px 12px; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  border-bottom: 2.5px solid transparent; transition: color .15s, border-color .15s;
+  svg { width: 20px; height: 20px; }
+  &:hover { color: $navy; }
+  &.on { color: $brand; border-bottom-color: $brand; }
+}
+
+.pf-capture { display: flex; gap: 22px; padding: 24px; }
+.pf-col { flex: 1; h4 { margin: 0 0 12px; font-size: 15px; font-weight: 700; color: $navy; } &.wide { flex: 1; } }
+
+.pf-typed { max-width: none; width: 100%; }
+
+.pf-pad {
+  position: relative; height: 170px; border: 1px solid $g1; border-radius: 10px;
+  background: repeating-linear-gradient(0deg, transparent, transparent 168px, $g1 168px, $g1 169px);
+  canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+}
+.pf-clear {
+  position: absolute; inset-block-end: 8px; inset-inline-end: 8px;
+  font-family: inherit; font-size: 11px; font-weight: 700; color: $brand;
+  background: $white; border: 1px solid $g1; border-radius: 7px; padding: 4px 10px; cursor: pointer;
+  &:hover { background: $mint; border-color: $teal; }
+}
+
+.pf-drop {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  height: 170px; border: 1.5px dashed $g5; border-radius: 10px; background: #FFFFFF;
+  color: $g8; font-size: 13px; cursor: pointer; transition: border-color .15s, background .15s; overflow: hidden;
+  b { color: $brand; }
+  img { max-height: 100%; max-width: 100%; object-fit: contain; }
+  &:hover { border-color: $brand; background: $mint; }
+}
+
+.pf-dialog-actions {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 16px 24px; border-top: 1px solid $g1;
+}
+
+@media (max-width: 720px) {
+  .pf-body { flex-direction: column; }
+  .pf-subnav { flex-basis: auto; width: 100%; flex-direction: row; }
+  .pf-capture { flex-direction: column; }
+  .pf-row, .pf-field { flex-wrap: wrap; }
+}

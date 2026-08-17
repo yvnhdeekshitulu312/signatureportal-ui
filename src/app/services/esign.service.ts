@@ -76,5 +76,11 @@ export class EsignService {
   downloadFile(path: string): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/GetFile`, { params: { path }, responseType: 'blob' });
   }
-  
+   getUserSignature(userId: number) {
+    return this.http.get(`${this.baseUrl}/API/Esign/GetUserSignature`, { params: { userId } });
+  }
+  saveUserSignature(payload: any) {
+    return this.http.post(`${this.baseUrl}/API/Esign/SaveUserSignature`, payload);
+  }
+   
 }

@@ -132,7 +132,21 @@
           </div>
 
           <div class="recip-fields">
-            <input type="email" class="input" formControlName="email" placeholder="Email">
+            <div class="recip-emailwrap">
+              <input type="email" class="input" formControlName="email" placeholder="Search name or email" autocomplete="off"
+                     (input)="onEmpSearch(i, $any($event.target).value)"
+                     (focus)="onEmpSearch(i, $any($event.target).value)"
+                     (blur)="hideSuggestions()">
+              <div class="emp-suggest" *ngIf="suggestFor === i && (empSuggestions.length || searchingEmp)">
+                <div class="emp-loading" *ngIf="searchingEmp">Searching…</div>
+                <button type="button" class="emp-item" *ngFor="let e of empSuggestions" (mousedown)="selectEmployee(i, e)">
+                  <span class="emp-name">{{ e.EmployeeName }}</span>
+                  <span class="emp-email">{{ e.Email }}</span>
+                  <span class="emp-desg" *ngIf="e.Designation">{{ e.Designation }}</span>
+                </button>
+                <div class="emp-none" *ngIf="!searchingEmp && !empSuggestions.length">No matches</div>
+              </div>
+            </div>
             <input type="text" class="input" formControlName="name" placeholder="Full name">
             <select class="input select" formControlName="role">
               <option value="Sign">Needs to sign</option>

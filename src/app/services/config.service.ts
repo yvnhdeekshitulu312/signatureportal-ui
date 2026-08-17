@@ -67,6 +67,11 @@ export class ConfigService {
     return this.https.get<any>(this.hisUrl + '/FetchHospitalLocations?type=0&filter=blocked=0&UserId=0&WorkstationId=0', this.httpOptions);
   }
 
+   searchEmployees(Name: any) {
+   // return this.https.get(`${this.hisUrl}/SSEmployeeDetailsZoho`, { params: { Name } });
+    return this.https.get<any>(this.hisUrl + '/SSEmployeeDetailsZoho?Name='+ Name+'', this.httpOptions);
+  }
+
   validateDoctorLogin(username: string, password: string, location: string) {
     return this.https.get<any>(this.devApiUrl + '/ValidateLoginCredentials?username='+ username +'&password='+ password +'&location='+ location +'', this.httpOptions);
   }

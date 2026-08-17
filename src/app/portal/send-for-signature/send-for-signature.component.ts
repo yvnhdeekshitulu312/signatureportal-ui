@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EsignService } from '../../services/esign.service';
-
+import { ConfigService } from '../../services/config.service';
 interface UploadedDoc {
   documentId: number;
   name: string;
@@ -25,9 +25,16 @@ export class SendForSignatureComponent implements OnInit {
   isUploading = false;
   isSending = false;
 
+  // ── employee smart-search (per recipient row) ──
+  empSuggestions: any[] = [];
+  suggestFor: number | null = null;
+  searchingEmp = false;
+  private searchTimer: any;
+
   constructor(
     private fb: FormBuilder,
     private esignService: EsignService,
+    private ConfigService: ConfigService,
     private router: Router
   ) {}
 
@@ -148,6 +155,37 @@ export class SendForSignatureComponent implements OnInit {
   }
 
   triggerFilePicker(el: HTMLInputElement): void { el.click(); }
+
+  // ── employee smart-search ──
+  // Type a name in the Email box → look up matching staff → pick one to fill
+  // email + name. Uses (mousedown) on options so the pick fires before blur.
+  onEmpSearch(i: number, term: string): void {
+    const q = (term || '').trim();
+    this.suggestFor = i;
+    clearTimeout(this.searchTimer);
+    if (q.length < 2) { this.empSuggestions = []; this.searchingEmp = false; return; }
+    this.searchTimer = setTimeout(() => {
+      this.searchingEmp = true;
+      this.ConfigService.searchEmployees(q).subscribe({
+        next: (list: any) => { this.empSuggestions = list.SSEmployeeDetailsZohoDataList || []; this.searchingEmp = false; },
+        error: () => { this.empSuggestions = []; this.searchingEmp = false; }
+      });
+    }, 300);
+  }
+
+  selectEmployee(i: number, emp: any): void {
+    this.recipients.at(i).patchValue({
+      email: (emp.Email || '').trim(),
+      name: (emp.EmployeeName || '').replace(/\s+/g, ' ').trim()
+    });
+    this.empSuggestions = [];
+    this.suggestFor = null;
+  }
+
+  hideSuggestions(): void {
+    // small delay so a mousedown on an option registers before we hide
+    setTimeout(() => { this.suggestFor = null; this.empSuggestions = []; }, 150);
+  }
 
   // ── continue to the editor ──
   gotoDocument(): void {

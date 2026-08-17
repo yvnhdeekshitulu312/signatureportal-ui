@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -22,6 +22,9 @@ export class PortalComponent implements OnInit, OnDestroy {
 
   // Notification indicator — wire to a real count/service when available.
   hasNotifications = true;
+
+  // User dropdown (Profile / Log out)
+  userMenuOpen = false;
 
   private timerId: any;
 
@@ -66,6 +69,15 @@ export class PortalComponent implements OnInit, OnDestroy {
 
   openNotifications(): void {
     // TODO: open notifications panel / navigate to notifications.
+  }
+
+  toggleUserMenu(ev?: Event): void { ev?.stopPropagation(); this.userMenuOpen = !this.userMenuOpen; }
+
+  @HostListener('document:click') closeUserMenu(): void { this.userMenuOpen = false; }
+
+  goToProfile(): void {
+    this.userMenuOpen = false;
+    this.router.navigate(['/dashboard/profile']);
   }
 
   logout(): void {

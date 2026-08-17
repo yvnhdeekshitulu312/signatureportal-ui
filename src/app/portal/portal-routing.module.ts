@@ -9,6 +9,8 @@ import { ApprovalformComponent } from './approvalform/approvalform.component';
 import { DocumentEditorComponent } from './document/document-editor.component';
 import { DocumentSignComponent } from './document/document-sign.component';
 import { DocumentViewComponent } from './document/document-view.component';
+import { ProfileComponent } from './profile.component';
+
 
 const routes: Routes = [
   {
@@ -17,6 +19,7 @@ const routes: Routes = [
       { path: 'sendforsignature', component: SendForSignatureComponent },
       { path: 'document', component: DocumentEditorComponent },
       { path: 'approval', component: ApprovalformComponent },
+      { path: 'profile', component: ProfileComponent },
 
       {
         path: 'pendingdocuments',
