@@ -6,7 +6,7 @@ $teal:#FAF7F0; $teal-light:#E3F2F0; $mint:#1855a41a; $gray-8:#969696; $gray-5:#C
 $font:'Noto Kufi Arabic', sans-serif;
 
 :host { display:block; font-family:$font; color:$navy; }
-.dv { padding:10px;    height: calc(100vh - 4rem);overflow: auto;}
+.dv { padding:10px;    height: calc(100vh - 7rem);overflow: auto;}
 .dv * { box-sizing:border-box; }
 
 /* hero */

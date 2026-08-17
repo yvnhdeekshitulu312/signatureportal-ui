@@ -8,7 +8,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 :host { display: block; height: 100%; font-family: $font; }
 
 .sidebar {
-  height: calc(100vh - 4rem); width: 92px; background: $white;
+  height: calc(100vh - 6.5rem); width: 92px; background: $white;
   border-inline-end: 1px solid $gray-1; padding: 14px 10px;
 }
 

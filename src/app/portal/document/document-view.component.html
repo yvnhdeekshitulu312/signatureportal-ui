@@ -67,7 +67,7 @@
           </div>
         </header>
         
-      <div class="doc-canvas-wrapper">
+      <div class="doc-canvas-wrapper" [class.doc-canvas-wrapper-pager]="pageImages.length > 1">
         <div class="doc-canvas">
           <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="doc-img" alt="Document page">
           <div class="page-overlay">
