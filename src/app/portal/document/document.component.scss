@@ -51,7 +51,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 .bulk-bar .acts span.danger:hover { color:$brand; }
 
 /* panel + table */
-.panel { background:$white; border:1px solid $gray-1; border-radius:18px; overflow:hidden; box-shadow:0 20px 40px -30px rgba(0,38,84,.3); }
+.panel { background:$white; border:1px solid $gray-1; border-radius:18px; box-shadow:0 20px 40px -30px rgba(0,38,84,.3); }
 table { width:100%; border-collapse:collapse; }
 thead tr { background:rgba(24,85,164,.04); }
 th { text-align:start; font-size:10.5px; letter-spacing:.6px; color:$gray-8; font-weight:800; padding:15px 14px; text-transform:uppercase; border-bottom:1px solid $gray-1; white-space:nowrap; }
@@ -89,7 +89,7 @@ input[type=checkbox] { width:16px; height:16px; accent-color:$brand; cursor:poin
 .dash { color:$gray-5; }
 
 /* pills */
-.pill { display:inline-block; padding:5px 13px; border-radius:999px; font-size:10.5px; font-weight:800; letter-spacing:.3px; text-transform:uppercase; white-space:nowrap;
+.pill { display:inline-block; padding:5px 13px;height:unset; border-radius:999px; font-size:10.5px; font-weight:800; letter-spacing:.3px; text-transform:uppercase; white-space:nowrap;
   &.draft { background:rgba(24,85,164,.10); color:$brand; }
   &.completed { background:$mint; color:$navy; }
   &.progress { background:rgba(59,125,196,.16); color:$royal; }
