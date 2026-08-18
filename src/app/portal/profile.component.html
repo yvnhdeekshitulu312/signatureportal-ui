@@ -7,75 +7,164 @@
   <div class="pf-body">
     <!-- secondary nav -->
     <aside class="pf-subnav">
-      <button type="button" class="pf-subitem" [class.on]="section==='profile'" (click)="section='profile'">My profile</button>
-      <button type="button" class="pf-subitem" [class.on]="section==='delegate'" (click)="section='delegate'">Delegate</button>
+      <!-- <button type="button" class="pf-subitem" [class.on]="section==='profile'" (click)="section='profile'">My profile</button>
+      <button type="button" class="pf-subitem" [class.on]="section==='delegate'" (click)="section='delegate'">Delegate</button> -->
+
+      <div class="profile-card">
+
+        <!-- Profile Avatar -->
+        <div class="profile-avatar-wrapper">
+          <div class="profile-avatar">
+            <img *ngIf="photoUrl" [src]="photoUrl" alt="" (error)="photoUrl = null">
+            <span *ngIf="!photoUrl">{{ avatarInitials }}</span>
+          </div>
+        </div>
+
+        <!-- User Information -->
+        <div class="profile-user-info text-center">
+          <h3 class="profile-user-name mb-1">
+            {{ fullName }}
+          </h3>
+
+          <p class="profile-user-email mb-3">
+            {{ email || '—' }}
+          </p>
+
+          <div class="profile-role">
+            Computer Programmer
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="profile-divider"></div>
+
+        <!-- Profile Details -->
+        <div class="profile-details">
+
+          <div class="profile-detail-row d-flex align-items-center justify-content-between">
+            <span class="profile-detail-label">
+              Company
+            </span>
+            <span class="profile-detail-value">
+             {{ company }}
+            </span>
+          </div>
+
+          <div class="profile-detail-row d-flex align-items-center justify-content-between">
+            <span class="profile-detail-label">
+              Time zone
+            </span>
+            <span class="profile-detail-value">
+              {{timeZone}}
+            </span>
+          </div>
+
+          <div class="profile-detail-row d-flex align-items-center justify-content-between">
+            <span class="profile-detail-label">
+              Date format
+            </span>
+            <span class="profile-detail-value">
+              {{dateFormat}}
+            </span>
+          </div>
+
+        </div>
+
+      </div>
     </aside>
 
     <!-- main -->
-    <section class="pf-main" *ngIf="section==='profile'">
+    <section class="" *ngIf="section==='profile'">
+      <div class="pf-main d-flex flex-column gap-3">
 
-      <!-- identity -->
-      <div class="pf-identity">
-        <div class="pf-avatar">
-          <img *ngIf="photoUrl" [src]="photoUrl" alt="" (error)="photoUrl = null">
-          <span *ngIf="!photoUrl">{{ avatarInitials }}</span>
-        </div>
-        <div class="pf-idtext">
-          <h2>{{ fullName }}</h2>
-          <p>{{ email || '—' }}</p>
-        </div>
-      </div>
-
-      <!-- signature + initial -->
-      <div class="pf-row">
-        <label class="pf-label">Signature and initial</label>
-        <div class="pf-previews">
-          <div class="pf-box" [class.empty]="!signatureImg">
-            <img *ngIf="signatureImg" [src]="signatureImg" alt="Signature">
-            <span *ngIf="!signatureImg" class="pf-ph">Signature</span>
+        <!-- identity -->
+        <!-- <div class="pf-identity">
+          <div class="pf-avatar">
+            <img *ngIf="photoUrl" [src]="photoUrl" alt="" (error)="photoUrl = null">
+            <span *ngIf="!photoUrl">{{ avatarInitials }}</span>
           </div>
-          <div class="pf-box small" [class.empty]="!initialImg">
-            <img *ngIf="initialImg" [src]="initialImg" alt="Initial">
-            <span *ngIf="!initialImg" class="pf-ph">Initial</span>
+          <div class="pf-idtext">
+            <h2>{{ fullName }}</h2>
+            <p>{{ email || '—' }}</p>
           </div>
-          <button type="button" class="pf-edit" title="Edit signature" (click)="openSignature()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          </button>
+        </div> -->
+
+        <!-- signature + initial -->
+        <div class="pf-row">
+          <label class="pf-label">Signature and initial</label>
+          <div class="pf-previews">
+            <div class="pf-box" [class.empty]="!signatureImg">
+              <img *ngIf="signatureImg" [src]="signatureImg" alt="Signature">
+              <span *ngIf="!signatureImg" class="pf-ph">Signature</span>
+            </div>
+            <div class="pf-box small" [class.empty]="!initialImg">
+              <img *ngIf="initialImg" [src]="initialImg" alt="Initial">
+              <span *ngIf="!initialImg" class="pf-ph">Initial</span>
+            </div>
+            <button type="button" class="pf-edit" title="Edit signature" (click)="openSignature()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- stamp -->
+        <div class="pf-row">
+          <label class="pf-label">Stamp</label>
+          <div class="pf-previews">
+            <div class="pf-box stamp" [class.empty]="!stampImg">
+              <img *ngIf="stampImg" [src]="stampImg" alt="Stamp">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 4.3L6 9l4.1 1.7L12 15l1.9-4.3L18 9l-4.1-1.7Z"></path></svg>
+              <span class="pf-ph">AI Generate</span>
+            </div>
+            <button type="button" class="pf-edit" title="Edit stamp" (click)="openStamp()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- details -->
+        <div class="pf-row">
+          <label class="pf-label">Personal information</label>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="pf-field"><label>First name</label><input type="text" [(ngModel)]="firstName" readonly class="pf-input"></div>
+            </div>
+            <div class="col-6">
+                <div class="pf-field"><label>Last name</label><input type="text" [(ngModel)]="lastName" readonly class="pf-input"></div>
+            </div>
+            <div class="col-6">
+                <div class="pf-field"><label>Company</label><input type="text" [(ngModel)]="company" readonly class="pf-input"></div>
+            </div>
+            <div class="col-6">
+              <div class="pf-field"><label>Job title</label><input type="text" [(ngModel)]="jobTitle" readonly class="pf-input"></div>
+            </div>
+          </div>
+        </div>
+        <div class="pf-row">
+          <label class="pf-label">Preferences</label>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="pf-field">
+                <label>Date format</label>
+                <select [(ngModel)]="dateFormat" class="pf-input pf-select">
+                  <option *ngFor="let f of dateFormats" [ngValue]="f">{{ f }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="pf-field"><label>Time zone</label><input type="text" [(ngModel)]="timeZone" class="pf-input" readonly></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- stamp -->
-      <div class="pf-row">
-        <label class="pf-label">Stamp</label>
-        <div class="pf-previews">
-          <div class="pf-box stamp" [class.empty]="!stampImg">
-            <img *ngIf="stampImg" [src]="stampImg" alt="Stamp">
-            <span *ngIf="!stampImg" class="pf-ph">Stamp</span>
-          </div>
-          <button type="button" class="pf-edit" title="Edit stamp" (click)="openStamp()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- details -->
-      <div class="pf-field"><label>First name</label><input type="text" [(ngModel)]="firstName" class="pf-input"></div>
-      <div class="pf-field"><label>Last name</label><input type="text" [(ngModel)]="lastName" class="pf-input"></div>
-      <div class="pf-field"><label>Company</label><input type="text" [(ngModel)]="company" class="pf-input"></div>
-      <div class="pf-field"><label>Job title</label><input type="text" [(ngModel)]="jobTitle" class="pf-input"></div>
-      <div class="pf-field">
-        <label>Date format</label>
-        <select [(ngModel)]="dateFormat" class="pf-input pf-select">
-          <option *ngFor="let f of dateFormats" [ngValue]="f">{{ f }}</option>
-        </select>
-      </div>
-      <div class="pf-field"><label>Time zone</label><input type="text" [(ngModel)]="timeZone" class="pf-input" readonly></div>
 
       <div class="pf-actions">
         <button type="button" class="pf-btn" [disabled]="saving" (click)="update()">
           {{ saving ? 'Saving…' : 'Update' }}
         </button>
       </div>
+
     </section>
 
     <section class="pf-main" *ngIf="section==='delegate'">
