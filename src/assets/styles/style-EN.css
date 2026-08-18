@@ -3,14 +3,12 @@
 
 html,
 body {
-  /* font-family: "Poppins", sans-serif !important; */
-  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-family: "Noto Kufi Arabic", sans-serif !important;
   font-size: 16px;
 }
 
 * {
-  /* font-family: "Poppins", sans-serif !important; */
-  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-family: "Noto Kufi Arabic", sans-serif !important;
 }
 
 h2, h3 {

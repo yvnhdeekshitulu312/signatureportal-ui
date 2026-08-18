@@ -4,7 +4,7 @@
    Tints are rgba() of approved colours, per house convention. */
 $brand:#1855A4; $navy:#002654; $med:#7499C8; $royal:#3B7DC4; $lblue:#A3BBDB;
 $g8:#969696; $g5:#C0C0C0; $g1:#E5E5E5; $teal:#4FCED2; $tealL:#7FE2E5; $mint:#CDFCFB; $white:#FFFFFF;
-$font:'Noto Kufi Arabic', sans-serif;
+$font:'Noto Kufi Arabic', sans-serif !important;
 
 :host { display:block; font-family:$font; }
 
@@ -17,7 +17,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 
 /* header */
 .A-top {
-  padding:22px 26px 18px; display:flex; justify-content:space-between;
+  padding:10px 30px 10px; display:flex; justify-content:space-between;
   align-items:flex-end; flex-wrap:wrap; gap:14px;
   h1 { font-size:20px; font-weight:800; color:$navy; }
   .sub { font-size:12px; color:$g8; margin-top:4px; font-weight:600; }
@@ -44,8 +44,17 @@ $font:'Noto Kufi Arabic', sans-serif;
 .A-seg {
   display:flex; background:$g1; border-radius:11px; padding:4px; gap:2px;
   button {
-    font-family:$font; font-size:12px; font-weight:700; padding:9px 16px; border-radius:8px;
-    border:none; background:transparent; color:$g8; cursor:pointer; white-space:nowrap; transition:background .15s, color .15s;
+        font-family: "Noto Kufi Arabic", sans-serif !important;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #969696;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
     &:hover { color:$navy; }
     &.active { background:$navy; color:$white; }
   }
@@ -64,20 +73,20 @@ $font:'Noto Kufi Arabic', sans-serif;
     &:hover { background:rgba(24,85,164,.04); } }
   td { padding:15px 16px; vertical-align:middle; }
 }
-.A-docname { display:flex; align-items:center; gap:11px; font-size:13.5px; font-weight:700; color:$navy; }
+.A-docname { display:flex; align-items:center; gap:11px; font-size:12.5px; font-weight:500; color:$navy; }
 .A-nametxt { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:340px; }
 .A-fic {
-  width:34px; height:34px; border-radius:9px; background:$g1; color:$brand;
+  width:34px; height:34px; border-radius:9px;  color:$brand;
   display:flex; align-items:center; justify-content:center; flex-shrink:0;
 }
-.A-owner { display:flex; align-items:center; gap:9px; font-size:12.5px; font-weight:600; color:$navy; }
+.A-owner { display:flex; align-items:center; gap:9px; font-size:12.5px; font-weight:500; color:$navy; }
 .A-av {
   width:26px; height:26px; border-radius:50%; background:$med; color:$white;
   font-size:10.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;
 }
 .A-recip {
   display:flex; flex-direction:column; gap:4px;
-  span { font-size:11.5px; color:$brand; font-weight:600; display:flex; align-items:center; gap:6px; }
+  span { font-size:11.5px; color:$brand; font-weight:500; display:flex; align-items:center; gap:6px; }
   .dash { color:$g8; font-weight:400; }
   .more { color:$g8; font-weight:700; }
 }
@@ -86,9 +95,24 @@ $font:'Noto Kufi Arabic', sans-serif;
   padding:6px 13px; border-radius:20px; letter-spacing:.02em; text-transform:capitalize;
   background:$g1; color:$g8;                    /* default / draft */
   .A-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
-  &.completed { background:$mint; color:$navy; }
-  &.draft     { background:$g1;   color:$g8; }
-  &.pending   { background:rgba(24,85,164,.12); color:$brand; }
+  &.completed { background: #D1FAE5;
+    color: #166534;
+    font-size: 11.5px;
+    font-weight: 500;width: 110px;
+   }
+  &.draft     { 
+    background: #DBEAFE;
+    color: #1E40AF;
+    font-size: 11.5px;
+    font-weight: 500;
+    width: 110px; }
+  &.pending   { 
+    background: #FEF3C7;
+    color: #92400E;
+    font-size: 11.5px;
+    font-weight: 500;
+    width: 110px;
+   }
 }
 .A-created { font-size:12px; color:$g8; font-weight:600; white-space:nowrap; }
 
