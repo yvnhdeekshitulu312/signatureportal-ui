@@ -24,11 +24,11 @@ export class EsignService {
   //   formData.append('file', file, file.name);
   //   return this.http.post<UploadDocumentResponse>(`${this.baseUrl}/UploadDocument`, formData);
   // }
-  uploadDocument(file: File, uploadedBy: string): Observable<UploadDocumentResponse> {
+  uploadDocument(file: File, uploadedBy: string,EmpID:string): Observable<UploadDocumentResponse> {
   const formData = new FormData();
   formData.append('file', file, file.name);
   formData.append('uploadedBy', uploadedBy);
-
+  formData.append('EmpID', EmpID);
   return this.http.post<UploadDocumentResponse>(
     `${this.baseUrl}/UploadDocument`, 
     formData
@@ -38,6 +38,8 @@ export class EsignService {
   sendDocument(request: SendDocumentRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/SendDocument`, request);
   }
+
+  
 
   sendDocumentMail(model: any): Observable<any> {
     // `model` is the SignatureModel-shaped object the editor builds
@@ -65,8 +67,11 @@ export class EsignService {
   //   return this.http.get<DocumentDetailResponse[]>(`${this.baseUrl}/MyPending/${email} `);    
   // }
 
-  getMyPending(email: string): Observable<DocumentDetailResponse[]> {
-  const params = new HttpParams().set('email', email);
+  getMyPending(email: string,EmpID:string): Observable<DocumentDetailResponse[]> {
+  const params = new HttpParams()
+  .set('email', email)
+  .set('EmpID', EmpID);
+  ;
 
   return this.http.get<DocumentDetailResponse[]>(
     `${this.baseUrl}/MyPending`, 
@@ -85,8 +90,10 @@ export class EsignService {
   );
 }
   
-getMyDocuments(email: string): Observable<DocumentDetailResponse[]> {
-  const params = new HttpParams().set('email', email);
+getMyDocuments(email: string,EmpID:string): Observable<DocumentDetailResponse[]> {
+  const params = new HttpParams()
+  .set('email', email)
+  .set('EmpID', EmpID);
 
   return this.http.get<DocumentDetailResponse[]>(
     `${this.baseUrl}/MyDocuments`, 

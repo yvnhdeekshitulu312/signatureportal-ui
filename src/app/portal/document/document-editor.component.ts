@@ -54,7 +54,7 @@ export class DocumentEditorComponent implements OnInit {
   selectedFieldId: string | null = null;
   isSending = false;
 owner = 'You';
-  Email:any;
+  Email:any; EmpID:any;
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -64,6 +64,7 @@ owner = 'You';
      const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
        this.Email=d?.EmpEmail;
+       this.EmpID=d?.EmpId;
   }
 
   ngOnInit(): void {
@@ -317,6 +318,7 @@ owner = 'You';
       documentId: doc.documentId,
       documentName: doc.name,
       email: this.Email,
+      EmpID: this.EmpID,
       isOrdered: draft.isOrdered,
       daysToComplete: draft.daysToComplete,
       reminderDays: draft.reminderDays,

@@ -97,8 +97,9 @@ export class PortalComponent implements OnInit, OnDestroy {
 
   loadNotifications(): void {
     const email = this.getUser().EmpEmail;
+     const EmpID = this.getUser().EmpId;
     if (!email) { return; }
-    this.esignService.getMyPending(email).subscribe({
+    this.esignService.getMyPending(email,EmpID).subscribe({
       next: (docs: any[]) => { this.pendingNotifications = docs || []; },
       error: () => { this.pendingNotifications = []; }
     });

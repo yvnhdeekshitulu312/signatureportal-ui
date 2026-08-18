@@ -16,12 +16,13 @@ export class DashboardComponent implements OnInit {
   activeFilter: 'all' | 'pending' | 'signed' | 'progress' = 'all';
   owner = 'You';
   Email:any;
-
+EmpID:any;
   constructor(private router: Router, private esignService: EsignService) {
     try {
       const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
       this.Email=d?.EmpEmail;
+      this.EmpID=d?.EmpId;
     } catch { /* keep default */ }
   }
 
@@ -33,7 +34,7 @@ export class DashboardComponent implements OnInit {
   // Recent documents for the dashboard panel (from the same source as the list)
   loadRecent(): void {
     this.loading = true;
-    this.esignService.getMyDocuments(this.Email).subscribe({
+    this.esignService.getMyDocuments(this.Email,this.EmpID).subscribe({
       next: (docs) => { this.recentDocs = docs || []; this.loading = false; },
       error: () => { this.loading = false; }
     });
@@ -41,7 +42,7 @@ export class DashboardComponent implements OnInit {
 
   // Documents pending the logged-in user's signature (server decides "my turn"/order).
   loadPending(): void {
-    this.esignService.getMyPending(this.Email).subscribe({
+    this.esignService.getMyPending(this.Email,this.EmpID).subscribe({
       next: (docs) => { this.myPending = docs || []; },
       error: () => { this.myPending = []; }
     });

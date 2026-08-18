@@ -17,6 +17,7 @@ export class DocumentComponent implements OnInit {
   loading = false;
   owner = 'You';
   Email:any;
+    EmpID:any;
   // ui state
   showFilters = false;
   compact = false;
@@ -39,6 +40,7 @@ export class DocumentComponent implements OnInit {
       const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
        this.Email=d?.EmpEmail;
+       this.EmpID=d?.EmpId;
     } catch { /* keep default */ }
   }
 
@@ -53,7 +55,7 @@ export class DocumentComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.esignService.getMyDocuments(this.Email).subscribe({
+    this.esignService.getMyDocuments(this.Email,this.EmpID).subscribe({
       next: (docs: any[]) => { this.allDocs = docs || []; this.loading = false; },
       error: () => { this.loading = false; }
     });
@@ -62,7 +64,7 @@ export class DocumentComponent implements OnInit {
   // Documents pending the logged-in user's signature (server decides "my turn"/order).
   loadPending(): void {
     this.loading = true;
-    this.esignService.getMyPending(this.Email).subscribe({
+    this.esignService.getMyPending(this.Email,this.EmpID).subscribe({
       next: (docs: any[]) => { this.myPending = docs || []; this.loading = false; },
       error: () => { this.myPending = []; this.loading = false; }
     });

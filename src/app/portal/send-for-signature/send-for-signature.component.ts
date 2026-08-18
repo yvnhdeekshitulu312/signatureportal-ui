@@ -27,6 +27,7 @@ export class SendForSignatureComponent implements OnInit {
   isSending = false;
   owner = 'You';
   Email: any;
+  EmpID: any;
   // ── employee smart-search (per recipient row) ──
   empSuggestions: any[] = [];
   suggestFor: number | null = null;
@@ -42,6 +43,7 @@ export class SendForSignatureComponent implements OnInit {
     const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
     this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
     this.Email = d?.EmpEmail;
+    this.EmpID=d?.EmpId;
   }
 
   ngOnInit(): void {
@@ -153,8 +155,8 @@ export class SendForSignatureComponent implements OnInit {
 
     // Assuming you have the user's email/username stored in a property like this.userEmail or this.currentUser.email
     const uploadedBy = this.Email; // or pass it as a method argument: uploadOne(file: File, uploadedBy: string)
-
-    this.esignService.uploadDocument(file, uploadedBy).subscribe({
+const EmpID = this.EmpID;
+    this.esignService.uploadDocument(file, uploadedBy,EmpID).subscribe({
       next: (res) => {
         this.uploadedDocs.push({
           documentId: res.DocumentId,
@@ -217,7 +219,8 @@ export class SendForSignatureComponent implements OnInit {
   selectEmployee(i: number, emp: any): void {
     this.recipients.at(i).patchValue({
       email: (emp.Email || '').trim(),
-      name: (emp.EmployeeName || '').replace(/\s+/g, ' ').trim()
+      name: (emp.EmployeeName || '').replace(/\s+/g, ' ').trim(),
+      EmpID:(emp.Empid || '').trim(),
     });
     this.empSuggestions = [];
     this.suggestFor = null;
