@@ -1942,3 +1942,23 @@ header {
 .nav-link.active svg path {
   fill: #fff;
 }/*# sourceMappingURL=style-EN.css.map */
+.sign-header{
+  position: sticky;
+  top: 56px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #E5E5E5;
+  padding: 8px 20px;
+}
+.sign-header h5{
+  font-size: 20px;
+  font-weight: 700;
+  color: #002654;
+  margin: 2px 0 0;
+}
+.signed-doc{
+  max-width:900px;
+  height: calc(100vh - 14rem);
+    overflow: auto;
+}

@@ -1,4 +1,4 @@
-<div class="d-flex align-items-center justify-content-between py-3">
+<div class="sign-header d-flex align-items-center justify-content-between py-3">
   <h5 class="m-0">Sign: {{ doc?.Name }}</h5>
   <button *ngIf="!loading" class="btn btn-main-fill" [disabled]="isSubmitting || !allRequiredFilled()"
     (click)="submit()">
@@ -8,7 +8,7 @@
 
 <div *ngIf="loading" class="text-center p-5 text-muted">Loading document...</div>
 
-<div *ngIf="!loading && doc" class="position-relative border mx-auto" style="max-width: 900px; min-height: 500px;">
+<div *ngIf="!loading && doc" class="position-relative border mx-auto p-3 signed-doc">
   <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="w-100 d-block" alt="Document page">
 
   <div class="position-absolute top-0 start-0 w-100 h-100">

@@ -304,9 +304,19 @@
   line-height: 15px; text-align: center;
 }
 .app-header__notif {
-  position: absolute; inset-block-start: calc(100% + 10px); inset-inline-end: 0;
-  width: 320px; background: #FFFFFF; border: 1px solid #E5E5E5; border-radius: 12px;
-  box-shadow: 0 14px 34px rgba(0, 38, 84, .16); z-index: 1040; overflow: hidden;
+  position: fixed;
+  inset-block-start: calc(100% + 10px);
+  inset-inline-end: 0;
+  width: 400px;
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  border-radius: 12px;
+  box-shadow: 0 14px 34px #00265429;
+  z-index: 9999;
+  overflow: hidden;
+  right: 0;
+  top: 0;
+  height: 100%;
 }
 .app-header__notif-head {
   display: flex; align-items: center; justify-content: space-between;
@@ -314,7 +324,7 @@
   font-family: 'Noto Kufi Arabic', sans-serif; font-size: 13px; font-weight: 700; color: #002654;
 }
 .app-header__notif-count { background: #E5E5E5; color: #1855A4; border-radius: 999px; padding: 1px 9px; font-size: 11px; }
-.app-header__notif-list { max-height: 340px; overflow: auto; }
+.app-header__notif-list { min-height: calc(100vh - 6rem); overflow: auto; }
 .app-header__notif-item {
   display: flex; align-items: center; gap: 10px; width: 100%; text-align: start;
   padding: 10px 14px; background: transparent; border: none; border-bottom: 1px solid #E5E5E5;

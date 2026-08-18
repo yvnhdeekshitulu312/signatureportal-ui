@@ -8,7 +8,8 @@ $font:'Noto Kufi Arabic', sans-serif !important;
 
 :host { display:block; font-family:$font; }
 
-.A-wrap { padding: 22px 26px 40px; }
+.A-wrap { padding: 22px 26px 40px;    height: calc(100vh - 7rem);
+    overflow: auto;}
 
 .A-card {
   background:$white; border:1px solid $g1; border-radius:16px;
@@ -69,9 +70,36 @@ $font:'Noto Kufi Arabic', sans-serif !important;
     text-transform:uppercase; letter-spacing:.06em; padding:13px 16px;
     border-top:1px solid $g1; border-bottom:2px solid $g1; white-space:nowrap;
   }
-  tbody tr { border-bottom:1px solid $g1; cursor:pointer; transition:background .15s ease;
-    &:hover { background:rgba(24,85,164,.04); } }
-  td { padding:15px 16px; vertical-align:middle; }
+    tbody tr {
+      border-bottom: 1px solid $g1;
+      cursor: pointer;
+      transition: background .15s ease;
+  
+      &:hover {
+        background: rgba(24, 85, 164, .04);
+  
+        td:nth-child(1)::before {
+          position: absolute;
+          content: '';
+          top: 0;
+          left: 0;
+          height: 100%;
+          border-radius: 0px;
+          border-left: 5px solid $brand; 
+        }
+      }
+  
+      &:nth-child(even) {
+        background: #1855a409;
+      }
+    }
+  
+    /* alternate row colour */
+    td {
+      padding: 15px 16px;
+      vertical-align: middle;
+      position: relative;
+    }
 }
 .A-docname { display:flex; align-items:center; gap:11px; font-size:12.5px; font-weight:500; color:$navy; }
 .A-nametxt { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:340px; }
