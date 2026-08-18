@@ -4,7 +4,7 @@ import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { forkJoin } from 'rxjs';
 import { EsignService } from '../../services/esign.service';
 import { FieldType, PlacedField, RecipientDto, SendDocumentRequest } from '../../models/esign.models';
-import { ToastService } from '../../services/toast.service';
+import { ToastService } from 'src/app/toast.service';
 
 interface FieldPaletteItem {
   type: FieldType;
@@ -208,7 +208,7 @@ owner = 'You';
 
   sendOld(): void {
     if (this.isSending) { return; }
-    if (this.placedFields.length === 0) { this.toast.warning('Place at least one field before sending'); return; }
+    if (this.placedFields.length === 0) { this.toast.error('Place at least one field before sending'); return; }
 
     const draft = JSON.parse(sessionStorage.getItem('esign_draft') || '{}');
     const user = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
@@ -242,7 +242,7 @@ owner = 'You';
 
     // one signable document per uploaded PDF that has fields
     const docsToSend = this.documents.filter(d => this.placedFields.some(f => f.documentId === d.documentId));
-    if (!docsToSend.length) { this.toast.warning('Place at least one field before sending'); return; }
+    if (!docsToSend.length) { this.toast.error('Place at least one field before sending'); return; }
 
     // Build a SignatureModel-shaped payload → POST /API/SaveSignatureRequests (via sendDocument)
     const requests = docsToSend.map(doc => this.esignService.sendDocumentMail({
@@ -285,7 +285,7 @@ owner = 'You';
   }
   send(): void {
     if (this.isSending) { return; }
-    if (this.placedFields.length === 0) { this.toast.warning('Place at least one field before sending'); return; }
+    if (this.placedFields.length === 0) { this.toast.error('Place at least one field before sending'); return; }
 
     // Every field must belong to a recipient, or the server can't bind it
     // (and rightly refuses for multi-recipient documents).

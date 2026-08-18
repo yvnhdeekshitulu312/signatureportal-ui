@@ -234,6 +234,18 @@ const EmpID = this.EmpID;
 
   // ── continue to the editor ──
   gotoDocument(): void {
+    const validRecipients = this.recipients.controls.filter(recipient => {
+      const email = recipient.get('email')?.value?.trim();
+      const name = recipient.get('name')?.value?.trim();
+
+      return email && name;
+    });
+
+    if (validRecipients.length === 0) {
+      this.toast.error('Add at least one recipient to continue.');
+      return;
+    }
+
     if (this.form.invalid || !this.uploadedDocumentId || !this.uploadedDocs.length) {
       this.form.markAllAsTouched();
       return;
