@@ -324,6 +324,20 @@
   font-family: 'Noto Kufi Arabic', sans-serif; font-size: 13px; font-weight: 700; color: #002654;
 }
 .app-header__notif-count { background: #E5E5E5; color: #1855A4; border-radius: 999px; padding: 1px 9px; font-size: 11px; }
+.app-header__notif-clear{
+  width: 25px;
+  height: 25px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light-gray);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.18s ease;
+  padding: 0;
+}
 .app-header__notif-list { min-height: calc(100vh - 6rem); overflow: auto; }
 .app-header__notif-item {
   display: flex; align-items: center; gap: 10px; width: 100%; text-align: start;
