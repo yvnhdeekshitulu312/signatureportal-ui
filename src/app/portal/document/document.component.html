@@ -98,11 +98,27 @@
     <div class="A-footer">
       <span class="A-count">Showing {{ rangeStart }}–{{ rangeEnd }} of {{ total }}</span>
       <div class="A-pager">
-        <button type="button" class="A-pagebtn" (click)="first()" [disabled]="page===1">«</button>
-        <button type="button" class="A-pagebtn" (click)="prev()" [disabled]="page===1">‹</button>
+        <button type="button" class="A-pagebtn" (click)="first()" [disabled]="page===1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chevrons-left">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M11 7l-5 5l5 5" />
+            <path d="M17 7l-5 5l5 5" />
+          </svg>
+        </button>
+        <button type="button" class="A-pagebtn" (click)="prev()" [disabled]="page===1">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <button type="button" class="A-pagebtn active">{{ page }}</button>
-        <button type="button" class="A-pagebtn" (click)="next()" [disabled]="page===totalPages">›</button>
-        <button type="button" class="A-pagebtn" (click)="last()" [disabled]="page===totalPages">»</button>
+        <button type="button" class="A-pagebtn" (click)="next()" [disabled]="page===totalPages">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="A-pagebtn" (click)="last()" [disabled]="page===totalPages">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chevrons-right">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M7 7l5 5l-5 5" />
+            <path d="M13 7l5 5l-5 5" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
