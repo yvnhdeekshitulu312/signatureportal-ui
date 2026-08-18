@@ -27,6 +27,7 @@ export interface RecipientDto {
   role: RecipientRole;
   signingOrder?: number | null;
   deliveryMethod: DeliveryMethod;
+  empID: string
 }
 
 export interface FieldDto {

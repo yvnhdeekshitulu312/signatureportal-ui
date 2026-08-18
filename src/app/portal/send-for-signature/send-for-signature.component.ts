@@ -75,6 +75,7 @@ export class SendForSignatureComponent implements OnInit {
       clientId: [`r${order}_${Date.now()}`],
       order: [order],
       email: ['', [Validators.required, Validators.email]],
+      empID: [''],
       name: ['', Validators.required],
       role: ['Sign', Validators.required],
       deliveryMethod: ['Email', Validators.required]
@@ -220,7 +221,7 @@ const EmpID = this.EmpID;
     this.recipients.at(i).patchValue({
       email: (emp.Email || '').trim(),
       name: (emp.EmployeeName || '').replace(/\s+/g, ' ').trim(),
-      EmpID:(emp.Empid || '').trim(),
+      empID: (emp.Empid || '').trim(),
     });
     this.empSuggestions = [];
     this.suggestFor = null;
@@ -254,7 +255,7 @@ const EmpID = this.EmpID;
         email: r.email,
         name: r.name,
         role: r.role,
-        // signing order follows the current row position when "Send in order" is on
+        empID: r.empID,
         signingOrder: this.form.value.sendInOrder ? idx + 1 : null,
         deliveryMethod: r.deliveryMethod
       }))
