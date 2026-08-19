@@ -12,6 +12,9 @@ export interface DocumentDetailResponse {
   Recipients: RecipientSummaryDto[];
   Fields: FieldSummaryDto[];
   PageImages?: string[];
+    EmpNo: string;
+      FullName: string;
+        DepartmentName: string;
 }
 export interface UploadDocumentResponse {
   DocumentId: number;

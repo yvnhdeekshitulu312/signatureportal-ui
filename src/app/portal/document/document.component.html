@@ -10,7 +10,10 @@
         <div class="sub">{{ total }} document{{ total === 1 ? '' : 's' }}</div>
       </div>
       <button type="button" class="A-newbtn" (click)="newDocument()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
         New document
       </button>
     </div>
@@ -18,25 +21,39 @@
     <!-- toolbar: search + segmented tabs -->
     <div class="A-toolbar">
       <div class="A-search">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
         <input type="text" placeholder="Search documents…" [(ngModel)]="fName" (ngModelChange)="onFilterChange()">
       </div>
       <div class="A-seg">
-        <button type="button" [class.active]="mode==='all' && fStatus===''" (click)="setMode('all'); fStatus=''; onFilterChange()">All</button>
-        <button type="button" [class.active]="mode==='all' && fStatus==='Draft'" (click)="setMode('all'); fStatus='Draft'; onFilterChange()">Draft</button>
-        <button type="button" [class.active]="mode==='all' && fStatus==='Completed'" (click)="setMode('all'); fStatus='Completed'; onFilterChange()">Completed</button>
-        <button type="button" [class.active]="mode==='pending'" (click)="setMode('pending')">Pending my signature</button>
+        <button type="button" [class.active]="mode==='all' && fStatus===''"
+          (click)="setMode('all'); fStatus=''; onFilterChange()">All</button>
+        <button type="button" [class.active]="mode==='all' && fStatus==='Draft'"
+          (click)="setMode('all'); fStatus='Draft'; onFilterChange()">Draft</button>
+        <button type="button" [class.active]="mode==='all' && fStatus==='Completed'"
+          (click)="setMode('all'); fStatus='Completed'; onFilterChange()">Completed</button>
+        <button type="button" [class.active]="mode==='pending'" (click)="setMode('pending')">Pending my
+          signature</button>
       </div>
       <div class="A-daterange">
         <label>
           <span>From</span>
-          <input type="date" [(ngModel)]="fromDate" [max]="toDate" (ngModelChange)="onDateFilterChange()">
+          <span class="A-datefield">
+            <input type="date" [(ngModel)]="fromDate" [max]="toDate" (ngModelChange)="onDateFilterChange()">
+            <span class="A-datedisp">{{ fromDate ? (fromDate | date:'dd-MMM-yyyy') : 'dd-MMM-yyyy' }}</span>
+          </span>
         </label>
         <label>
           <span>To</span>
-          <input type="date" [(ngModel)]="toDate" [min]="fromDate" (ngModelChange)="onDateFilterChange()">
+          <span class="A-datefield">
+            <input type="date" [(ngModel)]="toDate" [min]="fromDate" (ngModelChange)="onDateFilterChange()">
+            <span class="A-datedisp">{{ toDate ? (toDate | date:'dd-MMM-yyyy') : 'dd-MMM-yyyy' }}</span>
+          </span>
         </label>
-        <button type="button" class="A-daterange-reset" (click)="resetDateFilter()" title="Reset to last 30 days">Reset</button>
+        <button type="button" class="A-daterange-reset" (click)="resetDateFilter()"
+          title="Reset to last 30 days">Reset</button>
       </div>
     </div>
 
@@ -58,21 +75,28 @@
             <td>
               <div class="A-docname">
                 <div class="A-fic">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
                 </div>
-                <span class="A-nametxt A-namelink"
-                      (mouseenter)="showTooltip(d, $event)"
-                      (mouseleave)="hideTooltip()"
-                      (click)="openDocModal(d, $event)">{{ d.Name }}</span>
+                <span class="A-nametxt A-namelink" (mouseenter)="showTooltip(d, $event)" (mouseleave)="hideTooltip()"
+                  (click)="openDocModal(d, $event)">{{ d.Name }}</span>
               </div>
             </td>
             <td>
-              <div class="A-owner"><div class="A-av">{{ initials(owner) }}</div>{{ d.CreatedBy }}</div>
-            </td>
+  <div class="A-owner">
+    {{ d.EmpNo + '-' + d.FullName }} <br />
+    {{ d.DepartmentName }}
+  </div>
+</td>
             <td>
               <div class="A-recip">
                 <span *ngFor="let r of visibleRecipients(d)">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                  </svg>
                   {{ r.Email }}
                 </span>
                 <span class="dash" *ngIf="!recipients(d).length">—</span>
@@ -80,15 +104,13 @@
               </div>
             </td>
             <td>
-              <span class="A-status"
-                    [class.completed]="statusTone(d.Status)==='done'"
-                    [class.draft]="statusTone(d.Status)==='draft'"
-                    [class.pending]="statusTone(d.Status)==='progress'">
+              <span class="A-status" [class.completed]="statusTone(d.Status)==='done'"
+                [class.draft]="statusTone(d.Status)==='draft'" [class.pending]="statusTone(d.Status)==='progress'">
                 <span class="A-dot"></span>{{ d.Status }}
               </span>
             </td>
             <!-- <td><span class="A-created">{{ createdOn(d) }}</span></td> -->
-             <td><span class="A-created">{{ d.CreatedOn | date:'dd-MMM-yyyy HH:mm' }}</span></td>
+            <td><span class="A-created">{{ d.CreatedOn | date:'dd-MMM-yyyy HH:mm' }}</span></td>
             <td class="A-actcell">
               <button type="button" class="A-more" (click)="toggleMenu(d, $event)">⋯</button>
               <div class="A-menu" *ngIf="openMenuId===d.Id" (click)="$event.stopPropagation()">
@@ -102,7 +124,8 @@
 
           <tr *ngIf="!pageDocs.length">
             <td colspan="6" class="A-empty">
-              {{ loading ? 'Loading…' : 'No documents' }}{{ !loading ? ((fName||fStatus) ? ' match your filters' : ' yet') : '' }}
+              {{ loading ? 'Loading…' : 'No documents' }}{{ !loading ? ((fName||fStatus) ? ' match your filters' : '
+              yet') : '' }}
             </td>
           </tr>
         </tbody>
@@ -114,21 +137,31 @@
       <span class="A-count">Showing {{ rangeStart }}–{{ rangeEnd }} of {{ total }}</span>
       <div class="A-pager">
         <button type="button" class="A-pagebtn" (click)="first()" [disabled]="page===1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chevrons-left">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-chevrons-left">
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M11 7l-5 5l5 5" />
             <path d="M17 7l-5 5l5 5" />
           </svg>
         </button>
         <button type="button" class="A-pagebtn" (click)="prev()" [disabled]="page===1">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
         </button>
         <button type="button" class="A-pagebtn active">{{ page }}</button>
         <button type="button" class="A-pagebtn" (click)="next()" [disabled]="page===totalPages">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
         </button>
         <button type="button" class="A-pagebtn" (click)="last()" [disabled]="page===totalPages">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chevrons-right">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-chevrons-right">
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M7 7l5 5l-5 5" />
             <path d="M13 7l5 5l-5 5" />
@@ -140,8 +173,7 @@
 </div>
 
 <!-- ===== hover tooltip (document name) — one shared node, positioned via JS ===== -->
-<div class="doc-tooltip" *ngIf="hoveredDoc"
-     [style.top.px]="hoveredPos.top" [style.left.px]="hoveredPos.left">
+<div class="doc-tooltip" *ngIf="hoveredDoc" [style.top.px]="hoveredPos.top" [style.left.px]="hoveredPos.left">
   <div class="tt-row"><b>Document name:</b> {{ hoveredDoc.Name }}</div>
   <div class="tt-row"><b>Created on:</b> {{ createdOn(hoveredDoc) }}</div>
   <div class="tt-recip-head" *ngIf="recipients(hoveredDoc).length">Recipients</div>
@@ -156,22 +188,25 @@
 <div class="doc-modal-overlay" *ngIf="selectedDoc" (click)="closeModal()">
   <div class="doc-modal" (click)="$event.stopPropagation()">
     <button type="button" class="dm-close" (click)="closeModal()" aria-label="Close">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
     </button>
 
     <div class="dm-head">
       <div class="dm-head-left">
         <h2 class="dm-title">{{ selectedDoc.Name }}</h2>
         <div class="dm-meta">Owned by {{ selectedDoc.CreatedBy || owner }}</div>
-        <div class="dm-meta" *ngIf="selectedDoc.CreatedOn">Submitted on {{ selectedDoc.CreatedOn | date:'dd-MMM-yyyy HH:mm' }}</div>
+        <div class="dm-meta" *ngIf="selectedDoc.CreatedOn">Submitted on {{ selectedDoc.CreatedOn | date:'dd-MMM-yyyy
+          HH:mm' }}</div>
       </div>
       <div class="dm-head-right">
         <div class="dm-ring" [attr.aria-label]="docProgressPct(selectedDoc) + '% complete'">
           <svg class="dm-ring-svg" width="44" height="44" viewBox="0 0 44 44">
             <circle class="dm-ring-track" cx="22" cy="22" r="18"></circle>
-            <circle class="dm-ring-arc" cx="22" cy="22" r="18"
-                    stroke-dasharray="113.097"
-                    [attr.stroke-dashoffset]="ringOffset(selectedDoc)"></circle>
+            <circle class="dm-ring-arc" cx="22" cy="22" r="18" stroke-dasharray="113.097"
+              [attr.stroke-dashoffset]="ringOffset(selectedDoc)"></circle>
           </svg>
           <span class="dm-ring-pct">{{ docProgressPct(selectedDoc) }}%</span>
         </div>

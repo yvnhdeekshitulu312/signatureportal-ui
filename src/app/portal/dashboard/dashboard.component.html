@@ -120,11 +120,17 @@
       <div class="dv-daterange">
         <label>
           <span>From</span>
-          <input type="date" [(ngModel)]="fromDate" [max]="toDate" (ngModelChange)="onDateFilterChange()">
+          <span class="dv-datefield">
+            <input type="date" [(ngModel)]="fromDate" [max]="toDate" (ngModelChange)="onDateFilterChange()">
+            <span class="dv-datedisp">{{ fromDate ? (fromDate | date:'dd-MMM-yyyy') : 'dd-MMM-yyyy' }}</span>
+          </span>
         </label>
         <label>
           <span>To</span>
-          <input type="date" [(ngModel)]="toDate" [min]="fromDate" (ngModelChange)="onDateFilterChange()">
+          <span class="dv-datefield">
+            <input type="date" [(ngModel)]="toDate" [min]="fromDate" (ngModelChange)="onDateFilterChange()">
+            <span class="dv-datedisp">{{ toDate ? (toDate | date:'dd-MMM-yyyy') : 'dd-MMM-yyyy' }}</span>
+          </span>
         </label>
         <button type="button" class="dv-daterange-reset" (click)="resetDateFilter()" title="Reset to last 30 days">Reset</button>
       </div>
@@ -172,7 +178,11 @@
               </div>
             </td>
             <td class="c-owner">
-              <div class="owner"><span class="ow-av">{{ initials(owner) }}</span><span class="ow-name">{{ d.CreatedBy }}</span></div>
+              <!-- <div class="owner"><span class="ow-av">{{ initials(owner) }}</span><span class="ow-name">{{ d.CreatedBy }}</span></div> -->
+                <div class="owner">
+    {{ d.EmpNo + '-' + d.FullName }} <br />
+    {{ d.DepartmentName }}
+  </div>
             </td>
             <td class="c-recip">
               <div class="recips" *ngIf="recipients(d).length; else noRecip">

@@ -44,8 +44,8 @@ $font:'Noto Kufi Arabic', sans-serif;
 .dv-ring-txt .num { color:$white; font-weight:800; font-size:25px; }
 .sub_txt {
   color: #b9d9ff;
-  font-weight: 700;
-  font-size: 13px;
+  font-weight: 600;
+  font-size: 12px;
 }
 .dv-ring-txt .lbl {
   color: #fff;
@@ -203,6 +203,29 @@ $font:'Noto Kufi Arabic', sans-serif;
     &:focus { border-color:$brand; }
   }
 }
+/* Custom "19-Aug-2026" display over the native date input. The browser
+   controls how <input type="date"> renders its own text and that can't be
+   restyled directly, so the native text is made transparent and an Angular
+   DatePipe-formatted span (dd-MMM-yyyy) is overlaid on top, pointer-events:none
+   so clicks still pass through to the real input underneath and open the
+   native calendar picker. Note: ::-webkit-datetime-edit is WebKit/Blink-only
+   (Chrome, Edge, Safari) — Firefox has no equivalent pseudo-element, so in
+   Firefox the native (default-locale) text will still show through. */
+.dv-datefield { position:relative; display:inline-flex; }
+.dv-datefield input[type="date"] {
+  color:transparent;
+  &::-webkit-datetime-edit,
+  &::-webkit-datetime-edit-fields-wrapper,
+  &::-webkit-datetime-edit-text,
+  &::-webkit-datetime-edit-month-field,
+  &::-webkit-datetime-edit-day-field,
+  &::-webkit-datetime-edit-year-field { color:transparent; }
+}
+.dv-datedisp {
+  position:absolute; inset:0; display:flex; align-items:center;
+  padding-inline-start:10px; font-family:$font; font-size:12.5px; color:$navy;
+  pointer-events:none; white-space:nowrap; overflow:hidden;
+}
 .dv-daterange-reset {
   font-family:$font; font-size:11.5px; font-weight:700; color:$brand; cursor:pointer; transition:.15s;
   background:rgba(24,85,164,.08); border:1px solid rgba(24,85,164,.18); border-radius:9px; padding:8px 14px;
@@ -232,7 +255,7 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
   border-left: 5px solid $brand;
 }
 
-.dv-doc-name { display:flex; align-items:center; gap:11px; font-weight:500; color:$navy; min-width:0; }
+.dv-doc-name { display:flex; align-items:center; gap:11px; font-weight:500; color:#1855A4; min-width:0; }
 .dv-doc-icon { width:34px; height:34px; border-radius:9px;  display:flex; align-items:center; justify-content:center; flex-shrink:0;
   svg { width:16px; height:16px; stroke:$royal; } }
 .dv-doc-name .doc-text { max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
@@ -240,7 +263,13 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
 .doc-namelink { cursor:pointer; transition:color .12s ease; &:hover { color:$brand; text-decoration:underline; } }
 
 /* owner */
-.owner { display:flex; align-items:center; gap:9px; }
+.owner { 
+  display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #1855A4;
+    font-size: 12.5px;
+ }
 .ow-av { width:28px; height:28px; border-radius:50%; background:rgba(59,125,196,.16); color:$royal; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .ow-name { color:$navy; font-weight:500; }
 
@@ -252,7 +281,7 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
   &.sign { background:rgba(24,85,164,.12); color:$brand; }
   &.view { background:rgba(116,153,200,.18); color:$med-blue; }
   &.approve { background:$mint; color:$navy; } }
-.r-email { font-size:12px; color:$navy; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; direction:ltr; }
+.r-email { font-size:12.5px; color:#1855A4; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; direction:ltr; }
 [dir="rtl"] .r-email { text-align:right; }
 .more { font-size:11px; font-weight:700; color:$brand; margin-inline-start:25px; }
 .muted { color:$gray-8; }
@@ -262,22 +291,29 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
   &.pending { background: #FEF3C7;
     color: #92400E;
     font-size: 11.5px;
-    font-weight: 500;
-    width: 110px;}
+    font-weight: 600;
+    width: 110px;
+        text-align: center;
+  }
   &.draft   { background: #DBEAFE;
     color: #1E40AF;
     font-size: 11.5px;
-    font-weight: 500;
-    width: 110px; }
+    font-weight: 600;
+    width: 110px; 
+        text-align: center;
+  }
   &.signed  { background: #D1FAE5;
     color: #166534;
     font-size: 11.5px;
-    font-weight: 500;width: 110px;}
+    font-weight: 600;width: 110px;
+      text-align: center;
+  }
   &.progress{
     background: #E9D5FF;
     color: #6B21A8;
     font-size: 11.5px;
-    font-weight: 500;width: 110px;
+    font-weight: 600;width: 110px;
+        text-align: center;
    } }
 
 /* View button (persistent brand pill; fills on row hover) */
