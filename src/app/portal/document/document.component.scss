@@ -221,7 +221,7 @@ $font:'Noto Kufi Arabic', sans-serif !important;
   padding: 28px; position: relative; font-family: $font;
 }
 .dm-close {
-  position: absolute; top: 16px; inset-inline-end: 16px; width: 30px; height: 30px;
+  position: absolute; top: 16px; inset-inline-end: 16px; width: 30px; height: 30px;padding: 0;
   border-radius: 8px; border: none; background: $g1; color: $g8; cursor: pointer;
   display: flex; align-items: center; justify-content: center; transition: .15s;
   &:hover { background: $navy; color: $white; }
