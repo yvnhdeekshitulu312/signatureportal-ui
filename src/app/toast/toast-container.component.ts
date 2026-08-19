@@ -18,6 +18,12 @@ interface ActiveToast extends ToastData {
 export class ToastContainerComponent implements OnInit, OnDestroy {
   toasts: ActiveToast[] = [];
 
+  /** How many toast cards can be on screen at once before the rest collapse
+   *  into a "+N more" badge on the newest card. */
+  readonly MAX_VISIBLE = 3;
+  /** True while the user has expanded the badge to see every queued toast. */
+  showAll = false;
+
   private readonly EXIT_MS = 260; // keep in sync with the leave animation
   private subs: Subscription[] = [];
 
@@ -42,6 +48,33 @@ export class ToastContainerComponent implements OnInit, OnDestroy {
     return t.id;
   }
 
+  /** The newest N toasts (or all of them once the user has expanded). */
+  get visibleToasts(): ActiveToast[] {
+    if (this.showAll || this.toasts.length <= this.MAX_VISIBLE) {
+      return this.toasts;
+    }
+    return this.toasts.slice(this.toasts.length - this.MAX_VISIBLE);
+  }
+
+  /** How many toasts are hidden behind the "+N more" badge right now. */
+  get overflowCount(): number {
+    return Math.max(0, this.toasts.length - this.MAX_VISIBLE);
+  }
+
+  toggleShowAll(): void {
+    this.showAll = !this.showAll;
+  }
+
+  /** Short caption shown under the message when the caller didn't pass a title. */
+  typeLabel(type: ToastType): string {
+    switch (type) {
+      case 'success': return 'All set';
+      case 'error': return 'Action required';
+      case 'warning': return 'Please review';
+      default: return 'Notice';
+    }
+  }
+
   /** Pause auto-dismiss while the pointer is over a toast. */
   pause(t: ActiveToast): void {
     if (t.duration <= 0 || t.leaving || t.paused) { return; }
@@ -63,6 +96,7 @@ export class ToastContainerComponent implements OnInit, OnDestroy {
     t.leaving = true;
     setTimeout(() => {
       this.toasts = this.toasts.filter((x) => x.id !== id);
+      if (this.toasts.length <= this.MAX_VISIBLE) { this.showAll = false; }
     }, this.EXIT_MS);
   }
 

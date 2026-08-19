@@ -83,9 +83,30 @@ textarea.input { resize: vertical; min-height: 60px; }
 .pages-preview .pp-head { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: $navy; margin-bottom: 14px; }
 .pp-ok { width: 26px; height: 26px; border-radius: 8px; background: $mint; border: 1.5px solid $teal; color: $navy; display: flex; align-items: center; justify-content: center; font-weight: 700; }
 .pp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
-.pp-thumb { border: 1px solid $gray-1; border-radius: 10px; padding: 6px; text-align: center; background: $white;
+.pp-thumb {
+  position: relative; border: 1px solid $gray-1; border-radius: 10px; padding: 6px; text-align: center; background: $white;
   img { width: 100%; border-radius: 6px; display: block; }
-  small { display: block; margin-top: 5px; font-size: 11px; color: $gray-8; } }
+  small { display: block; margin-top: 5px; font-size: 11px; color: $gray-8; }
+}
+
+/* per-page delete — sits over the thumbnail, revealed on hover/focus so the
+   grid stays clean until the user actually wants to remove a page. */
+.pp-remove {
+  position: absolute; top: 10px; inset-inline-end: 10px;
+  width: 24px; height: 24px; border-radius: 50%; border: none;
+  background: rgba(0, 38, 84, .62); color: $white; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+  opacity: 0; transform: translateY(-2px);
+  transition: opacity .15s ease, transform .15s ease, background .15s ease;
+  svg { display: block; }
+}
+.pp-thumb:hover .pp-remove,
+.pp-thumb:focus-within .pp-remove,
+.pp-remove:focus-visible {
+  opacity: 1; transform: translateY(0);
+}
+.pp-remove:hover { background: $navy; }
+.pp-remove:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
 
 .uploading { display: flex; align-items: center; gap: 10px; justify-content: center; padding: 16px; font-size: 13px; font-weight: 600; color: $brand; }
 .spinner { width: 16px; height: 16px; border-radius: 99px; border: 2px solid rgba(24,85,164,.25); border-top-color: $brand; animation: spin .7s linear infinite; }
@@ -149,8 +170,19 @@ details[open] .more-chevron { transform: rotate(180deg); }
   svg { fill: none; } }
 .db-name { font-size: 13px; font-weight: 700; color: $navy; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .db-count { font-size: 11px; font-weight: 600; color: $gray-8; background: $gray-1; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
-.db-remove { margin-inline-start: auto; border: none; background: transparent; color: $gray-8; font-size: 20px; line-height: 1; cursor: pointer; font-family: $font; padding: 2px 8px; border-radius: 6px;
-  &:hover { background: $gray-1; color: $navy; } }
+
+/* whole-document delete — a clearly visible circular button, not just a
+   faint character that blends into the header row. */
+.db-remove {
+  margin-inline-start: auto; flex-shrink: 0;
+  width: 28px; height: 28px; border-radius: 8px;
+  border: 1px solid $gray-1; background: rgba(150,150,150,.08); color: $gray-8;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+  svg { display: block; }
+  &:hover { background: rgba(0,38,84,.08); border-color: $brand; color: $navy; }
+  &:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
+}
 
 .add-doc { font-family: $font; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; align-self: flex-start;
   background: rgba(24,85,164,.06); border: 1px dashed rgba(24,85,164,.35); color: $brand; font-weight: 700; font-size: 13px;

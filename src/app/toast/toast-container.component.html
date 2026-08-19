@@ -1,8 +1,11 @@
 <!-- Mounted once at app root. pointer-events are off on the viewport and back
-     on each toast, so toasts never block the page underneath. -->
+     on each toast, so toasts never block the page underneath.
+     Only MAX_VISIBLE newest toasts render as full cards; anything beyond that
+     collapses into a "+N more" badge on the top card instead of stacking
+     off-screen or overlapping. -->
 <div class="toast-viewport" aria-live="polite" aria-atomic="false">
 
-  <div *ngFor="let t of toasts; trackBy: trackById"
+  <div *ngFor="let t of visibleToasts; let i = index; trackBy: trackById"
        class="toast"
        [ngClass]="'toast--' + t.type"
        [class.toast--leaving]="t.leaving"
@@ -10,33 +13,36 @@
        (mouseenter)="pause(t)"
        (mouseleave)="resume(t)">
 
-    <span class="toast__accent" aria-hidden="true"></span>
-
     <span class="toast__icon" [ngSwitch]="t.type" aria-hidden="true">
       <svg *ngSwitchCase="'success'" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
-        <path d="M8 12.4l2.6 2.6 5-5.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 12.4l2.6 2.6 5-5.6" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <svg *ngSwitchCase="'error'" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
-        <path d="M12 7.4v5.4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
-        <circle cx="12" cy="16.4" r="1.1" fill="currentColor"/>
+        <path d="M12 7.4v5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+        <circle cx="12" cy="16.4" r="1.15" fill="currentColor"/>
       </svg>
       <svg *ngSwitchCase="'warning'" viewBox="0 0 24 24" fill="none">
-        <path d="M12 3.6l8.7 15.1H3.3L12 3.6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-        <path d="M12 9.5v4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
-        <circle cx="12" cy="16.2" r="1.05" fill="currentColor"/>
+        <path d="M12 3.6l8.7 15.1H3.3L12 3.6z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>
+        <path d="M12 9.5v4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+        <circle cx="12" cy="16.2" r="1.1" fill="currentColor"/>
       </svg>
       <svg *ngSwitchDefault viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
-        <path d="M12 11v5.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
-        <circle cx="12" cy="7.7" r="1.1" fill="currentColor"/>
+        <path d="M12 11v5.2" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+        <circle cx="12" cy="7.7" r="1.15" fill="currentColor"/>
       </svg>
     </span>
 
     <div class="toast__body">
-      <div class="toast__title" *ngIf="t.title">{{ t.title }}</div>
-      <div class="toast__message">{{ t.message }}</div>
+      <div class="toast__headline">
+        <span class="toast__title">{{ t.title || t.message }}</span>
+        <button type="button" class="toast__badge" *ngIf="i === 0 && overflowCount > 0"
+                (click)="toggleShowAll()">
+          +{{ overflowCount }} more
+        </button>
+      </div>
+
+      <div class="toast__message" *ngIf="t.title">{{ t.message }}</div>
+      <div class="toast__subtitle" *ngIf="!t.title">{{ typeLabel(t.type) }}</div>
     </div>
 
     <button type="button" class="toast__close" (click)="remove(t.id)" aria-label="Dismiss">
@@ -51,4 +57,9 @@
           [style.animation-play-state]="t.paused ? 'paused' : 'running'"
           aria-hidden="true"></span>
   </div>
+
+  <button type="button" class="toast-collapse" *ngIf="showAll && toasts.length > MAX_VISIBLE"
+          (click)="toggleShowAll()">
+    Show less
+  </button>
 </div>

@@ -188,6 +188,17 @@ const EmpID = this.EmpID;
     }
   }
 
+  /** Remove a single page from a document. If that was its last page, the
+   *  whole document block is removed too. */
+  removePage(docIndex: number, pageIndex: number): void {
+    const doc = this.uploadedDocs[docIndex];
+    if (!doc) { return; }
+    doc.pages.splice(pageIndex, 1);
+    if (!doc.pages.length) {
+      this.removeDoc(docIndex);
+    }
+  }
+
   triggerFilePicker(el: HTMLInputElement): void { el.click(); }
 
   // ── employee smart-search ──
