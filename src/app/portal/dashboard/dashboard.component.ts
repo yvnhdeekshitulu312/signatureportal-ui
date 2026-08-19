@@ -17,6 +17,9 @@ export class DashboardComponent implements OnInit {
   owner = 'You';
   Email:any;
 EmpID:any;
+  // Admin toggle — when ON, EmpID is sent as 0 (all employees); when OFF,
+  // the logged-in user's own EmpID is sent (their documents only).
+  isAdmin = false;
 
   // From/To date range for "Recent documents" (passed to getMyDocuments).
   // Defaults to the last 30 days so the panel isn't empty on first load.
@@ -73,10 +76,16 @@ EmpID:any;
     this.loadRecent();
   }
 
+  /** Admin toggle changed — reload with EmpID=0 (all) or the user's own EmpID. */
+  onAdminToggle(): void {
+    this.loadRecent();
+  }
+
   // Recent documents for the dashboard panel (from the same source as the list)
   loadRecent(): void {
     this.loading = true;
-    this.esignService.getMyDocuments(this.Email,this.EmpID,this.fromDate,this.toDate).subscribe({
+    const empId = this.isAdmin ? 0 : this.EmpID;
+    this.esignService.getMyDocuments(this.Email,empId,this.fromDate,this.toDate).subscribe({
       next: (docs) => { this.recentDocs = docs || []; this.loading = false; },
       error: () => { this.loading = false; }
     });

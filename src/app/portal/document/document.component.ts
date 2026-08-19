@@ -18,6 +18,9 @@ export class DocumentComponent implements OnInit {
   owner = 'You';
   Email:any;
     EmpID:any;
+  // Admin toggle — when ON, EmpID is sent as 0 (all employees); when OFF,
+  // the logged-in user's own EmpID is sent (their documents only).
+  isAdmin = false;
   // ui state
   showFilters = false;
   compact = false;
@@ -95,9 +98,16 @@ export class DocumentComponent implements OnInit {
     this.onDateFilterChange();
   }
 
+  /** Admin toggle changed — reload with EmpID=0 (all) or the user's own EmpID. */
+  onAdminToggle(): void {
+    this.page = 1;
+    this.load();
+  }
+
   load(): void {
     this.loading = true;
-    this.esignService.getMyDocuments(this.Email,this.EmpID,this.fromDate,this.toDate).subscribe({
+    const empId = this.isAdmin ? 0 : this.EmpID;
+    this.esignService.getMyDocuments(this.Email,empId,this.fromDate,this.toDate).subscribe({
       next: (docs: any[]) => { this.allDocs = docs || []; this.loading = false; },
       error: () => { this.loading = false; }
     });
