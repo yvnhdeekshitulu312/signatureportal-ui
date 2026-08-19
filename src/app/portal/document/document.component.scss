@@ -236,6 +236,7 @@ $font:'Noto Kufi Arabic', sans-serif !important;
   &.completed { background: #166534; }
   &.draft { background: #1E40AF; }
   &.pending { background: #92400E; }
+  &.progress { background: #92400e; }
 }
 .dm-statustxt { font-size: 12px; font-weight: 700; color: $navy; }
 
