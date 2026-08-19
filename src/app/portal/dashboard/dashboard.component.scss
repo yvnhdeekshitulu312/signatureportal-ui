@@ -136,6 +136,28 @@ $font:'Noto Kufi Arabic', sans-serif;
 }
 }
   a { color:$brand; font-size:12.5px; font-weight:700; cursor:pointer;white-space: nowrap; } }
+.dv-panel-head-actions { display:flex; align-items:center; gap:14px; flex-shrink:0; }
+
+/* Admin toggle (next to "View all →") — ON sends EmpID=0 (all employees) to
+   MyDocuments; OFF sends the logged-in user's own EmpID. Approved palette
+   only: Light Gray track (off), Brand Blue track (on), white thumb. */
+.dv-admin-toggle {
+  display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none;
+  font-family:$font; font-size:12.5px; font-weight:700; color:$navy;
+  border:1px solid $gray-1; border-radius:999px; padding:5px 14px 5px 5px; background:$white;
+  input[type="checkbox"] { display:none; }
+}
+.dv-admin-track {
+  position:relative; width:36px; height:21px; border-radius:999px; background:$gray-5;
+  transition:background .18s ease; flex-shrink:0;
+}
+.dv-admin-thumb {
+  position:absolute; top:2px; inset-inline-start:2px; width:17px; height:17px; border-radius:50%;
+  background:$white; transition:transform .18s ease; box-shadow:0 1px 3px rgba(0,38,84,.3);
+}
+.dv-admin-toggle input:checked + .dv-admin-track { background:$brand; }
+.dv-admin-toggle input:checked + .dv-admin-track .dv-admin-thumb { transform:translateX(15px); }
+:host-context([dir="rtl"]) .dv-admin-toggle input:checked + .dv-admin-track .dv-admin-thumb { transform:translateX(-15px); }
 .dv-filters {         display: flex;
     align-items: center;
     gap: 14px;
