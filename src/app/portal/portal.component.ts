@@ -24,9 +24,6 @@ export class PortalComponent implements OnInit, OnDestroy {
   facilityName = 'Riyadh Central';
   sessionStatus = 'Session Active';
 
-  // Notification indicator — wire to a real count/service when available.
-  hasNotifications = true;
-
   // User dropdown (Profile / Log out)
   userMenuOpen = false;
 
@@ -35,6 +32,16 @@ export class PortalComponent implements OnInit, OnDestroy {
   pendingNotifications: any[] = [];
   get notifCount(): number { return this.pendingNotifications.length; }
   private navSub?: Subscription;
+
+  // ── "new since last seen" tracking, drives the bell blink ──
+  // A doc is "new" if its Id isn't in the seen-id list persisted in
+  // localStorage. The bell/badge blink while hasNewNotifications is true;
+  // opening the panel snapshots which items were new for THIS view (so they
+  // still show the "New" tag while open) and then marks everything seen, so
+  // the blink stops until a genuinely new document shows up.
+  private readonly seenKey = 'esignSeenNotifIds';
+  newIds: Set<string> = new Set();
+  hasNewNotifications = false;
 
   private timerId: any;
 
@@ -95,21 +102,66 @@ export class PortalComponent implements OnInit, OnDestroy {
     // this.router.navigate(['/search'], { queryParams: { q } });
   }
 
-  loadNotifications(): void {
+  /** Read the persisted "already seen" notification ids. */
+  private getSeenIds(): Set<string> {
+    try {
+      const raw = JSON.parse(localStorage.getItem(this.seenKey) || '[]');
+      return new Set(Array.isArray(raw) ? raw.map(String) : []);
+    } catch { return new Set(); }
+  }
+
+  /** Persist the given ids as "seen" (merged with whatever was already there). */
+  private markSeen(ids: string[]): void {
+    const merged = new Set([...this.getSeenIds(), ...ids]);
+    // Cap what we store so this can't grow forever across a long session.
+    const trimmed = Array.from(merged).slice(-200);
+    localStorage.setItem(this.seenKey, JSON.stringify(trimmed));
+  }
+
+  /**
+   * @param markAsSeenAfter pass true when the user is actually opening the
+   * panel — the "new" flags below are computed first (so the panel can still
+   * highlight what's new for this viewing), then persisted as seen so the
+   * bell stops blinking afterwards.
+   */
+  loadNotifications(markAsSeenAfter = false): void {
     const email = this.getUser().EmpEmail;
-     const EmpID = this.getUser().EmpId;
+    const EmpID = this.getUser().EmpId;
     if (!email) { return; }
-    this.esignService.getMyPending(email,EmpID).subscribe({
-      next: (docs: any[]) => { this.pendingNotifications = docs || []; },
-      error: () => { this.pendingNotifications = []; }
+    this.esignService.getMyPending(email, EmpID).subscribe({
+      next: (docs: any[]) => {
+        this.pendingNotifications = docs || [];
+        const seen = this.getSeenIds();
+        const ids = this.pendingNotifications.map(d => String(d.Id));
+        this.newIds = new Set(ids.filter(id => !seen.has(id)));
+        this.hasNewNotifications = this.newIds.size > 0;
+        if (markAsSeenAfter && ids.length) {
+          this.markSeen(ids);
+          this.hasNewNotifications = false;
+        }
+      },
+      error: () => { this.pendingNotifications = []; this.newIds = new Set(); this.hasNewNotifications = false; }
     });
+  }
+
+  /** Was this notification still unseen the last time the list was loaded? */
+  isNew(n: any): boolean {
+    return this.newIds.has(String(n?.Id));
   }
 
   toggleNotifications(ev?: Event): void {
     ev?.stopPropagation();
     this.userMenuOpen = false;
     this.notifOpen = !this.notifOpen;
-    if (this.notifOpen) { this.loadNotifications(); }
+    if (this.notifOpen) { this.loadNotifications(true); }
+  }
+
+  /** Explicit close (X button / backdrop). The panel stops click
+   *  propagation to the document so the global closeMenus() listener below
+   *  never sees clicks inside it — this handler is what actually closes it. */
+  closeNotifications(ev?: Event): void {
+    ev?.stopPropagation();
+    this.notifOpen = false;
   }
 
   /** Open a pending doc straight into the signer view. */
