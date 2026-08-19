@@ -90,21 +90,29 @@ $font:'Noto Kufi Arabic', sans-serif;
 .dv-rail-txt p { font-size:11.5px; color:$light-blue; line-height:1.5; margin:0; }
 @media(max-width:1050px){ .dv-hero-mid { padding:26px 32px 6px; } }
 
-/* action cards */
+/* action cards — solid brand-colour tiles (was: white card + tinted icon).
+   Card 1 = Brand Blue, card 2 ("on") = Dark Navy, card 3 ("accent") = Teal →
+   Royal Blue gradient. #4FCED2 is hardcoded in the accent gradient below —
+   this file's own $teal variable is repurposed above for a background tint,
+   not the approved Teal swatch (same reason it's hardcoded on the modal's
+   progress ring elsewhere in this file). */
 .dv-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:10px; }
-.dv-card { text-align:start; font-family:$font; cursor:pointer; background:$white; border:1.5px solid $gray-1;
-  border-radius:18px; padding:24px; transition:.2s; display:block;border-top: 2.5px solid #8eadd4;
-  &.on { border-color:$teal; box-shadow:0 16px 30px -20px rgba(79,206,210,.5);    border-top: 2.5px solid #8eadd4; }
-  &:hover { transform:translateY(-2px); }
-  &:focus-visible { outline:2px solid $royal; outline-offset:2px; }
+.dv-card {
+  text-align:start; font-family:$font; cursor:pointer; border:none; color:$white;
+  border-radius:18px; padding:24px; transition:.2s; display:block; position:relative; overflow:hidden;
+  background:linear-gradient(135deg, $brand 0%, $royal 100%);
+  box-shadow:0 16px 30px -20px rgba(0,38,84,.5);
+  &.on { background:linear-gradient(135deg, $navy 0%, #012a52 100%); }
+  &.accent { background:linear-gradient(135deg, #4FCED2 0%, $royal 100%); }
+  &:hover { transform:translateY(-2px); box-shadow:0 20px 36px -18px rgba(0,38,84,.55); }
+  &:focus-visible { outline:2px solid $white; outline-offset:2px; }
   .ic { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:14px;
+    background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3);
     svg { width:20px; height:20px; }
-    &.blue { background:rgba(24,85,164,.10); svg { stroke:$brand; } }
-    &.teal { background:$mint; svg { stroke:$navy; } }
-    &.royal { background:rgba(59,125,196,.12); svg { stroke:$royal; } } }
-  h3 { font-size:15px; font-weight:700; margin-bottom:6px; color:$navy; }
-  p { font-size:12px; color:$gray-8; line-height:1.55; margin-bottom:14px; }
-  .go { font-size:12px; font-weight:800; color:$brand; } }
+    &.blue, &.teal, &.royal { background:rgba(255,255,255,.18); svg { stroke:$white; } } }
+  h3 { font-size:15px; font-weight:700; margin-bottom:6px; color:$white; display:flex; align-items:center; gap:8px; }
+  p { font-size:12px; color:rgba(255,255,255,.8); line-height:1.55; margin-bottom:14px; }
+  .go { font-size:12px; font-weight:800; color:$white; } }
 
 /* documents panel */
 .dv-panel { background:$white; border:1px solid $gray-1; border-radius:18px; padding:26px 30px; }
@@ -112,8 +120,10 @@ $font:'Noto Kufi Arabic', sans-serif;
   h3 { font-size:16px; font-weight:800; color:$navy; }
   a { color:$brand; font-size:12.5px; font-weight:700; cursor:pointer; } }
 .dv-filters { display:flex; gap:8px; margin:16px 0 18px; flex-wrap:wrap; }
-.dv-chip { font-size:11.5px; font-weight:700; padding:7px 14px; border-radius:999px; border:1px solid $gray-1; color:$gray-8; cursor:pointer; transition:.2s;
-  &.on { background:$navy; color:$white; border-color:$navy; } }
+.dv-chip { font-size:11.5px; font-weight:700; padding:7px 14px; border-radius:999px; border:1px solid $gray-1; color:$gray-8; cursor:pointer; transition:.2s; background:$white;
+  /* active chip = approved Teal fill (hardcoded #4FCED2 — see note above the
+     action-card gradients on why this file's own $teal isn't used here) */
+  &.on { background:#4FCED2; color:$navy; border-color:#4FCED2; } }
 
 /* ===== Recent documents — rich table (matches All-documents) ===== */
 .dv-tablewrap { border:1px solid $gray-1; border-radius:14px; overflow:auto; }
@@ -193,7 +203,17 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
 .dv-view:hover, .dv-row:hover .dv-view { background:$brand; border-color:$brand; color:$white; }
 :host-context([dir="rtl"]) .dv-view svg { transform:scaleX(-1); }
 
-.dv-empty { text-align:center; color:$gray-8; font-size:13px; padding:34px 0; }
+/* empty state — icon + heading + subtext (was: a single line of text).
+   #CDFCFB is hardcoded (the approved Mint Pastel) since this file's own
+   $mint variable is repurposed above as a translucent Brand Blue tint. */
+.dv-empty { text-align:center; color:$gray-8; font-size:13px; padding:60px 20px; display:flex; flex-direction:column; align-items:center; gap:10px; }
+.dv-empty-ic {
+  width:56px; height:56px; border-radius:14px; background:#CDFCFB; color:$brand;
+  display:flex; align-items:center; justify-content:center;
+  svg { width:24px; height:24px; }
+}
+.dv-empty-title { font-family:$font; font-size:14px; font-weight:700; color:$navy; }
+.dv-empty-sub { font-size:12px; color:$gray-8; }
 .dv-skeleton { display:flex; flex-direction:column; gap:14px; padding:8px 0; }
 .skrow { display:flex; align-items:center; gap:12px; }
 .skdot { width:36px; height:36px; border-radius:10px; background:$gray-1; }
@@ -247,10 +267,11 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
 .dv-iconbtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; }
 
 
-/* pending-my-signature count badge on the action card */
+/* pending-my-signature count badge on the action card — white-on-navy so it
+   stays legible against all three solid card-background colours above. */
 .dv-card .dv-count {
   display: inline-block; margin-inline-start: 6px; min-width: 22px; padding: 0 7px;
-  border-radius: 999px; background: #4FCED2; color: #002654;
+  border-radius: 999px; background: #FFFFFF; color: #002654;
   font-size: 12px; font-weight: 700; line-height: 22px; text-align: center; vertical-align: middle;
 }
 

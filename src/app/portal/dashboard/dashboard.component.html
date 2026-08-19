@@ -88,7 +88,7 @@
 
     <div class="dv-actions">
 
-    <button type="button" class="dv-card" (click)="gotoSignature()">
+    <button type="button" class="dv-card blue" (click)="gotoSignature()">
       <span class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></span>
       <h3>Send for signatures</h3>
       <p>Upload a document and assign signers.</p>
@@ -100,7 +100,7 @@
       <p>Track status and sign pending requests.</p>
       <span class="go">Open →</span>
     </button>
-    <button type="button" class="dv-card" (click)="gotoPending()">
+    <button type="button" class="dv-card accent" (click)="gotoPending()">
       <span class="ic royal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
       <h3>Pending my signature <span class="dv-count" *ngIf="pendingCount">{{ pendingCount }}</span></h3>
       <p>Open documents that are waiting on you.</p>
@@ -192,7 +192,11 @@
     </div>
 
     <div *ngIf="!loading && !filteredDocs.length" class="dv-empty">
-      No documents to show{{ activeFilter !== 'all' ? ' for this filter' : '' }}.
+      <span class="dv-empty-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      </span>
+      <div class="dv-empty-title">No documents to show{{ activeFilter !== 'all' ? ' for this filter' : '' }}.</div>
+      <div class="dv-empty-sub">Documents you send or receive will appear here.</div>
     </div>
   </div>
 </div>

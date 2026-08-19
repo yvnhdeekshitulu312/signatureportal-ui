@@ -76,7 +76,8 @@
                 <span class="A-dot"></span>{{ d.Status }}
               </span>
             </td>
-            <td><span class="A-created">{{ createdOn(d) }}</span></td>
+            <!-- <td><span class="A-created">{{ createdOn(d) }}</span></td> -->
+             <td><span class="A-created">{{ d.CreatedOn | date:'dd-MMM-yyyy HH:mm' }}</span></td>
             <td class="A-actcell">
               <button type="button" class="A-more" (click)="toggleMenu(d, $event)">⋯</button>
               <div class="A-menu" *ngIf="openMenuId===d.Id" (click)="$event.stopPropagation()">
