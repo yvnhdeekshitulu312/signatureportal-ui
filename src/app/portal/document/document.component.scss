@@ -20,13 +20,13 @@ $font:'Noto Kufi Arabic', sans-serif !important;
 .A-top {
   padding:10px 30px 10px; display:flex; justify-content:space-between;
   align-items:flex-end; flex-wrap:wrap; gap:14px;
-  h1 { font-size:20px; font-weight:800; color:$navy; }
+  h1 { font-size:20px; font-weight:700; color:#1855a4; }
   .sub { font-size:12px; color:$g8; margin-top:4px; font-weight:600; }
 }
 .A-newbtn {
   font-family:$font; font-weight:700; font-size:12.5px; color:$white; border:none;
   background:linear-gradient(120deg, $brand, $royal);
-  padding:12px 20px; border-radius:10px; display:flex; align-items:center; gap:8px;
+  padding:8px 18px; border-radius:10px; display:flex; align-items:center; gap:8px;
   cursor:pointer; box-shadow:0 4px 12px rgba(24,85,164,.3); transition:filter .15s ease;
   &:hover { filter:brightness(1.05); }
 }
@@ -35,7 +35,7 @@ $font:'Noto Kufi Arabic', sans-serif !important;
 .A-toolbar { display:flex; align-items:center; gap:14px; padding:0 26px 18px; flex-wrap:wrap; }
 .A-search {
   flex:1; min-width:200px; max-width:340px; display:flex; align-items:center; gap:9px;
-  background:$g1; border:1px solid transparent; border-radius:10px; padding:10px 14px;
+  background:#f7f9fc; border:1px solid #e5e5e5; border-radius:10px; padding:10px 14px;
   color:$g8; transition:border-color .15s ease, background .15s ease;
   svg { flex-shrink:0; }
   input { border:none; outline:none; background:transparent; width:100%; font-family:$font; font-size:12.5px; color:$navy;
@@ -43,7 +43,7 @@ $font:'Noto Kufi Arabic', sans-serif !important;
   &:focus-within { border-color:$med; background:$white; }
 }
 .A-seg {
-  display:flex; background:$g1; border-radius:11px; padding:4px; gap:2px;
+  display:flex; background:#f4f6fa; border-radius:11px; padding:4px; gap:2px;
   button {
         font-family: "Noto Kufi Arabic", sans-serif !important;
     font-size: 12.5px;
@@ -57,7 +57,7 @@ $font:'Noto Kufi Arabic', sans-serif !important;
     white-space: nowrap;
     transition: background 0.15s, color 0.15s;
     &:hover { color:$navy; }
-    &.active { background:$navy; color:$white; }
+    &.active { background:#1855a4; color:$white; }
   }
 }
 
@@ -66,7 +66,7 @@ $font:'Noto Kufi Arabic', sans-serif !important;
   display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   label { display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; color:$g8; }
   input[type="date"] {
-    font-family:$font; font-size:12.5px; color:$navy; background:$g1; border:1px solid transparent;
+    font-family:$font; font-size:12.5px; color:$navy; background:#fff; border:1px solid #e5e5e5;
     border-radius:9px; padding:8px 10px; outline:none; transition:border-color .15s ease, background .15s ease;
     &:focus { border-color:$med; background:$white; }
   }

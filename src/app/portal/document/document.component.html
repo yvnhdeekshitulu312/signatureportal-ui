@@ -6,16 +6,10 @@
     <!-- header -->
     <div class="A-top">
       <div>
-        <h1>All documents</h1>
+        <h1>All Documents</h1>
         <div class="sub">{{ total }} document{{ total === 1 ? '' : 's' }}</div>
       </div>
-      <button type="button" class="A-newbtn" (click)="newDocument()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-          stroke-linecap="round">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-        New document
-      </button>
+     
     </div>
 
     <!-- toolbar: search + segmented tabs -->
@@ -54,6 +48,13 @@
         </label>
         <button type="button" class="A-daterange-reset" (click)="resetDateFilter()"
           title="Reset to last 30 days">Reset</button>
+           <button type="button" class="A-newbtn" (click)="newDocument()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        New document
+      </button>
       </div>
     </div>
 
