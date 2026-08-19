@@ -18,6 +18,11 @@ export class DashboardComponent implements OnInit {
   Email:any;
 EmpID:any;
 
+  // From/To date range for "Recent documents" (passed to getMyDocuments).
+  // Defaults to the last 30 days so the panel isn't empty on first load.
+  fromDate: string;
+  toDate: string;
+
   // hover tooltip (document name) — positioned via JS (fixed) so it never gets
   // clipped by the table's scroll container, unlike a plain CSS absolute tooltip.
   hoveredDoc: any = null;
@@ -33,6 +38,11 @@ EmpID:any;
       this.Email=d?.EmpEmail;
       this.EmpID=d?.EmpId;
     } catch { /* keep default */ }
+    const today = new Date();
+    const past = new Date();
+    past.setDate(today.getDate() - 30);
+    this.toDate = this.formatDate(today);
+    this.fromDate = this.formatDate(past);
   }
 
   ngOnInit(): void {
@@ -40,10 +50,33 @@ EmpID:any;
     this.loadPending();
   }
 
+  /** yyyy-MM-dd for both the <input type="date"> bindings and the FromDate/ToDate API params. */
+  private formatDate(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  /** Re-run loadRecent() when either date input changes. */
+  onDateFilterChange(): void {
+    this.loadRecent();
+  }
+
+  /** Reset the date range back to the last 30 days and reload. */
+  resetDateFilter(): void {
+    const today = new Date();
+    const past = new Date();
+    past.setDate(today.getDate() - 30);
+    this.toDate = this.formatDate(today);
+    this.fromDate = this.formatDate(past);
+    this.loadRecent();
+  }
+
   // Recent documents for the dashboard panel (from the same source as the list)
   loadRecent(): void {
     this.loading = true;
-    this.esignService.getMyDocuments(this.Email,this.EmpID).subscribe({
+    this.esignService.getMyDocuments(this.Email,this.EmpID,this.fromDate,this.toDate).subscribe({
       next: (docs) => { this.recentDocs = docs || []; this.loading = false; },
       error: () => { this.loading = false; }
     });

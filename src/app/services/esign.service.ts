@@ -90,10 +90,12 @@ export class EsignService {
   );
 }
   
-getMyDocuments(email: string,EmpID:string): Observable<DocumentDetailResponse[]> {
+getMyDocuments(email: string,EmpID:string,FromDate:string,ToDate:string): Observable<DocumentDetailResponse[]> {
   const params = new HttpParams()
   .set('email', email)
-  .set('EmpID', EmpID);
+  .set('EmpID', EmpID)
+  .set('FromDate', FromDate)
+  .set('ToDate', ToDate);
 
   return this.http.get<DocumentDetailResponse[]>(
     `${this.baseUrl}/MyDocuments`, 

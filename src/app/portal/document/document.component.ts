@@ -38,6 +38,11 @@ export class DocumentComponent implements OnInit {
   fEmail = '';
   fStatus = '';
 
+  // From/To date range for the "All documents" table (passed to getMyDocuments).
+  // Defaults to the last 30 days so the table isn't empty on first load.
+  fromDate: string;
+  toDate: string;
+
   // paging
   page = 1;
   pageSize = 100;
@@ -50,6 +55,11 @@ export class DocumentComponent implements OnInit {
        this.Email=d?.EmpEmail;
        this.EmpID=d?.EmpId;
     } catch { /* keep default */ }
+    const today = new Date();
+    const past = new Date();
+    past.setDate(today.getDate() - 30);
+    this.toDate = this.formatDate(today);
+    this.fromDate = this.formatDate(past);
   }
 
   ngOnInit(): void {
@@ -61,9 +71,33 @@ export class DocumentComponent implements OnInit {
     if (this.route.snapshot.queryParamMap.get('mode') === 'pending') { this.setMode('pending'); }
   }
 
+  /** yyyy-MM-dd for both the <input type="date"> bindings and the FromDate/ToDate API params. */
+  private formatDate(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  /** Re-run load() when either date input changes. */
+  onDateFilterChange(): void {
+    this.page = 1;
+    this.load();
+  }
+
+  /** Reset the date range back to the last 30 days and reload. */
+  resetDateFilter(): void {
+    const today = new Date();
+    const past = new Date();
+    past.setDate(today.getDate() - 30);
+    this.toDate = this.formatDate(today);
+    this.fromDate = this.formatDate(past);
+    this.onDateFilterChange();
+  }
+
   load(): void {
     this.loading = true;
-    this.esignService.getMyDocuments(this.Email,this.EmpID).subscribe({
+    this.esignService.getMyDocuments(this.Email,this.EmpID,this.fromDate,this.toDate).subscribe({
       next: (docs: any[]) => { this.allDocs = docs || []; this.loading = false; },
       error: () => { this.loading = false; }
     });

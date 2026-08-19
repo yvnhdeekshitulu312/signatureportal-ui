@@ -119,6 +119,22 @@ $font:'Noto Kufi Arabic', sans-serif;
 .dv-panel-head { display:flex; align-items:center; justify-content:space-between;
   h3 { font-size:16px; font-weight:800; color:$navy; }
   a { color:$brand; font-size:12.5px; font-weight:700; cursor:pointer; } }
+
+/* From/To date range filter for "Recent documents" */
+.dv-daterange {
+  display:flex; align-items:flex-end; gap:14px; margin-top:16px; flex-wrap:wrap;
+  label { display:flex; flex-direction:column; gap:5px; font-size:11px; font-weight:700; color:$gray-8; text-transform:uppercase; letter-spacing:.03em; }
+  input[type="date"] {
+    font-family:$font; font-size:12.5px; color:$navy; background:$white; border:1px solid $gray-1;
+    border-radius:9px; padding:8px 10px; outline:none; transition:border-color .15s ease;
+    &:focus { border-color:$brand; }
+  }
+}
+.dv-daterange-reset {
+  font-family:$font; font-size:11.5px; font-weight:700; color:$brand; cursor:pointer; transition:.15s;
+  background:rgba(24,85,164,.08); border:1px solid rgba(24,85,164,.18); border-radius:9px; padding:8px 14px;
+  &:hover { background:$brand; color:$white; border-color:$brand; }
+}
 .dv-filters { display:flex; gap:8px; margin:16px 0 18px; flex-wrap:wrap; }
 .dv-chip { font-size:13px; font-weight:500; padding:7px 14px; border-radius:999px; border:1px solid $gray-1; color:$gray-8; cursor:pointer; transition:.2s; background:$white;
   /* active chip = approved Teal fill (hardcoded #4FCED2 — see note above the

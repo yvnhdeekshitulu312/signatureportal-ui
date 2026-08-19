@@ -27,6 +27,17 @@
         <button type="button" [class.active]="mode==='all' && fStatus==='Completed'" (click)="setMode('all'); fStatus='Completed'; onFilterChange()">Completed</button>
         <button type="button" [class.active]="mode==='pending'" (click)="setMode('pending')">Pending my signature</button>
       </div>
+      <div class="A-daterange">
+        <label>
+          <span>From</span>
+          <input type="date" [(ngModel)]="fromDate" [max]="toDate" (ngModelChange)="onDateFilterChange()">
+        </label>
+        <label>
+          <span>To</span>
+          <input type="date" [(ngModel)]="toDate" [min]="fromDate" (ngModelChange)="onDateFilterChange()">
+        </label>
+        <button type="button" class="A-daterange-reset" (click)="resetDateFilter()" title="Reset to last 30 days">Reset</button>
+      </div>
     </div>
 
     <!-- table -->
