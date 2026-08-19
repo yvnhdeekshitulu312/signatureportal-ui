@@ -109,29 +109,38 @@
   </div>
 
   <!-- ===== RECENT DOCUMENTS ===== -->
-  <div class="">
+
+  <div class="dv-panel">
     <div class="dv-panel-head">
       <h3>Recent documents</h3>
       <a href="javascript:void(0)" (click)="gotoDocuments()">View all →</a>
     </div>
 
-    <div class="dv-daterange">
-      <label>
-        <span>From</span>
-        <input type="date" [(ngModel)]="fromDate" [max]="toDate" (ngModelChange)="onDateFilterChange()">
-      </label>
-      <label>
-        <span>To</span>
-        <input type="date" [(ngModel)]="toDate" [min]="fromDate" (ngModelChange)="onDateFilterChange()">
-      </label>
-      <button type="button" class="dv-daterange-reset" (click)="resetDateFilter()" title="Reset to last 30 days">Reset</button>
-    </div>
+    <div class="d-flex align-items-end gap-3 mb-3">
+      <div class="dv-daterange">
+        <label>
+          <span>From</span>
+          <input type="date" [(ngModel)]="fromDate" [max]="toDate" (ngModelChange)="onDateFilterChange()">
+        </label>
+        <label>
+          <span>To</span>
+          <input type="date" [(ngModel)]="toDate" [min]="fromDate" (ngModelChange)="onDateFilterChange()">
+        </label>
+        <button type="button" class="dv-daterange-reset" (click)="resetDateFilter()" title="Reset to last 30 days">Reset</button>
+      </div>
 
-    <div class="dv-filters">
-      <span class="dv-chip" [class.on]="activeFilter==='all'" (click)="setFilter('all')">All</span>
-      <span class="dv-chip" [class.on]="activeFilter==='pending'" (click)="setFilter('pending')">Pending</span>
-      <span class="dv-chip" [class.on]="activeFilter==='signed'" (click)="setFilter('signed')">Signed</span>
-      <span class="dv-chip" [class.on]="activeFilter==='progress'" (click)="setFilter('progress')">In progress</span>
+      <div class="dv-filters w-100">
+        <span class="dv-chip all" [class.on]="activeFilter==='all'" (click)="setFilter('all')">All</span>
+        <span class="dv-chip pending" [class.on]="activeFilter==='pending'" (click)="setFilter('pending')">
+          <i></i>Pending
+        </span>
+        <span class="dv-chip signed" [class.on]="activeFilter==='signed'" (click)="setFilter('signed')">
+          <i></i>Signed
+        </span>
+        <span class="dv-chip progressf" [class.on]="activeFilter==='progress'" (click)="setFilter('progress')">
+          <i></i>In progress
+        </span>
+      </div>
     </div>
 
     <!-- loading -->

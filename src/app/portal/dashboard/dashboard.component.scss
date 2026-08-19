@@ -115,14 +115,87 @@ $font:'Noto Kufi Arabic', sans-serif;
   .go { font-size:12px; font-weight:800; color:$white; } }
 
 /* documents panel */
-.dv-panel { background:$white; border:1px solid $gray-1; border-radius:18px; padding:26px 30px; }
+// .dv-panel { background:$white; border:1px solid $gray-1; border-radius:18px; padding:26px 30px; }
 .dv-panel-head { display:flex; align-items:center; justify-content:space-between;
-  h3 { font-size:16px; font-weight:800; color:$navy; }
-  a { color:$brand; font-size:12.5px; font-weight:700; cursor:pointer; } }
-
+  h3 { font-size: 13px;
+  font-weight: 700;
+  color: #1855a4;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 26px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px; 
+  width: 100%;
+  &::after {
+    content: '';
+    flex: 1;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, #A3BBDB, transparent);
+}
+}
+  a { color:$brand; font-size:12.5px; font-weight:700; cursor:pointer;white-space: nowrap; } }
+.dv-filters {         display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    background: #fff;
+    border: 1px solid #edf0f5;
+    border-radius: 9px;
+    padding: 6px 16px;
+    box-shadow: 0 2px 10px rgba(0, 38, 84, 0.05);
+}
+.dv-chip { 
+  display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #e5e5e5;
+    background: #f4f6fa;
+    color: #002654;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    opacity: 0.5;
+    line-height: 1;
+  /* active chip = approved Teal fill (hardcoded #4FCED2 — see note above the
+     action-card gradients on why this file's own $teal isn't used here) */
+  &.on { 
+    opacity: 1;
+    background: #fff;
+    color: #002654;
+    border-color: #7499c8;
+    box-shadow: 0 0 0 2px #7499c8 inset, 0 3px 8px #0026541f;
+    font-weight: 700;
+  } 
+  i{
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+  }
+  &.pending{
+    i{
+      background-color: #92400E;
+    }
+  }
+  &.signed{
+    i{
+      background-color: #166534;
+    }
+  }
+  &.progressf{
+    i{
+      background-color: #6B21A8;
+    }
+  }
+}
 /* From/To date range filter for "Recent documents" */
 .dv-daterange {
-  display:flex; align-items:flex-end; gap:14px; margin-top:16px; flex-wrap:wrap;
+  display:flex; align-items:flex-end; gap:14px;
   label { display:flex; flex-direction:column; gap:5px; font-size:11px; font-weight:700; color:$gray-8; text-transform:uppercase; letter-spacing:.03em; }
   input[type="date"] {
     font-family:$font; font-size:12.5px; color:$navy; background:$white; border:1px solid $gray-1;
@@ -135,11 +208,6 @@ $font:'Noto Kufi Arabic', sans-serif;
   background:rgba(24,85,164,.08); border:1px solid rgba(24,85,164,.18); border-radius:9px; padding:8px 14px;
   &:hover { background:$brand; color:$white; border-color:$brand; }
 }
-.dv-filters { display:flex; gap:8px; margin:16px 0 18px; flex-wrap:wrap; }
-.dv-chip { font-size:13px; font-weight:500; padding:7px 14px; border-radius:999px; border:1px solid $gray-1; color:$gray-8; cursor:pointer; transition:.2s; background:$white;
-  /* active chip = approved Teal fill (hardcoded #4FCED2 — see note above the
-     action-card gradients on why this file's own $teal isn't used here) */
-  &.on { background:radial-gradient(1200px 500px at 85% -10%, rgba(79, 206, 210, 0.18), transparent 60%), linear-gradient(135deg, var(--dark-navy) 0%, #013268 55%, var(--brand-blue) 100%); color:#fff;  } }
 
 /* ===== Recent documents — rich table (matches All-documents) ===== */
 .dv-tablewrap { border:1px solid $gray-1; border-radius:14px; overflow:auto; }
