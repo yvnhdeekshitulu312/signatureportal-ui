@@ -80,6 +80,7 @@ export class SendForSignatureComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       empID: [''],
       name: ['', Validators.required],
+      department: [''],
       role: ['Sign', Validators.required],
       deliveryMethod: ['Email', Validators.required]
     });
@@ -242,11 +243,13 @@ const EmpID = this.EmpID;
       this.searchingEmp = true;
       this.ConfigService.searchEmployees(q).subscribe({
         next: (list: any) => {
-         // const loggedInEmail = (localStorage.getItem('authUserName') || '').toLowerCase();
+          //const loggedInEmail = (localStorage.getItem('authUserName') || '').toLowerCase();
           const results = list.SSEmployeeDetailsZohoDataList || [];
 
-          this.empSuggestions = results;
-
+          // this.empSuggestions = results.filter(
+          //   (emp: any) => (emp.Email || '').toLowerCase() !== loggedInEmail
+          // );
+this.empSuggestions = results;
           this.searchingEmp = false;
         },
         error: () => { this.empSuggestions = []; this.searchingEmp = false; }
@@ -259,6 +262,9 @@ const EmpID = this.EmpID;
       email: (emp.Email || '').trim(),
       name: (emp.EmployeeName || '').replace(/\s+/g, ' ').trim(),
       empID: (emp.Empid || '').trim(),
+      // Department comes from the smart-search result — try the common field
+      // names the employee API has used elsewhere (DepartmentName / Department).
+      department: (emp.DepartmentName || emp.Department || '').toString().replace(/\s+/g, ' ').trim(),
     });
     this.empSuggestions = [];
     this.suggestFor = null;
@@ -303,6 +309,7 @@ const EmpID = this.EmpID;
         clientId: r.clientId,
         email: r.email,
         name: r.name,
+        department: r.department,
         role: r.role,
         empID: r.empID,
         signingOrder: this.form.value.sendInOrder ? idx + 1 : null,

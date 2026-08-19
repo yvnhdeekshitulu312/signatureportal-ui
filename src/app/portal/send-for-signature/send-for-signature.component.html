@@ -168,7 +168,9 @@
                 <div class="emp-none" *ngIf="!searchingEmp && !empSuggestions.length">No matches</div>
               </div>
             </div>
-            <input type="text" class="input" formControlName="name" placeholder="Full name">
+            <input type="text" class="input" formControlName="name" placeholder="Full name" readonly>
+            <input type="text" class="input input-department" formControlName="department"
+                   placeholder="Department" readonly tabindex="-1" title="Filled automatically from smart search">
             <select class="input select" formControlName="role">
               <option value="Sign">Needs to sign</option>
               <!-- <option value="Approve">Needs to approve</option> -->

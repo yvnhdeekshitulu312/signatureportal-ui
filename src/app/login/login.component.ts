@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators, FormGroup, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Patterns } from 'global-constants';
@@ -12,7 +12,7 @@ declare var $: any;
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
 
   loginForm: any;
   otpDetails: any;
@@ -43,6 +43,9 @@ export class LoginComponent implements OnInit {
   currenttime: any;
   datetime: any;
   loginLangData: any;
+  // Live clock shown at the bottom of the login page — ticks every second
+  // instead of only rendering the date/time once at page load.
+  private clockInterval: any;
   constructor(private fb: FormBuilder, private config: ConfigService, private router: Router, private loader: LoaderService) {
     this.config.onLogout();
     if ("lang" in localStorage) {
@@ -233,12 +236,20 @@ export class LoginComponent implements OnInit {
       localStorage.setItem("langData", JSON.stringify(this.loginLangData))
     });
   }
+  /** Start (or restart, on language change) a live-updating clock for the
+   *  login page footer — sets currentdate immediately, then re-formats it
+   *  every second so it behaves as a real running clock rather than a
+   *  timestamp frozen at page load. */
   getDate(langCode: any) {
-    if (langCode === "en") {
-      this.currentdate = moment(new Date()).format('DD-MMM-YYYY, hh:mm A');
-    } else if (langCode === "ar") {
-    }
+    clearInterval(this.clockInterval);
+    const tick = () => {
+      this.currentdate = moment(new Date()).format('DD-MMM-YYYY, hh:mm:ss A');
+    };
+    tick();
+    this.clockInterval = setInterval(tick, 1000);
   }
-  
-  
+
+  ngOnDestroy(): void {
+    clearInterval(this.clockInterval);
+  }
 }

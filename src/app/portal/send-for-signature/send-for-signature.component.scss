@@ -130,7 +130,16 @@ textarea.input { resize: vertical; min-height: 60px; }
   background: rgba(24,85,164,.04); border: 1px solid $gray-1; border-inline-start: 3px solid $brand;
 }
 .recip-order { width: 28px; height: 28px; flex-shrink: 0; border-radius: 8px; background: $brand; color: $white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-.recip-fields { flex: 1; display: grid; grid-template-columns: 1.4fr 1.2fr 1fr .9fr; gap: 8px; min-width: 0; }
+.recip-fields { flex: 1; display: grid; grid-template-columns: 1.3fr 1.05fr 1.1fr .95fr .01fr; gap: 8px; min-width: 0; }
+
+/* Department — auto-filled by selectEmployee() when a recipient is picked
+   from smart search; not manually typed, so it's styled distinctly (bold
+   Brand Blue) and marked readonly rather than as a normal editable input. */
+.input-department {
+  color: $brand; font-weight: 700; background: rgba(24,85,164,.05); cursor: default;
+  &::placeholder { color: $gray-5; font-weight: 500; }
+  &:focus { border-color: $gray-5; box-shadow: none; }
+}
 .recip-tools { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .recip-remove { border: none; background: transparent; color: $gray-8; font-size: 20px; line-height: 1; cursor: pointer; font-family: $font; padding: 2px 6px; border-radius: 6px;
   &:hover { color: $navy; background: $gray-1; } }
@@ -158,6 +167,9 @@ details[open] .more-chevron { transform: rotate(180deg); }
   .recip-fields { grid-template-columns: 1fr 1fr; }
   .opts-grid { grid-template-columns: 1fr; }
   .sfs-title { font-size: 18px; }
+}
+@media (max-width: 900px) {
+  .recip-fields { grid-template-columns: 1fr 1fr; }
 }
 
 /* ===== added: multi-document upload · recipient reorder · send-in-order ===== */

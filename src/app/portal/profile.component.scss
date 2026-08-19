@@ -32,7 +32,7 @@ $font:'Noto Kufi Arabic', sans-serif;
   // max-width: 458px;
   // min-height: 550px;
   padding: 30px 35px;
-  background: linear-gradient(160deg, var(--dark-navy), #013269);
+  background: radial-gradient(1200px 500px at 85% -10%, rgba(79, 206, 210, 0.18), transparent 60%), linear-gradient(135deg, var(--dark-navy) 0%, #013268 55%, var(--brand-blue) 100%);
   border-radius: 26px;
   box-sizing: border-box;
   color: #ffffff;

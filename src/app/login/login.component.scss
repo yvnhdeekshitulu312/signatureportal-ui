@@ -123,7 +123,9 @@ $font:'Noto Kufi Arabic', sans-serif;
   .lv-card { position:relative; z-index:3; width:396px; max-width:92vw;
     background:rgba(255,255,255,.82); border:1px solid rgba(255,255,255,.9); border-radius:24px;
     padding:36px 34px 30px; backdrop-filter: blur(22px);
-    box-shadow: 0 40px 80px rgba(0,38,84,.16), inset 0 1px 0 rgba(255,255,255,.9); }
+    // box-shadow: 0 40px 80px rgba(0,38,84,.16), inset 0 1px 0 rgba(255,255,255,.9); 
+  box-shadow: 0 6px 16px rgba(24, 85, 164, .4);
+  }
 
   .lv-card-top { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
   .lv-logo-halo { position:relative; width:52px; height:52px; flex-shrink:0; border-radius:50%; background:$white;
@@ -177,7 +179,7 @@ $font:'Noto Kufi Arabic', sans-serif;
   .lv-badge { font-size:9.5px; color:$brand; background:$mint; padding:5px 11px; border-radius:999px; font-weight:700; letter-spacing:.3px; }
 
   .lv-footer-time { position:absolute; bottom:22px; left:0; right:0; text-align:center; z-index:3; font-size:11.5px; color:$gray-8;
-    b { color:$navy; } }
+    b { color:#1855a4; font-size: 18px;} }
 
   @media (max-width:900px) { .lv-left { display:none; } }
 }
