@@ -17,6 +17,25 @@
         <button type="button" class="dv-btn outline" (click)="gotoDocuments()">View documents</button>
       </div>
     </div>
+
+    <!-- vertical steps rail — same 3 steps as before, now embedded in the hero -->
+    <div class="dv-hero-mid">
+      <ul class="dv-rail">
+        <li class="dv-rail-item done">
+          <span class="dv-rail-dot"></span>
+          <div class="dv-rail-txt"><h4>1 · Upload</h4><p>Pages render securely server-side.</p></div>
+        </li>
+        <li class="dv-rail-item done">
+          <span class="dv-rail-dot"></span>
+          <div class="dv-rail-txt"><h4>2 · Place fields</h4><p>Signature, initials &amp; date per recipient.</p></div>
+        </li>
+        <li class="dv-rail-item">
+          <span class="dv-rail-dot"></span>
+          <div class="dv-rail-txt"><h4>3 · Track &amp; sign</h4><p>Recipients sign via SSO in real time.</p></div>
+        </li>
+      </ul>
+    </div>
+
     <div class="dv-hero-right">
       <div class="dv-ring-stat pending">
         <!-- <div class="dv-ring" [style.--p]="pct(pendingCount)"> -->
@@ -63,15 +82,6 @@
       </div>
     </div>
   </section>
-
-  <!-- ===== STEPS STRIP ===== -->
-  <div class="dv-steps">
-    <div class="dv-step"><div class="n">1</div><div><h4>Upload</h4><p>Pages render securely server-side.</p></div></div>
-    <span class="dv-sep"></span>
-    <div class="dv-step"><div class="n">2</div><div><h4>Place fields</h4><p>Signature, initials &amp; date per recipient.</p></div></div>
-    <span class="dv-sep"></span>
-    <div class="dv-step"><div class="n">3</div><div><h4>Track &amp; sign</h4><p>Recipients sign via SSO in real time.</p></div></div>
-  </div>
 
   <!-- ===== ACTION CARDS ===== -->
 
