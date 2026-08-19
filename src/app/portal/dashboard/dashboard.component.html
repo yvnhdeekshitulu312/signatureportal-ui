@@ -28,7 +28,10 @@
             <path d="M12 7v5" />
           </svg>
         </div>
-        <div class="dv-ring-txt d-flex align-items-center gap-2"><div class="num">{{ pendingCount }}</div><div class="lbl">Pending</div></div>
+       <div>
+         <div class="dv-ring-txt d-flex align-items-center gap-2"><div class="num">{{ pendingCount }}</div><div class="lbl">Pending</div></div>
+         <p class="sub_txt">Awaiting Signature</p>
+       </div>
       </div>
       <div class="dv-ring-stat stat">
         <!-- <div class="dv-ring" [style.--p]="pct(signedCount)"></div> -->
@@ -39,7 +42,10 @@
           </svg>
 
         </div>
-        <div class="dv-ring-txt d-flex align-items-center gap-2"><div class="num">{{ signedCount }}</div><div class="lbl">Signed</div></div>
+        <div>
+          <div class="dv-ring-txt d-flex align-items-center gap-2"><div class="num">{{ signedCount }}</div><div class="lbl">Signed</div></div>
+         <p class="sub_txt">Completed this month</p>
+        </div>
       </div>
       <div class="dv-ring-stat total">
         <!-- <div class="dv-ring" [style.--p]="100"></div> -->
@@ -50,7 +56,10 @@
           </svg>
 
         </div>
-        <div class="dv-ring-txt d-flex align-items-center gap-2"><div class="num">{{ totalCount }}</div><div class="lbl">Total</div></div>
+        <div>
+          <div class="dv-ring-txt d-flex align-items-center gap-2"><div class="num">{{ totalCount }}</div><div class="lbl">Total</div></div>
+        <p class="sub_txt">Documents all-time</p>
+        </div>
       </div>
     </div>
   </section>
