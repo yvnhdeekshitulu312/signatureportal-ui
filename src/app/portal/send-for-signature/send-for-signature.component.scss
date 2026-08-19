@@ -174,7 +174,7 @@ details[open] .more-chevron { transform: rotate(180deg); }
 /* whole-document delete — a clearly visible circular button, not just a
    faint character that blends into the header row. */
 .db-remove {
-  margin-inline-start: auto; flex-shrink: 0;
+  margin-inline-start: auto; flex-shrink: 0;padding: 0;
   width: 28px; height: 28px; border-radius: 8px;
   border: 1px solid $gray-1; background: rgba(150,150,150,.08); color: $gray-8;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
