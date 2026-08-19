@@ -36,6 +36,7 @@ $font:'Noto Kufi Arabic', sans-serif;
   border-radius: 26px;
   box-sizing: border-box;
   color: #ffffff;
+  height: 550px;
 }
 
 .profile-avatar-wrapper {
@@ -265,7 +266,7 @@ $font:'Noto Kufi Arabic', sans-serif;
   &.empty { border-style: dashed; border-color: $g5; background: #FFFFFF; }
 }
 .pf-ph { 
-  font-size: 10.5px;
+      font-size: 15.5px;
     font-weight: 700;
     color: #1855a4;
  }
