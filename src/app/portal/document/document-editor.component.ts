@@ -332,14 +332,28 @@ owner = 'You';
       next: () => {
         sessionStorage.removeItem('esign_draft');
         this.isSending = false;
+
         const count = docsToSend.length;
+
         this.toast.success(
           count > 1
             ? `${count} documents sent for signature`
             : 'Document sent for signature',
           { title: 'Sent' }
         );
-        this.router.navigate(['/dashboard']);
+
+        const isCurrentUserRecipient = this.recipients.some(
+          (r: any) => String(r.empID).trim() === String(this.EmpID).trim()
+        );
+
+        if (isCurrentUserRecipient) {
+          this.router.navigate([
+            '/dashboard/pendingdocuments/sign',
+            this.documentId
+          ]);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: () => {
         this.isSending = false;

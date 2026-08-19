@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EsignService } from '../../services/esign.service';
 import { DocumentDetailResponse, FieldSummaryDto } from '../../models/esign.models';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ToastService } from 'src/app/toast.service';
 
 @Component({ selector: 'app-document-sign', templateUrl: './document-sign.component.html' })
 export class DocumentSignComponent implements OnInit {
@@ -26,7 +27,8 @@ Email:any;
   loadingSaved = false;
   activeDateTimeFieldId: number | null = null;
   dateTimeValue = '';
-  constructor(private sanitizer: DomSanitizer, private route: ActivatedRoute, private router: Router, private esignService: EsignService) {}
+  constructor(private sanitizer: DomSanitizer, private route: ActivatedRoute, 
+    private router: Router, private esignService: EsignService, private toast: ToastService) {}
 
   ngOnInit(): void {
     const d = this.getUser();
@@ -41,7 +43,7 @@ Email:any;
             doc.ViewerGcsUrl
         );
         this.loading = false; },
-      error: () => { this.loading = false; alert('Unable to load this document for signing.'); this.router.navigate(['/dashboard/document']); }
+      error: () => { this.loading = false; this.toast.error('Unable to load this document for signing.'); this.router.navigate(['/dashboard/document']); }
     });
   }
 
@@ -225,12 +227,18 @@ cancelDateTime(): void { this.activeDateTimeFieldId = null; }
 
   submit(): void {
     if (this.isSubmitting) return;
-    if (!this.allRequiredFilled()) { alert('Please fill all required fields before submitting.'); return; }
+    if (!this.allRequiredFilled()) { this.toast.error('Please fill all required fields before submitting.'); return; }
     const fieldValues = Object.keys(this.fieldValues).map(id => ({ fieldId: Number(id), value: this.fieldValues[Number(id)] }));
     this.isSubmitting = true;
     this.esignService.signAsUser(this.doc.Id,this.Email, fieldValues).subscribe({
-      next: () => { this.isSubmitting = false; alert('Document signed successfully.'); this.router.navigate(['/dashboard/document']); },
-      error: () => { this.isSubmitting = false; alert('Failed to sign document. Please try again.'); }
+      next: () => { this.isSubmitting = false; this.toast.success(
+        'Document signed successfully.',
+        { title: 'Success' }
+      ); this.router.navigate(['/dashboard/document']); },
+      error: () => { this.isSubmitting = false;  this.toast.error(
+        'Failed to sign document. Please try again.',
+        { title: 'Error' }
+      ); }
     });
   }
 }

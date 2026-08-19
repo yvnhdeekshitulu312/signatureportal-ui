@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EsignService } from '../../services/esign.service';
 import { DocumentDetailResponse, FieldSummaryDto, RecipientSummaryDto } from '../../models/esign.models';
+import { ToastService } from 'src/app/toast.service';
 // NOTE: no `import ... from 'jspdf'` — jsPDF is loaded at runtime below,
 // so this file compiles WITHOUT installing the npm package.
 
@@ -15,13 +16,13 @@ export class DocumentViewComponent implements OnInit {
   currentPage = 1;
   loading = true;
 
-  constructor(private route: ActivatedRoute, private router: Router, private esignService: EsignService) { }
+  constructor(private route: ActivatedRoute, private router: Router, private esignService: EsignService, private toast: ToastService) { }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.esignService.getDocument(id).subscribe({
       next: (doc) => { this.doc = doc; this.loading = false; },
-      error: () => { this.loading = false; alert('Unable to load this document.'); this.router.navigate(['/dashboard/document']); }
+      error: () => { this.loading = false; this.toast.error('Unable to load this document.'); this.router.navigate(['/dashboard/document']); }
     });
   }
 

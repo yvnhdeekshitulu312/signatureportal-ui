@@ -128,7 +128,7 @@ export class SendForSignatureComponent implements OnInit {
 
   private handleFiles(files: FileList): void {
     const pdfs = Array.from(files).filter(f => f.type === 'application/pdf');
-    if (!pdfs.length) { alert('Please upload PDF documents.'); return; }
+    if (!pdfs.length) { this.toast.warning('Please upload PDF documents.'); return; }
 
     // seed the document name from the first file if the field is empty
     if (!this.form.get('documentName')?.value && pdfs[0]) {
@@ -174,7 +174,7 @@ const EmpID = this.EmpID;
       },
       error: () => {
         this.settle();
-        alert(`Upload failed for "${file.name}". Please try again.`);
+        this.toast.error(`Upload failed for "${file.name}". Please try again.`);
       }
     });
   }
@@ -242,12 +242,10 @@ const EmpID = this.EmpID;
       this.searchingEmp = true;
       this.ConfigService.searchEmployees(q).subscribe({
         next: (list: any) => {
-          const loggedInEmail = (localStorage.getItem('authUserName') || '').toLowerCase();
+         // const loggedInEmail = (localStorage.getItem('authUserName') || '').toLowerCase();
           const results = list.SSEmployeeDetailsZohoDataList || [];
 
-          this.empSuggestions = results.filter(
-            (emp: any) => (emp.Email || '').toLowerCase() !== loggedInEmail
-          );
+          this.empSuggestions = results;
 
           this.searchingEmp = false;
         },
