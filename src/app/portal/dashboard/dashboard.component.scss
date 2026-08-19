@@ -41,6 +41,11 @@ $font:'Noto Kufi Arabic', sans-serif;
   // &::after { content:''; position:absolute; width:40px; height:40px; border-radius:50%; background:$navy; }
 }
 .dv-ring-txt .num { color:$white; font-weight:800; font-size:25px; }
+.sub_txt {
+  color: #b9d9ff;
+  font-weight: 700;
+  font-size: 13px;
+}
 .dv-ring-txt .lbl {
   color: #fff;
   font-size: 11px;
