@@ -74,10 +74,10 @@ $font:'Noto Kufi Arabic', sans-serif !important;
       border-bottom: 1px solid $g1;
       cursor: pointer;
       transition: background .15s ease;
-  
+
       &:hover {
         background: rgba(24, 85, 164, .04);
-  
+
         td:nth-child(1)::before {
           position: absolute;
           content: '';
@@ -85,15 +85,15 @@ $font:'Noto Kufi Arabic', sans-serif !important;
           left: 0;
           height: 100%;
           border-radius: 0px;
-          border-left: 5px solid $brand; 
+          border-left: 5px solid $brand;
         }
       }
-  
+
       &:nth-child(even) {
         background: #1855a409;
       }
     }
-  
+
     /* alternate row colour */
     td {
       padding: 15px 16px;
@@ -103,6 +103,8 @@ $font:'Noto Kufi Arabic', sans-serif !important;
 }
 .A-docname { display:flex; align-items:center; gap:11px; font-size:12.5px; font-weight:500; color:$navy; }
 .A-nametxt { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:340px; }
+.A-namelink { cursor:pointer; color:$brand; text-decoration:none; transition:color .12s ease;
+  &:hover { color:$navy; text-decoration:underline; } }
 .A-fic {
   width:34px; height:34px; border-radius:9px;  color:$brand;
   display:flex; align-items:center; justify-content:center; flex-shrink:0;
@@ -128,13 +130,13 @@ $font:'Noto Kufi Arabic', sans-serif !important;
     font-size: 11.5px;
     font-weight: 500;width: 110px;
    }
-  &.draft     { 
+  &.draft     {
     background: #DBEAFE;
     color: #1E40AF;
     font-size: 11.5px;
     font-weight: 500;
     width: 110px; }
-  &.pending   { 
+  &.pending   {
     background: #FEF3C7;
     color: #92400E;
     font-size: 11.5px;
@@ -183,4 +185,100 @@ $font:'Noto Kufi Arabic', sans-serif !important;
 @media (max-width: 720px) {
   .A-wrap { padding:14px; }
   .A-nametxt { max-width:160px; }
+}
+
+/* ===== hover tooltip (document name) ===== */
+/* position:fixed via [style.top.px]/[style.left.px] set in the component (see
+   showTooltip()) so this never gets clipped by .A-tablewrap's overflow-x:auto —
+   an absolutely-positioned tooltip nested inside that ancestor would be. */
+.doc-tooltip {
+  position: fixed; z-index: 3000; min-width: 280px; max-width: 360px;
+  background: $white; border: 1px solid $g1; border-radius: 10px;
+  box-shadow: 0 14px 32px rgba(0,38,84,.20), 0 2px 6px rgba(0,38,84,.08);
+  padding: 12px 14px; font-family: $font; pointer-events: none;
+}
+.doc-tooltip .tt-row { font-size: 11.5px; color: $navy; line-height: 1.6; }
+.doc-tooltip .tt-row b { color: $g8; font-weight: 700; }
+.doc-tooltip .tt-recip-head {
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid $g1;
+  font-size: 10.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: $brand;
+}
+.doc-tooltip .tt-recip {
+  display: flex; align-items: center; gap: 10px; padding: 4px 0; font-size: 11px;
+}
+.doc-tooltip .tt-email { flex: 1; min-width: 0; color: $navy; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: ltr; }
+.doc-tooltip .tt-role { flex-shrink: 0; width: 56px; color: $g8; font-weight: 600; }
+.doc-tooltip .tt-status { flex-shrink: 0; width: 64px; text-align: end; font-weight: 700; color: $brand; }
+
+/* ===== document-detail modal (click a document name) ===== */
+.doc-modal-overlay {
+  position: fixed; inset: 0; z-index: 4000; background: rgba(0,38,84,.45);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.doc-modal {
+  width: 100%; max-width: 560px; max-height: 82vh; overflow: auto;
+  background: $white; border-radius: 16px; box-shadow: 0 30px 70px rgba(0,38,84,.35);
+  padding: 28px; position: relative; font-family: $font;
+}
+.dm-close {
+  position: absolute; top: 16px; inset-inline-end: 16px; width: 30px; height: 30px;
+  border-radius: 8px; border: none; background: $g1; color: $g8; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: .15s;
+  &:hover { background: $navy; color: $white; }
+}
+.dm-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-inline-end: 34px; margin-bottom: 22px; }
+.dm-title { font-size: 17px; font-weight: 800; color: $navy; line-height: 1.35; margin-bottom: 6px; }
+.dm-meta { font-size: 12px; color: $g8; font-weight: 500; line-height: 1.6; }
+.dm-head-right { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+.dm-head-status { display: flex; align-items: center; gap: 6px; }
+.dm-statusicon {
+  width: 14px; height: 14px; border-radius: 50%; background: $g1;
+  &.completed { background: #166534; }
+  &.draft { background: #1E40AF; }
+  &.pending { background: #92400E; }
+}
+.dm-statustxt { font-size: 12px; font-weight: 700; color: $navy; }
+
+/* header progress ring — % of recipients who have viewed/signed (see
+   docProgressPct() in the component). Track = Light Gray, arc = Teal,
+   both approved-palette colours; centre label uses Noto Kufi Arabic. */
+.dm-ring { position: relative; width: 44px; height: 44px; flex-shrink: 0; }
+.dm-ring-svg { transform: rotate(-90deg); }
+.dm-ring-track { fill: none; stroke: $g1; stroke-width: 4; }
+.dm-ring-arc {
+  fill: none; stroke: $teal; stroke-width: 4; stroke-linecap: round;
+  transition: stroke-dashoffset .3s ease;
+}
+.dm-ring-pct {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: $font; font-size: 10px; font-weight: 800; color: $navy;
+}
+
+.dm-subhead { font-size: 13px; font-weight: 800; color: $navy; margin-bottom: 12px; }
+
+.dm-recip {
+  display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid $g1;
+  &:last-of-type { border-bottom: none; }
+}
+.dm-recip-num {
+  width: 24px; height: 24px; border-radius: 50%; background: $g1; color: $navy;
+  font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.dm-recip-info { flex-shrink: 0; width: 160px; min-width: 0; }
+.dm-recip-name { font-size: 12.5px; font-weight: 700; color: $navy; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dm-recip-email { font-size: 11px; color: $g8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: ltr; }
+
+.dm-progress { flex: 1; min-width: 140px; }
+.dm-track { display: flex; align-items: center; }
+.dm-dot { width: 9px; height: 9px; border-radius: 50%; background: $g5; flex-shrink: 0; transition: background .15s; &.filled { background: $brand; } }
+.dm-seg { flex: 1; height: 2px; background: $g5; min-width: 24px; transition: background .15s; &.filled { background: $brand; } }
+.dm-labels { display: flex; justify-content: space-between; font-size: 9.5px; color: $g8; font-weight: 600; margin-top: 5px; }
+
+.dm-empty { padding: 20px 0; text-align: center; color: $g8; font-size: 12.5px; }
+
+@media (max-width: 520px) {
+  .doc-modal { padding: 20px; }
+  .dm-recip { flex-wrap: wrap; }
+  .dm-recip-info { width: 100%; }
+  .dm-progress { width: 100%; }
 }

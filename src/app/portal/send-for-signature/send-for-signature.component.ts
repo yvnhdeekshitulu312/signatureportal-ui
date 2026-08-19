@@ -23,6 +23,9 @@ export class SendForSignatureComponent implements OnInit {
   uploadedDocumentId: number | null = null; // first doc (kept for backward-compat routing)
   private pending = 0;
 
+  /** documentId currently being deleted server-side, so the button can show a spinner / disable itself. */
+  deletingDocId: number | null = null;
+
   isUploading = false;
   isSending = false;
   owner = 'You';
@@ -182,10 +185,35 @@ const EmpID = this.EmpID;
   }
 
   removeDoc(index: number): void {
-    const removed = this.uploadedDocs.splice(index, 1)[0];
-    if (removed && removed.documentId === this.uploadedDocumentId) {
+    const doc = this.uploadedDocs[index];
+    if (!doc || this.deletingDocId === doc.documentId) { return; }
+
+    if (!confirm(`Remove "${doc.name}" (${doc.pages.length} page${doc.pages.length > 1 ? 's' : ''})? This can't be undone.`)) {
+      return;
+    }
+
+    // optimistic UI: pull it out immediately, roll back if the server call fails
+    const snapshot = [...this.uploadedDocs];
+    const wasPrimary = doc.documentId === this.uploadedDocumentId;
+
+    this.uploadedDocs.splice(index, 1);
+    if (wasPrimary) {
       this.uploadedDocumentId = this.uploadedDocs[0]?.documentId ?? null;
     }
+
+    this.deletingDocId = doc.documentId;
+    this.esignService.DraftdeleteDocument(doc.documentId, this.EmpID).subscribe({
+      next: () => {
+        this.deletingDocId = null;
+        this.toast.success(`"${doc.name}" removed`);
+      },
+      error: () => {
+        this.deletingDocId = null;
+        this.uploadedDocs = snapshot;
+        if (wasPrimary) { this.uploadedDocumentId = doc.documentId; }
+        this.toast.error(`Couldn't remove "${doc.name}". Please try again.`);
+      }
+    });
   }
 
   /** Remove a single page from a document. If that was its last page, the

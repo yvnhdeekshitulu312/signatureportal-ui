@@ -293,7 +293,7 @@
 
 /* login photo inside the header avatar (falls back to initials) */
 .app-header__avatar { overflow: hidden; }
-.app-header__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.app-header__avatar img { width: 100%; height: 100%; object-fit: fill; }
 
 
 /* ── notifications (pending my signature) ── */

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { EsignService } from 'src/app/services/esign.service';
 import { DocumentDetailResponse } from 'src/app/models/esign.models';
@@ -17,6 +17,15 @@ export class DashboardComponent implements OnInit {
   owner = 'You';
   Email:any;
 EmpID:any;
+
+  // hover tooltip (document name) — positioned via JS (fixed) so it never gets
+  // clipped by the table's scroll container, unlike a plain CSS absolute tooltip.
+  hoveredDoc: any = null;
+  hoveredPos = { top: 0, left: 0 };
+
+  // document-detail modal (opened by clicking a document name)
+  selectedDoc: any = null;
+
   constructor(private router: Router, private esignService: EsignService) {
     try {
       const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
@@ -90,7 +99,7 @@ EmpID:any;
   // }
 createdOn(d: DocumentDetailResponse): string {
   const url = (d as any).ViewerGcsUrl || '';
-  
+
   const m = /Documents(?:%2F|\/)(\d{4}-\d{2}-\d{2}(?:[T%20_]\d{2}[:\-]\d{2}(?:[:\-]\d{2})?)?)/i.exec(url);
   if (!m) { return '—'; }
 
@@ -166,6 +175,86 @@ createdOn(d: DocumentDetailResponse): string {
     // TODO: call your delete endpoint before removing locally, e.g.
     // this.esignService.deleteDocument((d as any).Id).subscribe(() => ...);
     this.recentDocs = this.recentDocs.filter(x => x !== d);
+  }
+
+  // ── hover tooltip (document name) ──
+  // position:fixed + coordinates taken from the hovered element's own bounding
+  // box, so the tooltip renders above everything (incl. the scrolling table
+  // wrapper) instead of being clipped by an `overflow:auto` ancestor the way a
+  // plain CSS `position:absolute` tooltip nested in that wrapper would be.
+  showTooltip(d: any, ev: MouseEvent): void {
+    const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
+    this.hoveredDoc = d;
+    this.hoveredPos = { top: rect.bottom + 8, left: rect.left };
+  }
+  hideTooltip(): void {
+    this.hoveredDoc = null;
+  }
+
+  /** Signer/Approver/Viewer label for a recipient, for the tooltip + modal. */
+  tooltipRoleLabel(role: string): string {
+    const r = (role || '').toLowerCase();
+    if (r.includes('approve')) { return 'Approver'; }
+    if (r.includes('view') || r.includes('cc') || r.includes('copy')) { return 'Viewer'; }
+    return 'Signer';
+  }
+
+  /** Signed / Viewed / Rejected / Unopened / "-" for a recipient row. Viewers
+   *  (who have nothing to sign) read as "-" rather than "Unopened" unless they
+   *  actually opened the document, matching the reference design. */
+  tooltipStatusLabel(r: any): string {
+    const s = (r?.Status || '').toLowerCase();
+    if (s.includes('sign')) { return 'Signed'; }
+    if (s.includes('view')) { return 'Viewed'; }
+    if (s.includes('reject')) { return 'Rejected'; }
+    const role = (r?.Role || '').toLowerCase();
+    if (role.includes('view') || role.includes('cc') || role.includes('copy')) { return '-'; }
+    return 'Unopened';
+  }
+
+  // ── document-detail modal ──
+  openDocModal(d: any, ev?: Event): void {
+    ev?.stopPropagation(); // don't also trigger the row's openDocument() navigation
+    this.hideTooltip();
+    this.selectedDoc = d;
+  }
+  closeModal(): void {
+    this.selectedDoc = null;
+  }
+  @HostListener('document:keydown.escape') onEscClose(): void {
+    if (this.selectedDoc) { this.closeModal(); }
+  }
+
+  /** How far a recipient has progressed along Mailed -> Viewed -> Signed, for
+   *  the modal's progress track. NOTE: this infers stage from Status alone —
+   *  RecipientSummaryDto doesn't currently expose SentOn/ViewedOn/SignedOn or
+   *  an IP address the way the reference design's per-recipient timestamp/IP
+   *  line does. Once those are added to the DTO, swap this (and the template
+   *  lines that read r.ViewedOn/r.SignedOn/r.IpAddress) for the real values. */
+  recipStage(r: any): 1 | 2 | 3 {
+    const s = (r?.Status || '').toLowerCase();
+    if (s.includes('sign')) { return 3; }
+    if (s.includes('view')) { return 2; }
+    return 1;
+  }
+
+  /** Overall completion % shown in the modal header's progress ring. Each
+   *  recipient contributes 0% (mailed/pending), 50% (viewed) or 100% (signed);
+   *  the ring shows the average across all recipients on the document. This is
+   *  a client-side approximation for the same reason recipStage() is — once
+   *  the backend exposes real per-recipient timestamps this can be replaced
+   *  with a server-computed percentage. */
+  docProgressPct(d: any): number {
+    const recips = this.recipients(d);
+    if (!recips.length) { return 0; }
+    const sum = recips.reduce((acc, r) => acc + (this.recipStage(r) - 1) * 50, 0);
+    return Math.round(sum / recips.length);
+  }
+
+  /** SVG stroke-dashoffset for the header progress ring (r=18 → circumference ≈113.097). */
+  ringOffset(d: any): number {
+    const c = 113.097;
+    return c - (c * this.docProgressPct(d) / 100);
   }
 
 }

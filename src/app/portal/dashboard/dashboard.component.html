@@ -65,10 +65,10 @@
   </div>
 
   <!-- ===== ACTION CARDS ===== -->
- 
+
 
     <div class="dv-actions">
-    
+
     <button type="button" class="dv-card" (click)="gotoSignature()">
       <span class="ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></span>
       <h3>Send for signatures</h3>
@@ -125,7 +125,10 @@
             <td class="c-name">
               <div class="dv-doc-name">
                 <span class="dv-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
-                <span class="doc-text" [title]="d.Name">{{ d.Name }}</span>
+                <span class="doc-text doc-namelink" [title]=""
+                      (mouseenter)="showTooltip(d, $event)"
+                      (mouseleave)="hideTooltip()"
+                      (click)="openDocModal(d, $event)">{{ d.Name }}</span>
               </div>
             </td>
             <td class="c-owner">
@@ -172,5 +175,72 @@
     <div *ngIf="!loading && !filteredDocs.length" class="dv-empty">
       No documents to show{{ activeFilter !== 'all' ? ' for this filter' : '' }}.
     </div>
+  </div>
+</div>
+
+<!-- ===== hover tooltip (document name) — one shared node, positioned via JS ===== -->
+<div class="doc-tooltip" *ngIf="hoveredDoc"
+     [style.top.px]="hoveredPos.top" [style.left.px]="hoveredPos.left">
+  <div class="tt-row"><b>Document name:</b> {{ hoveredDoc.Name }}</div>
+  <div class="tt-row" *ngIf="hoveredDoc.CreatedOn"><b>Created on:</b> {{ hoveredDoc.CreatedOn | date:'dd-MMM-yyyy HH:mm' }}</div>
+  <div class="tt-recip-head" *ngIf="recipients(hoveredDoc).length">Recipients</div>
+  <div class="tt-recip" *ngFor="let r of recipients(hoveredDoc)">
+    <span class="tt-email">{{ r.Email }}</span>
+    <span class="tt-role">{{ tooltipRoleLabel(r.Role) }}</span>
+    <span class="tt-status">{{ tooltipStatusLabel(r) }}</span>
+  </div>
+</div>
+
+<!-- ===== document-detail modal (click a document name) ===== -->
+<div class="doc-modal-overlay" *ngIf="selectedDoc" (click)="closeModal()">
+  <div class="doc-modal" (click)="$event.stopPropagation()">
+    <button type="button" class="dm-close" (click)="closeModal()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <div class="dm-head">
+      <div class="dm-head-left">
+        <h2 class="dm-title">{{ selectedDoc.Name }}</h2>
+        <div class="dm-meta">Owned by {{ selectedDoc.CreatedBy || owner }}</div>
+        <div class="dm-meta" *ngIf="selectedDoc.CreatedOn">Submitted on {{ selectedDoc.CreatedOn | date:'dd-MMM-yyyy HH:mm' }}</div>
+      </div>
+      <div class="dm-head-right">
+        <div class="dm-ring" [attr.aria-label]="docProgressPct(selectedDoc) + '% complete'">
+          <svg class="dm-ring-svg" width="44" height="44" viewBox="0 0 44 44">
+            <circle class="dm-ring-track" cx="22" cy="22" r="18"></circle>
+            <circle class="dm-ring-arc" cx="22" cy="22" r="18"
+                    stroke-dasharray="113.097"
+                    [attr.stroke-dashoffset]="ringOffset(selectedDoc)"></circle>
+          </svg>
+          <span class="dm-ring-pct">{{ docProgressPct(selectedDoc) }}%</span>
+        </div>
+        <div class="dm-head-status">
+          <span class="dm-statusicon" [ngClass]="statusClass(selectedDoc)"></span>
+          <span class="dm-statustxt">{{ selectedDoc.Status }}</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="dm-subhead">Recipient status</h3>
+
+    <div class="dm-recip" *ngFor="let r of recipients(selectedDoc); let i = index">
+      <div class="dm-recip-num">{{ i + 1 }}</div>
+      <div class="dm-recip-info">
+        <div class="dm-recip-name">{{ r.Name || r.Email }}</div>
+        <div class="dm-recip-email">{{ r.Email }}</div>
+      </div>
+      <div class="dm-progress">
+        <div class="dm-track">
+          <span class="dm-dot filled"></span>
+          <span class="dm-seg" [class.filled]="recipStage(r) >= 2"></span>
+          <span class="dm-dot" [class.filled]="recipStage(r) >= 2"></span>
+          <span class="dm-seg" [class.filled]="recipStage(r) >= 3"></span>
+          <span class="dm-dot" [class.filled]="recipStage(r) >= 3"></span>
+        </div>
+        <div class="dm-labels"><span>Mailed</span><span>Viewed</span><span>Signed</span></div>
+      </div>
+    </div>
+
+    <div class="dm-empty" *ngIf="!recipients(selectedDoc).length">No recipients on this document.</div>
   </div>
 </div>

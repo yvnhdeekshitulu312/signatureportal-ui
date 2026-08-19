@@ -174,7 +174,7 @@ details[open] .more-chevron { transform: rotate(180deg); }
 /* whole-document delete — a clearly visible circular button, not just a
    faint character that blends into the header row. */
 .db-remove {
-  margin-inline-start: auto; flex-shrink: 0;padding: 0;
+  margin-inline-start: auto; flex-shrink: 0; padding: 0;
   width: 28px; height: 28px; border-radius: 8px;
   border: 1px solid $gray-1; background: rgba(150,150,150,.08); color: $gray-8;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -182,6 +182,12 @@ details[open] .more-chevron { transform: rotate(180deg); }
   svg { display: block; }
   &:hover { background: rgba(0,38,84,.08); border-color: $brand; color: $navy; }
   &:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
+  &:disabled { cursor: not-allowed; opacity: .7; }
+}
+.db-remove-spinner {
+  width: 13px; height: 13px; border-radius: 99px;
+  border: 2px solid rgba(150,150,150,.35); border-top-color: $navy;
+  animation: spin .7s linear infinite;
 }
 
 .add-doc { font-family: $font; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; align-self: flex-start;

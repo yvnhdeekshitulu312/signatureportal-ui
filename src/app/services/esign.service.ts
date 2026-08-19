@@ -128,5 +128,9 @@ getMyDocuments(email: string,EmpID:string): Observable<DocumentDetailResponse[]>
   saveUserSignature(payload: any) {
     return this.http.post(`${this.baseUrl}/SaveUserSignature`, payload);
   }
-   
+  
+DraftdeleteDocument(documentId: number, requestedBy: string): Observable<void> {
+  const params = requestedBy ? `?requestedBy=${encodeURIComponent(requestedBy)}` : '';
+  return this.http.delete<void>(`${this.baseUrl}/DraftdeleteDocument/${documentId}${params}`);
+}
 }

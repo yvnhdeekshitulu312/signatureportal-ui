@@ -20,7 +20,7 @@ export class PortalComponent implements OnInit, OnDestroy {
 
   // Utility-strip context. Static defaults for now — if the portal serves
   // several modules, drive these from the active route instead.
-  portalTitle = 'e-Signature Portal';
+  portalTitle = 'Hammadi Sign';
   facilityName = 'Riyadh Central';
   sessionStatus = 'Session Active';
 
