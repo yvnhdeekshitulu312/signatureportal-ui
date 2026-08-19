@@ -311,7 +311,7 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
 .dm-close {
   position: absolute; top: 16px; inset-inline-end: 16px; width: 30px; height: 30px;
   border-radius: 8px; border: none; background: $gray-1; color: $gray-8; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; transition: .15s;
+  display: flex; align-items: center; justify-content: center; transition: .15s;padding: 0;
   &:hover { background: $navy; color: $white; }
 }
 .dm-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-inline-end: 34px; margin-bottom: 22px; }
