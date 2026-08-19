@@ -6,7 +6,7 @@ $teal:#FAF7F0; $teal-light:#E3F2F0; $mint:#1855a41a; $gray-8:#969696; $gray-5:#C
 $font:'Noto Kufi Arabic', sans-serif;
 
 :host { display:block; font-family:$font; color:$navy; }
-.dv { padding:10px;    height: calc(100vh - 7rem);overflow: auto;}
+.dv { padding:10px;    height: calc(100vh - 7rem);overflow: auto;    background: #fff;}
 .dv * { box-sizing:border-box; }
 
 /* hero */
@@ -120,10 +120,10 @@ $font:'Noto Kufi Arabic', sans-serif;
   h3 { font-size:16px; font-weight:800; color:$navy; }
   a { color:$brand; font-size:12.5px; font-weight:700; cursor:pointer; } }
 .dv-filters { display:flex; gap:8px; margin:16px 0 18px; flex-wrap:wrap; }
-.dv-chip { font-size:11.5px; font-weight:700; padding:7px 14px; border-radius:999px; border:1px solid $gray-1; color:$gray-8; cursor:pointer; transition:.2s; background:$white;
+.dv-chip { font-size:13px; font-weight:500; padding:7px 14px; border-radius:999px; border:1px solid $gray-1; color:$gray-8; cursor:pointer; transition:.2s; background:$white;
   /* active chip = approved Teal fill (hardcoded #4FCED2 — see note above the
      action-card gradients on why this file's own $teal isn't used here) */
-  &.on { background:#4FCED2; color:$navy; border-color:#4FCED2; } }
+  &.on { background:radial-gradient(1200px 500px at 85% -10%, rgba(79, 206, 210, 0.18), transparent 60%), linear-gradient(135deg, var(--dark-navy) 0%, #013268 55%, var(--brand-blue) 100%); color:#fff;  } }
 
 /* ===== Recent documents — rich table (matches All-documents) ===== */
 .dv-tablewrap { border:1px solid $gray-1; border-radius:14px; overflow:auto; }
