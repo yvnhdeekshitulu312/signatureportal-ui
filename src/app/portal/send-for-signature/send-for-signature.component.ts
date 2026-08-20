@@ -82,7 +82,9 @@ export class SendForSignatureComponent implements OnInit {
       name: ['', Validators.required],
       department: [''],
       role: ['Sign', Validators.required],
-      deliveryMethod: ['Email', Validators.required]
+      deliveryMethod: ['Email', Validators.required],
+      // true once this recipient is chosen from smart-search — locks the row
+      locked: [false]
     });
   }
 
@@ -234,6 +236,13 @@ const EmpID = this.EmpID;
   // Type a name in the Email box → look up matching staff → pick one to fill
   // email + name. Uses (mousedown) on options so the pick fires before blur.
   onEmpSearch(i: number, term: string): void {
+    // once a recipient is locked in from smart-search, don't search again
+    if (this.recipients.at(i)?.get('locked')?.value) {
+      this.empSuggestions = [];
+      this.suggestFor = null;
+      this.searchingEmp = false;
+      return;
+    }
     const q = (term || '').trim();
     this.suggestFor = i;
     clearTimeout(this.searchTimer);
@@ -265,6 +274,24 @@ this.empSuggestions = results;
       // Department comes from the smart-search result — try the common field
       // names the employee API has used elsewhere (DepartmentName / Department).
       department: (emp.DepartmentName || emp.Department || '').toString().replace(/\s+/g, ' ').trim(),
+      // lock the row so the email can't be edited after a pick
+      locked: true,
+    });
+    this.empSuggestions = [];
+    this.suggestFor = null;
+  }
+
+  /** Unlock a previously-selected recipient so the user can search again.
+   *  Clears the identity fields and reopens the email box for editing. */
+  unlockRecipient(i: number): void {
+    const row = this.recipients.at(i);
+    if (!row) { return; }
+    row.patchValue({
+      email: '',
+      name: '',
+      empID: '',
+      department: '',
+      locked: false,
     });
     this.empSuggestions = [];
     this.suggestFor = null;

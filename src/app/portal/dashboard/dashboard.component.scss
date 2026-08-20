@@ -309,7 +309,10 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
 .muted { color:$gray-8; }
 
 /* status pills */
-.dv-pill { display:inline-block; padding:5px 12px; border-radius:999px; font-size:10.5px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; white-space:nowrap;
+.dv-pill { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:5px 12px; border-radius:999px; font-size:10.5px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; white-space:nowrap;
+  /* small status dot beside the label — background:currentColor means it always
+     matches the pill's own text colour below, so no extra hardcoded colours. */
+  .dv-pill-dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
   &.pending { background: #FEF3C7;
     color: #92400E;
     font-size: 11.5px;
@@ -441,26 +444,48 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
 .doc-tooltip .tt-status { flex-shrink: 0; width: 64px; text-align: end; font-weight: 700; color: $brand; }
 
 /* ===== document-detail modal (click a document name) ===== */
+/* Light frosted-glass backdrop — a soft blur on the page behind the modal
+   (plus a light navy tint) so focus reads on the modal itself, rather than a
+   flat dark scrim. -webkit- prefix covers Safari, which doesn't support the
+   unprefixed property yet. */
 .doc-modal-overlay {
-  position: fixed; inset: 0; z-index: 4000; background: rgba(0,38,84,.45);
+  position: fixed; inset: 0; z-index: 4000; background: rgba(0,38,84,.22);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   display: flex; align-items: center; justify-content: center; padding: 24px;
 }
 .doc-modal {
   width: 100%; max-width: 560px; max-height: 82vh; overflow: auto;
   background: $white; border-radius: 16px; box-shadow: 0 30px 70px rgba(0,38,84,.35);
-  padding: 28px; position: relative; font-family: $font;
+  padding: 0 28px 28px; position: relative; font-family: $font;
 }
 .dm-close {
-  position: absolute; top: 16px; inset-inline-end: 16px; width: 30px; height: 30px;
-  border-radius: 8px; border: none; background: $gray-1; color: $gray-8; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; transition: .15s;padding: 0;
-  &:hover { background: $navy; color: $white; }
+  position: absolute; top: 16px; inset-inline-end: 16px; width: 30px; height: 30px; z-index: 1;
+  border-radius: 50%; border: none; background: rgba(255,255,255,.92); color: $navy; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: .15s; padding: 0;
+  &:hover { background: $white; }
 }
-.dm-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-inline-end: 34px; margin-bottom: 22px; }
-.dm-title { font-size: 17px; font-weight: 800; color: $navy; line-height: 1.35; margin-bottom: 6px; }
-.dm-meta { font-size: 12px; color: $gray-8; font-weight: 500; line-height: 1.6; }
+/* header — bleeds to the modal's edges (negative side margins cancel out
+   .doc-modal's own side padding, which is 0 on top) and keeps the parent's
+   16px corner radius on its top edge only. */
+.dm-head {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  margin: 0 -28px 22px; padding: 17px 80px 0px 17px; border-radius: 16px 16px 0 0;
+  background: linear-gradient(150deg, var(--dark-navy), var(--brand-blue));
+  color: $white;
+}
+.dm-title { font-size: 17px; font-weight: 800; color: $white; line-height: 1.35; margin-bottom: 6px; }
+.dm-meta { font-size: 12px; color: $light-blue; font-weight: 500; line-height: 1.6; }
 .dm-head-right { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
-.dm-head-status { display: flex; align-items: center; gap: 6px; }
+.dm-head-status {     display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--mint);
+    color: #0b6b73;
+    margin-bottom: 9px; }
 .dm-statusicon {
   width: 14px; height: 14px; border-radius: 50%; background: $gray-1;
   &.signed { background: #166534; }
@@ -468,50 +493,81 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
   &.pending { background: #92400E; }
   &.progress { background: #6B21A8; }
 }
-.dm-statustxt { font-size: 12px; font-weight: 700; color: $navy; }
+.dm-statustxt { font-size: 12px; font-weight: 700;  }
 
 /* header progress ring — % of recipients who have viewed/signed (see
-   docProgressPct() in the component). Track = Light Gray, arc = Teal
-   (hardcoded #4FCED2 — this file's own $teal variable is repurposed above
-   for a background tint, not the approved Teal swatch). Centre label uses
-   Noto Kufi Arabic via the shared $font. */
-.dm-ring { position: relative; width: 44px; height: 44px; flex-shrink: 0; }
+   docProgressPct() in the component). Track = translucent white (so it reads
+   against the navy/brand-blue gradient header), arc = Teal (hardcoded
+   #4FCED2 — this file's own $teal variable is repurposed above for a
+   background tint, not the approved Teal swatch). Centre label uses Noto
+   Kufi Arabic via the shared $font. */
+.dm-ring { position: relative; width: 67px; height: 55px; flex-shrink: 0; }
 .dm-ring-svg { transform: rotate(-90deg); }
-.dm-ring-track { fill: none; stroke: $gray-1; stroke-width: 4; }
+.dm-ring-track { fill: none; stroke: rgba(255,255,255,.28); stroke-width: 4; }
 .dm-ring-arc {
   fill: none; stroke: #4FCED2; stroke-width: 4; stroke-linecap: round;
   transition: stroke-dashoffset .3s ease;
 }
 .dm-ring-pct {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-family: $font; font-size: 10px; font-weight: 800; color: $navy;
+  font-family: $font; font-size: 15px; font-weight: 700; color: $white;
 }
 
-.dm-subhead { font-size: 13px; font-weight: 800; color: $navy; margin-bottom: 12px; }
+.dm-subhead-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.dm-subhead { font-size: 12.5px; font-weight: 800; color: $brand; text-transform: uppercase; letter-spacing: .06em; margin: 0; }
+.dm-subhead-count { font-size: 11.5px; font-weight: 600; color: $gray-8; flex-shrink: 0; }
 
-.dm-recip {
-  display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid $gray-1;
-  &:last-of-type { border-bottom: none; }
+/* one bordered card per recipient (was a flat divider-separated row) —
+   matches the reference design's per-recipient card layout. */
+.dm-recip-card {
+  border: 1px solid #7499C8; border-radius: 14px; padding: 14px 16px; margin-bottom: 12px;
+  &:last-of-type { margin-bottom: 0; }
 }
-.dm-recip-num {
-  width: 24px; height: 24px; border-radius: 50%; background: $gray-1; color: $navy;
-  font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+.dm-recip-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.dm-recip-left { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.dm-recip-av {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: $white; background: linear-gradient(145deg,var(--medium-blue),var(--royal-blue));
+  &.stage2 { background: $royal; }
+  &.stage3 { background: $navy; }
 }
-.dm-recip-info { flex-shrink: 0; width: 160px; min-width: 0; }
+.dm-recip-info { min-width: 0; }
 .dm-recip-name { font-size: 12.5px; font-weight: 700; color: $navy; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dm-recip-email { font-size: 11px; color: $gray-8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: ltr; }
 
-.dm-progress { flex: 1; min-width: 140px; }
+/* per-recipient status pill (Mailed / Viewed / Signed / Rejected) */
+.dm-recip-pill {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 4px 11px; border-radius: 999px; font-size: 10.5px; font-weight: 700; white-space: nowrap;
+  background: $gray-1; color: $gray-8;
+  i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  &.stage2 { background: rgba(116,153,200,.18); color: $royal; }
+  &.stage3 { background: #D1FAE5; color: #166534; }
+}
+
+/* Mailed → Viewed → Signed icon track, each node a circle with an icon
+   (envelope / eye / check) instead of a plain dot, per the reference design. */
+.dm-progress { }
 .dm-track { display: flex; align-items: center; }
-.dm-dot { width: 9px; height: 9px; border-radius: 50%; background: $gray-5; flex-shrink: 0; transition: background .15s; &.filled { background: $brand; } }
+.dm-node {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: $white; border: 2px solid $gray-5; color: $gray-8;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+  svg { width: 12px; height: 12px; fill: none; stroke: currentColor; }
+  &.filled { background: $brand; border-color: $brand; color: $white; }
+}
 .dm-seg { flex: 1; height: 2px; background: $gray-5; min-width: 24px; transition: background .15s; &.filled { background: $brand; } }
-.dm-labels { display: flex; justify-content: space-between; font-size: 9.5px; color: $gray-8; font-weight: 600; margin-top: 5px; }
+.dm-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+.dm-label-col { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; text-align: center; }
+.dm-label-txt { font-size: 10px; font-weight: 700; color: $navy; &.pending { color: $gray-8; font-weight: 600; } }
+.dm-label-date { font-size: 9.5px; color: $gray-8; &.pending { color: $gray-5; } }
 
 .dm-empty { padding: 20px 0; text-align: center; color: $gray-8; font-size: 12.5px; }
 
 @media (max-width: 520px) {
   .doc-modal { padding: 20px; }
-  .dm-recip { flex-wrap: wrap; }
-  .dm-recip-info { width: 100%; }
-  .dm-progress { width: 100%; }
+  .dm-recip-top { flex-wrap: wrap; }
+  .dm-recip-pill { margin-inline-start: 47px; }
 }

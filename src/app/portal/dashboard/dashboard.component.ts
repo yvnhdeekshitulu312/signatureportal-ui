@@ -224,13 +224,52 @@ createdOn(d: DocumentDetailResponse): string {
   // box, so the tooltip renders above everything (incl. the scrolling table
   // wrapper) instead of being clipped by an `overflow:auto` ancestor the way a
   // plain CSS `position:absolute` tooltip nested in that wrapper would be.
+  //
+  // That alone isn't enough when the table has very few rows: `rect.bottom + 8`
+  // can still land past the bottom (or side) of the actual browser viewport,
+  // and a position:fixed element has nothing to scroll to reveal the clipped
+  // part — it just reads as cut off, exactly the single-row bug reported. So
+  // the position below is clamped against window.innerWidth/innerHeight, and
+  // the tooltip flips to render ABOVE the row instead when there isn't enough
+  // room below it.
   showTooltip(d: any, ev: MouseEvent): void {
     const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
     this.hoveredDoc = d;
-    this.hoveredPos = { top: rect.bottom + 8, left: rect.left };
+
+    const margin = 10;
+    const width = 320; // matches .doc-tooltip's min/max-width band
+    const height = this.estimateTooltipHeight(d);
+
+    let top = rect.bottom + 8;
+    if (top + height > window.innerHeight - margin) {
+      // Not enough room below the row — flip above it instead.
+      const above = rect.top - height - 8;
+      top = above > margin ? above : margin;
+    }
+
+    let left = rect.left;
+    if (left + width > window.innerWidth - margin) {
+      left = window.innerWidth - width - margin;
+    }
+    if (left < margin) { left = margin; }
+
+    this.hoveredPos = { top, left };
   }
   hideTooltip(): void {
     this.hoveredDoc = null;
+  }
+
+  /** Rough pixel height of the tooltip for the given doc, used only to decide
+   *  whether it needs to flip above the row (see showTooltip()). Doesn't need
+   *  to be exact — just close enough that it doesn't run off-screen. */
+  private estimateTooltipHeight(d: any): number {
+    const padding = 24;        // 12px top + 12px bottom
+    const baseRows = 2;        // "Document name" + "Created on"
+    const rowHeight = 18.5;    // ~11.5px font, line-height 1.6
+    const recipCount = this.recipients(d).length;
+    const recipHead = recipCount ? 26 : 0;
+    const recipRowHeight = 24;
+    return padding + baseRows * rowHeight + recipHead + recipCount * recipRowHeight;
   }
 
   /** Signer/Approver/Viewer label for a recipient, for the tooltip + modal. */
@@ -278,6 +317,38 @@ createdOn(d: DocumentDetailResponse): string {
     if (s.includes('sign')) { return 3; }
     if (s.includes('view')) { return 2; }
     return 1;
+  }
+
+  /** Signed / Viewed / Mailed / Rejected label + colour class for the modal's
+   *  per-recipient status pill (see .dm-recip-pill in the template/SCSS). */
+  dmStageLabel(r: any): string {
+    const s = (r?.Status || '').toLowerCase();
+    if (s.includes('reject')) { return 'Rejected'; }
+    if (s.includes('sign')) { return 'Signed'; }
+    if (s.includes('view')) { return 'Viewed'; }
+    return 'Mailed';
+  }
+
+  /** "N of M signed" summary shown beside the modal's "Recipient status" heading. */
+  signedRecipCount(d: any): number {
+    return this.recipients(d).filter(r => this.recipStage(r) === 3).length;
+  }
+
+  /** Mailed timestamp shown under the track's first node for every recipient —
+   *  all recipients are mailed together when the document is sent, so the
+   *  document's own CreatedOn covers that stage. Per-recipient Viewed/Signed
+   *  timestamps aren't on RecipientSummaryDto yet (see recipStage() above), so
+   *  those two stages show "Awaiting" until reached and an em dash once
+   *  reached, rather than a fabricated date. */
+  documentSentLabel(d: any): string {
+    const raw = d?.CreatedOn;
+    if (!raw) { return '—'; }
+    const dt = new Date(raw);
+    if (isNaN(dt.getTime())) { return '—'; }
+    const day = dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    const hours = String(dt.getHours()).padStart(2, '0');
+    const minutes = String(dt.getMinutes()).padStart(2, '0');
+    return `${day} ${hours}:${minutes}`;
   }
 
   /** Overall completion % shown in the modal header's progress ring. Each

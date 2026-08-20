@@ -175,6 +175,24 @@ export class PortalComponent implements OnInit, OnDestroy {
     return this.newIds.has(String(n?.Id));
   }
 
+  /** True if this document was created today — distinct from isNew() above,
+   *  which tracks "hasn't been seen by me yet" and clears once the panel is
+   *  opened. isToday() stays true all day regardless of seen state, so a
+   *  document created this morning still reads as today's even after the
+   *  user has already opened the panel once. */
+  isToday(n: any): boolean {
+    return this.pendingDaysLabel(n?.CreatedOn) === 'Today';
+  }
+
+  /** pendingNotifications with today's documents surfaced first (order
+   *  otherwise preserved within each group), so the newest activity is the
+   *  first thing the user sees when the panel opens. */
+  get sortedPendingNotifications(): any[] {
+    const today = this.pendingNotifications.filter(n => this.isToday(n));
+    const earlier = this.pendingNotifications.filter(n => !this.isToday(n));
+    return [...today, ...earlier];
+  }
+
   toggleNotifications(ev?: Event): void {
     ev?.stopPropagation();
     this.userMenuOpen = false;

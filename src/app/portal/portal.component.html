@@ -100,14 +100,15 @@
                             </button>
                         </div>
                         <div class="app-header__notif-list">
-                            <button type="button" class="app-header__notif-item" [class.is-new]="isNew(n)"
-                                    *ngFor="let n of pendingNotifications" (click)="openNotification(n)">
+                            <button type="button" class="app-header__notif-item" [class.is-new]="isNew(n)" [class.is-today]="isToday(n)"
+                                    *ngFor="let n of sortedPendingNotifications" (click)="openNotification(n)">
                                 <span class="app-header__notif-ic">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18c3-1 4-3 5-6s2-5 3-5 1 2 0 5-2 6 0 6 3-2 4-3"/><path d="M3 21h18"/></svg>
                                 </span>
                                 <span class="app-header__notif-txt">
                                     <span class="app-header__notif-name">
                                         {{ n.Name }}
+                                        <span class="app-header__notif-todaytag" *ngIf="isToday(n)">Today</span>
                                         <span class="app-header__notif-newtag" *ngIf="isNew(n)">New</span>
                                     </span>
                                     <span class="app-header__notif-sub">Awaiting your signature</span>
@@ -115,7 +116,7 @@
                                         <span class="app-header__notif-meta-user" *ngIf="n.CreatedBy">{{ n.CreatedBy }}</span>
                                         <span class="app-header__notif-meta-sep" *ngIf="n.CreatedBy && n.CreatedOn">·</span>
                                         <span class="app-header__notif-meta-date" *ngIf="n.CreatedOn">{{ n.CreatedOn | date:'MMM d, y, h:mm a' }}</span>
-                                        <span class="app-header__notif-meta-days" *ngIf="n.CreatedOn">{{ pendingDaysLabel(n.CreatedOn) }}</span>
+                                        <span class="app-header__notif-meta-days" [class.is-today]="isToday(n)" *ngIf="n.CreatedOn">{{ pendingDaysLabel(n.CreatedOn) }}</span>
                                     </span>
                                 </span>
                                 <span class="app-header__notif-action">

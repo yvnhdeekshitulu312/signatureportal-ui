@@ -34,8 +34,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 7px 28px;
-  background: linear-gradient(
-137deg, var(--brand-blue), var(--medium-blue));
+  background: radial-gradient(600px 200px at 100% -40%, rgba(79,206,210,.28), transparent 60%),      linear-gradient(100deg,var(--dark-navy) 0%,var(--brand-blue) 100%);
   color: var(--mint);
   font-size: 11px;
   font-weight: 600;
@@ -49,7 +48,8 @@
 
   b {
     color: #fff;
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 13px;
   }
 }
 
@@ -67,6 +67,7 @@
   gap: 16px;
   color: #dce8f7;
   font-variant-numeric: tabular-nums;
+  font-size: 13px;
 }
 
 /* ---------- Tier 2 · working bar ---------- */
@@ -207,16 +208,18 @@
 
 .app-header__avatar {
   width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(145deg, var(--royal-blue), var(--dark-navy));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-weight: 700;
-  font-size: 14px;
-  flex-shrink: 0;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, var(--brand-blue), var(--dark-navy));
+    display: grid;
+   
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+    place-items: center;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--teal);
 }
 
 .app-header__user-name {
@@ -407,6 +410,17 @@ color: #757575;
 
   &:hover { background: #F7FAFD; box-shadow: 0 4px 14px rgba(0, 38, 84, .12); }
 
+  /* is-today = created today (see isToday() in the component) — distinct
+     from is-new below, which tracks "not yet opened by me" and clears once
+     the panel has been opened. is-today stays on all day so today's
+     documents keep reading as the freshest activity even after they've been
+     seen. Declared before is-new so is-new's teal treatment wins when a
+     document is both (still the stronger "act on this" signal). */
+  &.is-today {
+    border-inline-start-color: var(--brand-blue);
+    background: linear-gradient(90deg, rgba(24, 85, 164, .07), transparent 45%);
+  }
+
   &.is-new {
     border-inline-start-color: var(--teal);
     background: linear-gradient(90deg, rgba(79, 206, 210, .08), transparent 45%);
@@ -426,6 +440,13 @@ color: #757575;
   font-size: 9px; font-weight: 800; color: #002654; background: var(--teal);
   border-radius: 999px; padding: 1px 6px; letter-spacing: .03em; flex-shrink: 0;
 }
+/* "Today" tag — Brand Blue so it reads distinctly from the Teal "New" tag
+   above (created-today vs. not-yet-seen are different signals; see isToday()
+   in the component). */
+.app-header__notif-todaytag {
+  font-size: 9px; font-weight: 800; color: #fff; background: var(--brand-blue);
+  border-radius: 999px; padding: 1px 6px; letter-spacing: .03em; flex-shrink: 0;
+}
 .app-header__notif-sub { font-size: 11px; color: #969696; }
 .app-header__notif-meta {
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
@@ -436,6 +457,10 @@ color: #757575;
 .app-header__notif-meta-days {
   font-weight: 700; color: #002654; background: var(--light-gray);
   padding: 1px 7px; border-radius: 999px; flex-shrink: 0;
+
+  /* "Today" reads in Brand Blue instead of the neutral Light Gray used for
+     "N days ago", so it stands out at a glance in the meta line too. */
+  &.is-today { color: #fff; background: var(--brand-blue); }
 }
 .app-header__notif-action {
   display: flex; align-items: center; gap: 4px;
