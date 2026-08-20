@@ -10,7 +10,8 @@
     <div class="doc_list_vertical">
       <button type="button" class="doc-item" *ngFor="let doc of documents; let di = index"
         [class.active]="di === currentDocIndex" (click)="selectDocument(di)">
-        <span class="di-icon">
+        <img class="di-thumb" *ngIf="doc.pages.length" [src]="doc.pages[0]" [alt]="doc.name">
+        <span class="di-icon" *ngIf="!doc.pages.length">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor"
               stroke-width="1.7" />
@@ -23,6 +24,24 @@
             '' : 's' }}</span>
         </span>
       </button>
+    </div>
+
+    <!-- Page preview for the active document — click a thumbnail to jump to it.
+         Uses the same Aspose-rendered page images as the canvas. -->
+    <div class="doc-pages-preview" *ngIf="currentPages.length">
+      <div class="dpp-head">
+        <span>Pages</span>
+        <span class="dpp-count">{{ currentPages.length }}</span>
+      </div>
+      <div class="dpp-list bluescroll">
+        <button type="button" class="dpp-page" *ngFor="let pg of currentPages; let pi = index"
+                [class.active]="currentPage === pi + 1" (click)="goToPage(pi + 1)"
+                [attr.aria-label]="'Go to page ' + (pi + 1)" [attr.aria-current]="currentPage === pi + 1">
+          <img [src]="pg" [alt]="'Page ' + (pi + 1)" loading="lazy">
+          <span class="dpp-badge" *ngIf="fieldCountOnPage(pi + 1) as fc" [title]="fc + ' field(s) on this page'">{{ fc }}</span>
+          <span class="dpp-num">{{ pi + 1 }}</span>
+        </button>
+      </div>
     </div>
   </aside>
 
@@ -92,6 +111,12 @@
               <span class="pf-label" [style.color]="recipientColor(field.recipientClientId)">{{ field.fieldType }}</span>
               <button type="button" class="pf-remove"
                       (click)="deleteField(field.tempId); $event.stopPropagation()" aria-label="Delete field">×</button>
+              <span class="pf-resize" (pointerdown)="startResize($event, field)"
+                    title="Drag to resize" aria-label="Resize field">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M21 9L9 21M21 15l-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                </svg>
+              </span>
             </div>
           </ng-container>
         </div>

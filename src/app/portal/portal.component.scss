@@ -452,7 +452,7 @@ color: #757575;
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   font-size: 10.5px; color: #969696; margin-top: 2px;
 }
-.app-header__notif-meta-user { color: #1855A4; font-weight: 700; }
+.app-header__notif-meta-user { color: #1855A4; font-weight: 700;font-size: 12px; }
 .app-header__notif-meta-sep { color: var(--medium-gray); }
 .app-header__notif-meta-days {
   font-weight: 700; color: #002654; background: var(--light-gray);

@@ -149,3 +149,71 @@ $font:'Noto Kufi Arabic', sans-serif;
 .di-meta { font-size: 10.5px; font-weight: 600; color: #969696; }
 
 .tb-docpos { font-size: 11px; font-weight: 700; color: #969696; background: #E5E5E5; padding: 3px 9px; border-radius: 99px; margin-inline-start: 8px; }
+
+/* ===== added: drag-to-expand handle on a placed field ===== */
+/* Physical bottom-right corner on purpose: field geometry (left/top/width/height)
+   is physical px, and resize grows width to the right / height downward — so the
+   handle sits at the growth corner in both LTR and RTL. Revealed on hover/select
+   like the delete button; hidden in the CDK drag preview. */
+.pf-resize {
+  position: absolute; right: -1px; bottom: -1px;
+  width: 15px; height: 15px; border-radius: 4px 2px 5px 2px;
+  display: flex; align-items: center; justify-content: center;
+  background: $navy; color: $white; cursor: nwse-resize;
+  box-shadow: 0 2px 6px rgba(0,38,84,.3);
+  opacity: 0; transform: scale(.82); transform-origin: bottom right;
+  transition: opacity .15s ease, transform .15s ease, background .15s ease;
+  touch-action: none;                 /* pointer events drive the resize on touch */
+  svg { display: block; }
+}
+.placed-field:hover .pf-resize,
+.placed-field.selected .pf-resize { opacity: 1; transform: scale(1); }
+.pf-resize:hover { background: $brand; }
+.pf-resize:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
+.cdk-drag-preview .pf-resize { display: none; }
+
+/* ===== added: left-rail document + page preview ===== */
+
+/* make the left rail scroll on its own, keep its header pinned */
+.rail-left { overflow-y: auto; height: calc(100vh - 4rem); }
+.rail-left-head { position: sticky; top: 0; z-index: 2; background: $white; }
+
+/* first-page thumbnail inside each document item (replaces the generic icon
+   when pages are available; the svg icon stays as the no-pages fallback) */
+.di-thumb {
+  width: 34px; height: 42px; flex-shrink: 0; object-fit: cover; object-position: top center;
+  border-radius: 6px; border: 1px solid $gray-1; background: $white;
+  box-shadow: 0 1px 4px rgba(0,38,84,.12);
+}
+.doc-item.active .di-thumb { border-color: $brand; }
+
+/* page preview strip for the active document */
+.doc-pages-preview { display: flex; flex-direction: column; min-height: 0; padding: 4px 10px 16px; }
+.dpp-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; color: $brand; text-transform: uppercase; letter-spacing: .4px;
+  padding: 12px 4px 10px; position: sticky; top: 0; background: $white; z-index: 1;
+}
+.dpp-count { font-size: 11px; font-weight: 700; color: $gray-8; background: $gray-1; padding: 2px 8px; border-radius: 99px; }
+.dpp-list { display: flex; flex-direction: column; gap: 10px; }
+.dpp-page {
+  position: relative; width: 100%; padding: 0; cursor: pointer; font-family: $font;
+  background: $white; border: 1.5px solid $gray-1; border-radius: 10px; overflow: hidden;
+  transition: border-color .15s ease, box-shadow .15s ease;
+  img { width: 100%; display: block; }
+  &:hover { border-color: $light-blue; }
+  &.active { border-color: $brand; box-shadow: 0 0 0 3px rgba(24,85,164,.18); }
+  &:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
+}
+.dpp-num {
+  position: absolute; inset-block-end: 6px; inset-inline-start: 6px;
+  font-size: 10.5px; font-weight: 700; color: $white; background: rgba(0,38,84,.72);
+  padding: 2px 8px; border-radius: 99px; line-height: 1.4;
+}
+.dpp-page.active .dpp-num { background: $brand; }
+.dpp-badge {
+  position: absolute; inset-block-start: 6px; inset-inline-end: 6px;
+  min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; padding: 0 5px;
+  font-size: 10.5px; font-weight: 800; color: $navy; background: $teal-light;
+  border-radius: 99px; box-shadow: 0 1px 4px rgba(0,38,84,.2);
+}

@@ -117,6 +117,20 @@ owner = 'You';
     return this.placedFields.filter(f => f.documentId === doc.documentId).length;
   }
 
+  /** How many fields are placed on a given page of the CURRENT document —
+   *  drives the little count badge on each left-rail page thumbnail. */
+  fieldCountOnPage(pageNumber: number): number {
+    return this.placedFields.filter(
+      f => f.documentId === this.currentDoc?.documentId && f.pageNumber === pageNumber
+    ).length;
+  }
+
+  /** Jump straight to a page from the left-rail page preview. */
+  goToPage(page: number): void {
+    this.currentPage = page;
+    this.selectedFieldId = null;
+  }
+
   /** Fields to render on the currently visible page of the current document. */
   isFieldOnCurrentPage(field: EditorField): boolean {
     return field.documentId === this.currentDoc?.documentId && field.pageNumber === this.currentPage;
@@ -177,6 +191,43 @@ owner = 'You';
     field.xPx = Math.min(Math.max(0, field.xPx + event.distance.x), maxX);
     field.yPx = Math.min(Math.max(0, field.yPx + event.distance.y), maxY);
     event.source.reset();
+  }
+
+  /** Drag-to-expand a placed field from its bottom corner. Runs on the resize
+   *  handle's pointerdown; stopPropagation keeps CDK's move-drag from starting,
+   *  so the same field both moves (body) and resizes (corner). Width/height are
+   *  clamped to a minimum and to the page overlay so the field stays on-page,
+   *  and both feed send()/toPct percentages exactly like the move path. */
+  startResize(event: PointerEvent, field: EditorField): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.selectedFieldId = field.tempId;
+
+    const overlay = this.pageOverlay?.nativeElement;
+    const rect = overlay ? overlay.getBoundingClientRect() : null;
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startW = field.widthPx;
+    const startH = field.heightPx;
+    const minW = 48;
+    const minH = 22;
+
+    const onMove = (e: PointerEvent) => {
+      let newW = startW + (e.clientX - startX);
+      let newH = startH + (e.clientY - startY);
+      if (rect) {
+        newW = Math.min(newW, rect.width - field.xPx);   // keep inside the page
+        newH = Math.min(newH, rect.height - field.yPx);
+      }
+      field.widthPx = Math.max(minW, newW);
+      field.heightPx = Math.max(minH, newH);
+    };
+    const onUp = () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
   }
 
   selectField(fieldId: string): void { this.selectedFieldId = fieldId; }
