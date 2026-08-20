@@ -111,6 +111,12 @@
                                         <span class="app-header__notif-newtag" *ngIf="isNew(n)">New</span>
                                     </span>
                                     <span class="app-header__notif-sub">Awaiting your signature</span>
+                                    <span class="app-header__notif-meta">
+                                        <span class="app-header__notif-meta-user" *ngIf="n.CreatedBy">{{ n.CreatedBy }}</span>
+                                        <span class="app-header__notif-meta-sep" *ngIf="n.CreatedBy && n.CreatedOn">·</span>
+                                        <span class="app-header__notif-meta-date" *ngIf="n.CreatedOn">{{ n.CreatedOn | date:'MMM d, y, h:mm a' }}</span>
+                                        <span class="app-header__notif-meta-days" *ngIf="n.CreatedOn">{{ pendingDaysLabel(n.CreatedOn) }}</span>
+                                    </span>
                                 </span>
                                 <span class="app-header__notif-action">
                                     Sign now

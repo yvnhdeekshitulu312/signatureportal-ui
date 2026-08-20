@@ -53,9 +53,13 @@ export class PortalComponent implements OnInit, OnDestroy {
     this.empId = localStorage.getItem('empId') || '';
     this.avatarInitials = this.getInitials(this.loginUserName);
     this.photoUrl = this.getUser().EmpPhotoPath || null;
-    this.loadNotifications();
+    // autoOpenIfPending: true — this is the first load after login/portal
+    // mount, so if the user has anything pending, pop the panel open
+    // immediately instead of waiting for them to click the bell.
+    this.loadNotifications(false, true);
     // Re-fetch the pending-signature count after each navigation so the badge
-    // reflects the latest state once a document is signed/sent.
+    // reflects the latest state once a document is signed/sent. (No auto-open
+    // here — only the very first load above should pop the panel.)
     this.navSub = this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe(() => this.loadNotifications());
@@ -123,8 +127,12 @@ export class PortalComponent implements OnInit, OnDestroy {
    * panel — the "new" flags below are computed first (so the panel can still
    * highlight what's new for this viewing), then persisted as seen so the
    * bell stops blinking afterwards.
+   * @param autoOpenIfPending pass true only for the initial load right after
+   * login/portal mount — if the user has any documents pending their
+   * signature, the panel pops open on its own instead of waiting for a bell
+   * click. Treated the same as markAsSeenAfter for the seen-tracking below.
    */
-  loadNotifications(markAsSeenAfter = false): void {
+  loadNotifications(markAsSeenAfter = false, autoOpenIfPending = false): void {
     const email = this.getUser().EmpEmail;
     const EmpID = this.getUser().EmpId;
     if (!email) { return; }
@@ -135,13 +143,31 @@ export class PortalComponent implements OnInit, OnDestroy {
         const ids = this.pendingNotifications.map(d => String(d.Id));
         this.newIds = new Set(ids.filter(id => !seen.has(id)));
         this.hasNewNotifications = this.newIds.size > 0;
-        if (markAsSeenAfter && ids.length) {
+
+        if (autoOpenIfPending && this.pendingNotifications.length > 0) {
+          this.notifOpen = true;
+        }
+
+        if ((markAsSeenAfter || autoOpenIfPending) && ids.length) {
           this.markSeen(ids);
           this.hasNewNotifications = false;
         }
       },
       error: () => { this.pendingNotifications = []; this.newIds = new Set(); this.hasNewNotifications = false; }
     });
+  }
+
+  /** Human label for how long a document has been pending signature. */
+  pendingDaysLabel(createdOn: string): string {
+    if (!createdOn) { return ''; }
+    const created = new Date(createdOn);
+    if (isNaN(created.getTime())) { return ''; }
+    const startOfCreated = new Date(created.getFullYear(), created.getMonth(), created.getDate()).getTime();
+    const startOfToday = new Date().setHours(0, 0, 0, 0);
+    const days = Math.max(0, Math.round((startOfToday - startOfCreated) / 86400000));
+    if (days === 0) { return 'Today'; }
+    if (days === 1) { return '1 day ago'; }
+    return `${days} days ago`;
   }
 
   /** Was this notification still unseen the last time the list was loaded? */

@@ -401,7 +401,7 @@ color: #757575;
   flex: 0 0 auto;
   display: flex; align-items: center; gap: 10px; width: 100%; text-align: start;
   padding: 12px; background: #FFFFFF; border: 1px solid var(--light-gray);
-  border-inline-start: 3px solid var(--light-blue);height: 55px;
+  border-inline-start: 3px solid var(--light-blue); min-height: 55px; height: auto;
   border-radius: 10px; box-shadow: 0 1px 8px rgba(0, 38, 84, .06);
   cursor: pointer; transition: background .15s ease, box-shadow .15s ease, border-color .15s ease;
 
@@ -427,6 +427,16 @@ color: #757575;
   border-radius: 999px; padding: 1px 6px; letter-spacing: .03em; flex-shrink: 0;
 }
 .app-header__notif-sub { font-size: 11px; color: #969696; }
+.app-header__notif-meta {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-size: 10.5px; color: #969696; margin-top: 2px;
+}
+.app-header__notif-meta-user { color: #1855A4; font-weight: 700; }
+.app-header__notif-meta-sep { color: var(--medium-gray); }
+.app-header__notif-meta-days {
+  font-weight: 700; color: #002654; background: var(--light-gray);
+  padding: 1px 7px; border-radius: 999px; flex-shrink: 0;
+}
 .app-header__notif-action {
   display: flex; align-items: center; gap: 4px;
   font-size: 12px; font-weight: 700; color: #fff; margin-inline-start: auto;

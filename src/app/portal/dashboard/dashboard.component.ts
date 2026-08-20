@@ -43,7 +43,7 @@ EmpID:any;
     } catch { /* keep default */ }
     const today = new Date();
     const past = new Date();
-    past.setDate(today.getDate() - 30);
+    past.setDate(today.getDate() - 0);
     this.toDate = this.formatDate(today);
     this.fromDate = this.formatDate(past);
   }
