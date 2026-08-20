@@ -4,19 +4,15 @@ import { Router } from '@angular/router';
 import { locationData } from 'src/assets/config-constants';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { BYPASS_LOG } from './headers.interceptor';
-import { environment } from 'src/environments/environment';
+import { config } from 'src/environments/environment';
 
 
 @Injectable({
   providedIn: 'any'
 })
 export class ConfigService {
-  //public devApiUrl = "http://172.18.17.219/DoctorPortalAPI/API/";
-  
-  //public devApiUrl = "http://localhost:54166/API/";
-  public devApiUrl = environment.esignApiUrl;
-  private hisUrl = environment.clinicalApiUrl;
- // public devApiUrl = "http://172.18.17.219/ZOHOAPI/API/";
+  public devApiUrl = config.esignApiUrl;
+  private hisUrl = config.clinicalApiUrl; 
   public hijApiUrl = "http://172.18.17.219/DEVAPI/API/";
   baseApiUrl = "https://file.io";//
   public devPatientApiUrl = "http://172.18.17.219/SSRCE/API/"

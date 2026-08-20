@@ -6,24 +6,19 @@ import {
   SendDocumentRequest,
   DocumentDetailResponse
 } from '../models/esign.models';
-import { environment } from 'src/environments/environment';
+import { config } from 'src/environments/environment';
 import { HttpParams } from '@angular/common/http';
 
 
 @Injectable({ providedIn: 'root' })
 export class EsignService {
-  // Matches EsignController's [Route("API/Esign/...")] attributes exactly --
-  // update the host/port to wherever ALHMobileAppAPI is actually running.
+  
   // private baseUrl = 'http://localhost:54166/API/Esign';
-  private baseUrl = environment.esignApiUrl;
+  private baseUrl = config.esignApiUrl;
 
   constructor(private http: HttpClient) { }
 
-  // uploadDocument(file: File): Observable<UploadDocumentResponse> {
-  //   const formData = new FormData();
-  //   formData.append('file', file, file.name);
-  //   return this.http.post<UploadDocumentResponse>(`${this.baseUrl}/UploadDocument`, formData);
-  // }
+
   uploadDocument(file: File, uploadedBy: string,EmpID:string): Observable<UploadDocumentResponse> {
   const formData = new FormData();
   formData.append('file', file, file.name);
