@@ -1,55 +1,101 @@
 <div class="sign-header d-flex align-items-center justify-content-between py-3">
-  <h5 class="m-0">Sign: {{ doc?.Name }}</h5>
-  <button *ngIf="!loading" class="btn btn-main-fill" [disabled]="isSubmitting || !allRequiredFilled()"
+  <h5 class="m-0">Sign: {{ doc?.Name || 'Document' }}</h5>
+  <button *ngIf="hasConsented && !loading && doc" class="btn btn-main-fill" [disabled]="isSubmitting || !allRequiredFilled()"
     (click)="submit()">
     Submit Signed Document
   </button>
 </div>
 
-<div *ngIf="loading" class="text-center p-5 text-muted">Loading document...</div>
+<!-- ===== Electronic Record and Signature Disclosure — consent gate ===== -->
+<!-- The document itself isn't fetched until this is accepted (see
+     agreeAndContinue()/loadDocument() in the component) — nothing to sign
+     loads or previews before the signer explicitly consents. -->
+<div *ngIf="!hasConsented" class="consent-bar d-flex align-items-center justify-content-between flex-wrap gap-3 py-3 px-3">
+  <label class="consent-bar__label d-flex align-items-center gap-2 m-0">
+    <input type="checkbox" [(ngModel)]="disclosureChecked">
+    <span>
+      I confirm that I have read and understood the
+      <a [href]="disclosureUrl" target="_blank" rel="noopener"><u>"Electronic Record and Signature Disclosure"</u></a>
+      and consent to use electronic records and signatures.
+    </span>
+  </label>
+  <button type="button" class="btn btn-main-fill" [disabled]="!disclosureChecked" (click)="agreeAndContinue()">
+    Agree &amp; Continue
+  </button>
+</div>
 
-<div *ngIf="!loading && doc" class="position-relative border mx-auto p-3 signed-doc">
-  <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="w-100 d-block" alt="Document page">
+<div *ngIf="hasConsented && loading" class="text-center p-5 text-muted">Loading document...</div>
 
-  <div class="position-absolute top-0 start-0 w-100 h-100">
-    <div *ngFor="let f of fieldsOnPage(currentPage)"
-      class="position-absolute d-flex align-items-center justify-content-center rounded-1" [ngStyle]="boxStyle(f)"
-      [style.border]="isFilled(f.Id) ? '2px solid #28a745' : '2px dashed #E29B3E'"
-      [style.background]="isFilled(f.Id) ? '#28a74522' : '#E29B3E22'"
-      [style.cursor]="f.FieldType === 'Text' ? 'text' : 'pointer'" (click)="onFieldClick(f)">
+<div *ngIf="hasConsented && !loading && doc" class="d-flex align-items-start gap-3">
 
-      <!-- <ng-container *ngIf="f.FieldType === 'Signature' || f.FieldType === 'Stamp'">
-        <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
-        <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">Click to sign</span>
-      </ng-container> -->
-      <!-- SIGNATURE -->
-      <ng-container *ngIf="f.FieldType === 'Signature'">
-        <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+  <!-- ===== page thumbnails — left rail ===== -->
+  <div class="sign-thumbs" *ngIf="pageImages.length > 1">
+    <div class="sign-thumb" *ngFor="let img of pageImages; let i = index" [class.active]="currentPage === i + 1"
+      (click)="currentPage = i + 1" title="Page {{ i + 1 }}">
+      <img [src]="img" alt="Page {{ i + 1 }} thumbnail">
+      <span class="sign-thumb-num">{{ i + 1 }}</span>
+    </div>
+  </div>
 
-        <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
-          Click to sign
-        </span>
-      </ng-container>
+  <div class="border mx-auto p-3 signed-doc flex-grow-1">
+    <!-- sign-doc-frame: zero-padding, zero-border wrapper that ONLY contains
+         the page image + the percentage-positioned field overlay. This is
+         deliberate — boxStyle() positions fields with left/top/width/height
+         as PERCENTAGES, which CSS resolves against the nearest *positioned*
+         ancestor's PADDING box. The outer .signed-doc above has its own
+         `p-3` padding for visual framing, so if the overlay's positioned
+         ancestor were .signed-doc itself, every field would render offset
+         (and slightly mis-scaled) from where it actually sits on the image
+         by the amount of that padding — exactly the "assigned field shows
+         in a different position" bug. Keeping this frame padding/border-free
+         and moving all decorative spacing to .signed-doc instead guarantees
+         the overlay's 0–100% coordinate space is IDENTICAL to the image's
+         own box, so fields always land exactly where they were placed. -->
+    <div class="position-relative sign-doc-frame">
+      <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="w-100 d-block" alt="Document page">
 
-      <!-- STAMP -->
-      <ng-container *ngIf="f.FieldType === 'Stamp'">
-        <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+      <div class="position-absolute top-0 start-0 w-100 h-100">
+        <div *ngFor="let f of fieldsOnPage(currentPage)"
+        class="position-absolute d-flex align-items-center justify-content-center rounded-1"
+        [ngClass]="'sign-field-' + f.FieldType.toLowerCase()" [ngStyle]="boxStyle(f)"
+        [style.border]="isFilled(f.Id) ? '2px solid #28a745' : '2px dashed #E29B3E'"
+        [style.background]="isFilled(f.Id) ? '#28a74522' : '#E29B3E22'"
+        [style.cursor]="f.FieldType === 'Text' ? 'text' : 'pointer'" (click)="onFieldClick(f)">
 
-        <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
-          Click to stamp
-        </span>
-      </ng-container>
+        <!-- <ng-container *ngIf="f.FieldType === 'Signature' || f.FieldType === 'Stamp'">
+          <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+          <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">Click to sign</span>
+        </ng-container> -->
+        <!-- SIGNATURE -->
+        <ng-container *ngIf="f.FieldType === 'Signature'">
+          <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
 
-      <input *ngIf="f.FieldType === 'Checkbox'" type="checkbox" [checked]="fieldValues[f.Id] === 'true'"
-        (click)="$event.stopPropagation()" (change)="onFieldClick(f)">
+          <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
+            Click to sign
+          </span>
+        </ng-container>
 
-      <span *ngIf="f.FieldType === 'DateTime' && !isFilled(f.Id)" class="small text-nowrap">Click to select date</span>
-      <span *ngIf="f.FieldType === 'DateTime' && isFilled(f.Id)" class="small">{{ fieldValues[f.Id] }}</span>
+        <!-- STAMP -->
+        <ng-container *ngIf="f.FieldType === 'Stamp'">
+          <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+
+          <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
+            Click to stamp
+          </span>
+        </ng-container>
+
+        <input *ngIf="f.FieldType === 'Checkbox'" type="checkbox" [checked]="fieldValues[f.Id] === 'true'"
+          (click)="$event.stopPropagation()" (change)="onFieldClick(f)">
+
+        <span *ngIf="f.FieldType === 'DateTime' && !isFilled(f.Id)" class="small text-nowrap">Click to select date</span>
+        <span *ngIf="f.FieldType === 'DateTime' && isFilled(f.Id)" class="small">{{ fieldValues[f.Id] }}</span>
+      </div>
+      </div>
     </div>
   </div>
 </div>
 
-<p *ngIf="!loading && pageImages.length > 1" class="text-center mt-2">
+<p *ngIf="hasConsented && !loading && pageImages.length > 1" class="text-center mt-2">
   <button class="btn btn-sm btn-link" [disabled]="currentPage===1" (click)="currentPage=currentPage-1">&lt;</button>
   {{ currentPage }}/{{ pageImages.length }}
   <button class="btn btn-sm btn-link" [disabled]="currentPage===pageImages.length"
@@ -144,3 +190,63 @@
     </div>
   </div>
 </div>
+
+<style>
+  /* sign-doc-frame: the percentage-positioned field overlay's actual
+     positioned ancestor — kept deliberately padding/border-free so its
+     0–100% coordinate space matches the page image exactly. See the HTML
+     comment above .sign-doc-frame for the full explanation of the bug this
+     fixes ("assigned field renders in the wrong position"). */
+  .sign-doc-frame { padding: 0; border: 0; line-height: 0; }
+  .sign-doc-frame .doc-img, .sign-doc-frame > img { display: block; }
+
+  /* consent gate */
+  .consent-bar {
+    background: #F4F8FC;
+    border-bottom: 1px solid #E5E5E5;
+    font-family: 'Noto Kufi Arabic', sans-serif;
+  }
+  .consent-bar__label { font-size: 13px; color: #002654; cursor: pointer; }
+  .consent-bar__label input[type="checkbox"] { cursor: pointer; }
+  .consent-bar a { color: #1855A4; }
+  .consent-bar .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* page thumbnails — left rail */
+  .sign-thumbs {
+    width: 130px;
+    flex: 0 0 130px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 4px 2px;
+  }
+  .sign-thumb {
+    position: relative;
+    border: 2px solid #E5E5E5;
+    border-radius: 6px;
+    background: #F4F6FA;
+    cursor: pointer;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .sign-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .sign-thumb:hover { border-color: #7499C8; }
+  .sign-thumb.active { border-color: #1855A4; box-shadow: 0 0 0 2px rgba(24, 85, 164, .2); }
+  .sign-thumb-num {
+    position: absolute; bottom: 4px; inset-inline-end: 4px;
+    background: #002654; color: #fff; font-size: 10px; font-weight: 700;
+    border-radius: 999px; padding: 1px 6px; line-height: 1.4;
+  }
+
+  /* Assigned signature/stamp fields get a comfortable minimum click target —
+     position (left/top) stays percentage-based from boxStyle(), only the
+     minimum footprint is enforced here, so a tiny admin-drawn box never
+     renders too small to click or read. */
+  .sign-field-signature, .sign-field-stamp {
+    min-width: 150px;
+    min-height: 52px;
+  }
+</style>

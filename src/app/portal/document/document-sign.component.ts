@@ -12,11 +12,15 @@ export class DocumentSignComponent implements OnInit {
   fieldValues: { [fieldId: number]: string } = {};
   activeSignatureFieldId: number | null = null;
   isSubmitting = false;
-  loading = true;
+  // Document preview/loading is now gated behind the disclosure consent
+  // below (see hasConsented/agreeAndContinue()) — nothing is fetched until
+  // the signer explicitly agrees, so this starts false rather than true.
+  loading = false;
   private ctx!: CanvasRenderingContext2D;
   private drawing = false;
   pdfUrl!: SafeResourceUrl;
 Email:any;
+  private documentId = 0;
 
   // saved items from the signer's profile (GetUserSignature)
   userId = 0;
@@ -27,22 +31,47 @@ Email:any;
   loadingSaved = false;
   activeDateTimeFieldId: number | null = null;
   dateTimeValue = '';
-  constructor(private sanitizer: DomSanitizer, private route: ActivatedRoute, 
+
+  // ── "Electronic Record and Signature Disclosure" consent gate ──
+  // The document only loads and previews once the signer ticks the checkbox
+  // and clicks "Agree & Continue" — see the consent bar at the top of the
+  // template and agreeAndContinue()/loadDocument() below.
+  hasConsented = false;
+  disclosureChecked = false;
+  // TODO: point this at the real hosted disclosure document once available.
+  disclosureUrl = 'assets/docs/electronic-signature-disclosure.pdf';
+
+  constructor(private sanitizer: DomSanitizer, private route: ActivatedRoute,
     private router: Router, private esignService: EsignService, private toast: ToastService) {}
 
   ngOnInit(): void {
     const d = this.getUser();
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.documentId = Number(this.route.snapshot.paramMap.get('id'));
     this.Email = d?.EmpEmail;
     this.userId = Number(d?.UserId ?? d?.userId ?? d?.EmpId ?? 0) || 0;
+    // Safe to preload the signer's saved signature/initial/stamp before
+    // consent — it doesn't expose the document itself, just prepares the
+    // signing pad's "Import" options for once they do consent.
     this.loadMySignatures();
-    this.esignService.getForLoggedInSigner(id,this.Email).subscribe({
-      next: (doc) => { this.doc = doc; 
-        
-         this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-            doc.ViewerGcsUrl
-        );
-        this.loading = false; },
+  }
+
+  /** Ticking the checkbox and clicking "Agree & Continue" is what actually
+   *  loads the document for preview/signing (see the consent bar in the
+   *  template) — nothing is fetched before this. */
+  agreeAndContinue(): void {
+    if (!this.disclosureChecked || this.hasConsented) { return; }
+    this.hasConsented = true;
+    this.loadDocument();
+  }
+
+  private loadDocument(): void {
+    this.loading = true;
+    this.esignService.getForLoggedInSigner(this.documentId, this.Email).subscribe({
+      next: (doc) => {
+        this.doc = doc;
+        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(doc.ViewerGcsUrl);
+        this.loading = false;
+      },
       error: () => { this.loading = false; this.toast.error('Unable to load this document for signing.'); this.router.navigate(['/dashboard/document']); }
     });
   }

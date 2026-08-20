@@ -69,19 +69,33 @@
         
       <div class="doc-canvas-wrapper" [class.doc-canvas-wrapper-pager]="pageImages.length > 1">
         <div class="doc-canvas">
-          <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="doc-img" alt="Document page">
-          <div class="page-overlay">
-            <div *ngFor="let f of fieldsOnPage(currentPage)"
-                class="ro-field" [class.filled]="f.Value"
-                [ngStyle]="boxStyle(f)"
-                [style.borderColor]="f.Value ? '#4FCED2' : '#C0C0C0'"
-                [style.background]="f.Value ? '#CDFCFB' : '#E5E5E522'">
-              <img *ngIf="isImageValue(f.Value)" [src]="f.Value" class="ro-img" alt="">
-              <span *ngIf="!isImageValue(f.Value) && f.Value" class="ro-text">{{ f.Value }}</span>
-              <span *ngIf="!f.Value" class="ro-await">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#969696" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#969696" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Awaiting {{ f.FieldType }}
-              </span>
+          <!-- doc-img-frame: zero-padding, zero-border wrapper around ONLY
+               the page image + the percentage-positioned field overlay.
+               boxStyle() places fields with left/top/width/height as
+               PERCENTAGES, which CSS resolves against the nearest
+               *positioned* ancestor's PADDING box — so if .doc-canvas (above)
+               carries any padding/border of its own, every field renders
+               offset (and slightly mis-scaled) from where it actually sits
+               on the image, which is exactly the "assigned field shows in a
+               different position" bug. This frame guarantees the overlay's
+               0–100% coordinate space is identical to the image's own box
+               regardless of whatever spacing .doc-canvas/.doc-canvas-wrapper
+               apply, without needing to touch that external stylesheet. -->
+          <div class="doc-img-frame">
+            <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="doc-img" alt="Document page">
+            <div class="page-overlay">
+              <div *ngFor="let f of fieldsOnPage(currentPage)"
+                  class="ro-field" [class.filled]="f.Value"
+                  [ngStyle]="boxStyle(f)"
+                  [style.borderColor]="f.Value ? '#4FCED2' : '#C0C0C0'"
+                  [style.background]="f.Value ? '#CDFCFB' : '#E5E5E522'">
+                <img *ngIf="isImageValue(f.Value)" [src]="f.Value" class="ro-img" alt="">
+                <span *ngIf="!isImageValue(f.Value) && f.Value" class="ro-text">{{ f.Value }}</span>
+                <span *ngIf="!f.Value" class="ro-await">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#969696" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#969696" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Awaiting {{ f.FieldType }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -117,3 +131,15 @@
     </aside>
   </div>
 </div>
+
+<style>
+  /* doc-img-frame: the percentage-positioned field overlay's actual
+     positioned ancestor — kept deliberately padding/border-free so its
+     0–100% coordinate space matches the page image exactly, regardless of
+     whatever padding/border .doc-canvas/.doc-canvas-wrapper carry. See the
+     HTML comment above .doc-img-frame for the full explanation of the bug
+     this fixes ("assigned field renders in the wrong position"). */
+  .doc-img-frame { position: relative; padding: 0; border: 0; line-height: 0; }
+  .doc-img-frame .doc-img { display: block; width: 100%; height: auto; }
+  .doc-img-frame .page-overlay { position: absolute; inset: 0; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; }
+</style>

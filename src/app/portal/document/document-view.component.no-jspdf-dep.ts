@@ -21,9 +21,32 @@ export class DocumentViewComponent implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.esignService.getDocument(id).subscribe({
-      next: (doc) => { this.doc = doc; this.loading = false; },
+      next: (doc) => { this.doc = doc; this.loading = false; this.logFieldsDiagnostic(doc); },
       error: () => { this.loading = false; this.toast.error('Unable to load this document.'); this.router.navigate(['/dashboard/document']); }
     });
+  }
+
+  /** TEMP diagnostic for the duplicate-signature investigation -- open the
+   *  browser console after opening a signed document. If any row repeats
+   *  under the same RecipientId+FieldType+PageNumber, that's a genuine
+   *  duplicate EsignField row (the dedupe below is dropping it). If nothing
+   *  repeats here but a duplicate is still visible, the duplicate is baked
+   *  into the page IMAGE itself, not in this array -- see the fix in
+   *  EsignService.cs (BuildDetailResponseAsync / RenderAndCacheFallbackAsync)
+   *  for that root cause. Safe to delete once the bug is confirmed gone. */
+  private logFieldsDiagnostic(doc: DocumentDetailResponse): void {
+    // eslint-disable-next-line no-console
+    console.log('[DocumentView] doc.Fields for "' + doc.Name + '" (Status: ' + doc.Status + '):');
+    // eslint-disable-next-line no-console
+    console.table((doc.Fields || []).map(f => ({
+      Id: (f as any).Id,
+      RecipientId: f.RecipientId,
+      FieldType: f.FieldType,
+      Page: f.PageNumber,
+      X: f.XPct, Y: f.YPct,
+      HasValue: !!f.Value,
+      ValuePreview: f.Value ? f.Value.substring(0, 30) : ''
+    })));
   }
 
   get pageImages(): string[] {
@@ -33,7 +56,37 @@ export class DocumentViewComponent implements OnInit {
   }
 
   fieldsOnPage(page: number): FieldSummaryDto[] {
-    return this.doc.Fields.filter(f => f.PageNumber === page);
+    const onPage = this.doc.Fields.filter(f => f.PageNumber === page);
+    return this.dedupeFilledFields(onPage);
+  }
+
+  /** Front-end safety net for the "signature shows twice / in the wrong
+   *  place" bug. ROOT CAUSE (now fixed server-side, see EsignService.cs):
+   *  the page image itself was, for some documents, getting cached AFTER
+   *  being rendered from the STAMPED final pdf instead of the original --
+   *  so the signature was baked into the background image (at the PDF
+   *  stamper's coordinates) *and* drawn again by this component's live
+   *  field overlay (at XPct/YPct coordinates), i.e. two independent
+   *  renderers drawing the same value in two different spots. That's fixed
+   *  at the source now. This filter stays as a second line of defence in
+   *  case doc.Fields itself ever legitimately contains duplicate rows (e.g.
+   *  a past double-submit) for the same recipient/field/page -- regardless
+   *  of position or value, only the first such row renders, since a signer
+   *  never has two DIFFERENT fields of the same type on the same page.
+   *  Unfilled fields are never touched. */
+  private dedupeFilledFields(fields: FieldSummaryDto[]): FieldSummaryDto[] {
+    const seen = new Set<string>();
+    return fields.filter(f => {
+      if (!f.Value) { return true; }
+      const key = f.RecipientId + '|' + f.FieldType + '|' + f.PageNumber;
+      if (seen.has(key)) {
+        // eslint-disable-next-line no-console
+        console.warn('[DocumentView] Dropped a duplicate field render (same recipient/type/page) -- check EsignField rows for this document:', f);
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
   }
 
   boxStyle(f: FieldSummaryDto) {
