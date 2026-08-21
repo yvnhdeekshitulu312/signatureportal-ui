@@ -2,6 +2,9 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { EsignService } from 'src/app/services/esign.service';
 import { DocumentDetailResponse } from 'src/app/models/esign.models';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ConfirmDeleteModalComponent } from '../confirm-delete-modal.component';
+import { ToastService } from 'src/app/toast.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,8 +36,8 @@ EmpID:any;
 
   // document-detail modal (opened by clicking a document name)
   selectedDoc: any = null;
-
-  constructor(private router: Router, private esignService: EsignService) {
+  modalOpen = false;
+  constructor(private router: Router, private esignService: EsignService, private modalService: NgbModal, private toast: ToastService) {
     try {
       const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
@@ -211,12 +214,40 @@ createdOn(d: DocumentDetailResponse): string {
     this.router.navigate(['/dashboard/document'], { queryParams: { documentId: (d as any).Id } });
   }
 
-  deleteDoc(d: DocumentDetailResponse, ev?: Event): void {
+    deleteDoc(d: DocumentDetailResponse, ev?: Event): void {
     ev?.stopPropagation();
-    if (!confirm(`Delete "${d.Name}"? This can't be undone.`)) { return; }
-    // TODO: call your delete endpoint before removing locally, e.g.
-    // this.esignService.deleteDocument((d as any).Id).subscribe(() => ...);
-    this.recentDocs = this.recentDocs.filter(x => x !== d);
+    this.modalOpen = true;
+
+    const modalRef = this.modalService.open(ConfirmDeleteModalComponent, { centered: true });
+    modalRef.componentInstance.docName = d.Name;
+
+    modalRef.result.then(
+      (confirmed: boolean) => {
+        this.modalOpen = false;
+        if (confirmed) { this.performDelete(d); }
+      },
+      () => { this.modalOpen = false; } 
+    );
+  }
+
+  private performDelete(d: DocumentDetailResponse): void {
+    const id = (d as any).Id;
+
+    const call = this.isDraft(d)
+      ? this.esignService.draftDeleteDocument(id, this.Email)
+      : this.esignService.deleteDocument(id, this.Email);
+
+    call.subscribe({
+      next: () => {
+        this.toast.success(
+        'Document deleted successfully.',
+        { title: 'Success' });
+        this.recentDocs = this.recentDocs.filter(x => (x as any).Id !== id);
+        this.myPending = this.myPending.filter(x => (x as any).Id !== id);
+      },
+      error: () => {
+      }
+    });
   }
 
   // ── hover tooltip (document name) ──

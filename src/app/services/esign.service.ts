@@ -134,8 +134,20 @@ getMyDocuments(email: string,EmpID:string,FromDate:string,ToDate:string): Observ
     return this.http.get<DocumentDetailResponse>(`${this.baseUrl}/GetDocument/${documentId}`);
   }
 
-  deleteDocument(documentId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/DeleteDocument/${documentId}`);
+  // deleteDocument(documentId: number): Observable<void> {
+  //   return this.http.delete<void>(`${this.baseUrl}/DeleteDocument/${documentId}`);
+  // }
+
+  deleteDocument(id: number, email: string) {
+    return this.http.delete(`${this.baseUrl}/DeleteDocument/${id}`, {
+      params: { email }
+    });
+  }
+
+  draftDeleteDocument(id: number, email: string) {
+    return this.http.delete(`${this.baseUrl}/DraftdeleteDocument/${id}`, {
+      params: { requestedBy: email }
+    });
   }
 
   downloadFile(path: string): Observable<Blob> {

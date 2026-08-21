@@ -1,6 +1,9 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EsignService } from 'src/app/services/esign.service';
+import { ConfirmDeleteModalComponent } from '../confirm-delete-modal.component';
+import { ToastService } from 'src/app/toast.service';
 
 type StatusTone = 'draft' | 'progress' | 'done' | 'default';
 
@@ -51,7 +54,7 @@ export class DocumentComponent implements OnInit {
   pageSize = 10;
   pageSizes = [10, 25, 50, 100, 200];
 
-  constructor(private esignService: EsignService, private router: Router, private route: ActivatedRoute) {
+  constructor(private esignService: EsignService, private router: Router, private route: ActivatedRoute, private modalService: NgbModal, private toast: ToastService) {
     try {
       const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
@@ -294,12 +297,40 @@ export class DocumentComponent implements OnInit {
     this.openMenuId = null;
     this.router.navigate(['/dashboard/pendingdocuments/view', d.Id]);
   }
+  
   deleteDoc(d: any): void {
     this.openMenuId = null;
-    if (!confirm(`Delete "${d.Name}"? This can't be undone.`)) { return; }
-    // TODO: call your delete endpoint, e.g. this.esignService.deleteDocument(d.Id).subscribe(...)
-    this.allDocs = this.allDocs.filter(x => x !== d);
-    this.selected.delete(d.Id);
+
+    const modalRef = this.modalService.open(ConfirmDeleteModalComponent, { centered: true });
+    modalRef.componentInstance.docName = d.Name;
+
+    modalRef.result.then(
+      (confirmed: boolean) => {
+        if (confirmed) { this.performDelete(d); }
+      },
+      () => { }
+    );
+  }
+
+  private performDelete(d: any): void {
+    const call = this.isDraft(d)
+      ? this.esignService.draftDeleteDocument(d.Id, this.Email)
+      : this.esignService.deleteDocument(d.Id, this.Email);
+
+    call.subscribe({
+      next: () => {
+        this.allDocs = this.allDocs.filter(x => x.Id !== d.Id);
+        this.myPending = this.myPending.filter(x => x.Id !== d.Id);
+        this.selected.delete(d.Id);
+        this.toast.success(
+        'Document deleted successfully.',
+        { title: 'Success' }
+      );
+        this.clampPage();
+      },
+      error: () => {
+      }
+    });
   }
 
   // ── toolbar / bulk actions (Variant B) ──

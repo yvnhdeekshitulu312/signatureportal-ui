@@ -127,7 +127,7 @@
                 <button type="button" *ngIf="mode==='pending'" (click)="openPending(d)">Sign now</button>
                 <button type="button" *ngIf="isDraft(d)" (click)="continueDoc(d)">Continue</button>
                 <button type="button" (click)="viewDoc(d)">View</button>
-                <button type="button" class="danger" *ngIf="isDraft(d)" (click)="deleteDoc(d)">Delete</button>
+                <button type="button" class="danger" *ngIf="isDraft(d)" (click)="deleteDoc(d);$event.stopPropagation()">Delete</button>
               </div>
             </td>
           </tr>
