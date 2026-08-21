@@ -150,21 +150,22 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.config.ValidateUser(payload).subscribe({
       next: (response) => {
         if (!response || response.Code != 200) {
-          this.errorMessage = 'Invalid User Name / Password';
+          this.errorMessage = response?.Message || response?.Message2L || 'Invalid User Name / Password';
           return;
         }
         const user = response.SmartDataList[0];
-        localStorage.setItem('authUserName', user.EmpEmail);  
+        localStorage.setItem('authUserName', user.EmpEmail);
         localStorage.setItem('authPassword', password);
         localStorage.setItem('loginUserName', user.UserName + ' - ' + user.LoginUsername);
         localStorage.setItem('empDesignation', user.EmpDesignation || '');
-         localStorage.setItem("doctorDetails", JSON.stringify(user))
-          localStorage.setItem("hospitalId", this.loginForm.get('Location').value)
-
+        localStorage.setItem('doctorDetails', JSON.stringify(user));
+        localStorage.setItem('hospitalId', this.loginForm.get('Location').value);
         localStorage.setItem('isLoggedIn', 'true');
         this.router.navigate(['/dashboard']);
       },
-      error: () => { this.errorMessage = 'Invalid User Name / Password'; }
+      error: (err) => {
+        this.errorMessage = err?.error?.Message || 'Invalid User Name / Password';
+      }
     });
   }
 
