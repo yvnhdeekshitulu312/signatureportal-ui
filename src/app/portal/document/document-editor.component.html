@@ -128,7 +128,14 @@
   <aside class="rail-right bluescroll">
     <!-- Recipients -->
     <section class="panel">
-      <div class="panel-head"><span>Recipients</span></div>
+      <div class="panel-head">
+        <span>Recipients</span>
+        <button type="button" class="panel-add-btn" (click)="openAddRecipientModal()" title="Add recipient" aria-label="Add recipient">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
+      </div>
       <div class="panel-body recipients_list bluescroll">
         <div class="recipient" *ngFor="let r of recipients" [class.active]="r.clientId === activeRecipientClientId"
           [style.border-left]="'3px solid ' + recipientColor(r.clientId)" (click)="selectRecipient(r.clientId)">
@@ -219,4 +226,75 @@
       </div>
     </section>
   </aside>
+
+  <!-- ===== "Add Recipient" modal — add a recipient without leaving the editor ===== -->
+  <div class="recip-modal-overlay" *ngIf="showAddRecipientModal" (click)="closeAddRecipientModal()">
+    <div class="recip-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="rm-close" (click)="closeAddRecipientModal()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+
+      <h3 class="rm-title">Add Recipient</h3>
+
+      <div class="rm-field">
+        <label class="rm-label">Search name or email</label>
+        <div class="rm-emailwrap">
+          <input type="email" class="rm-input" [(ngModel)]="newRecipient.email" name="newRecipEmail"
+                 placeholder="Search name or email" autocomplete="off"
+                 [class.locked]="newRecipient.locked" [readonly]="newRecipient.locked"
+                 (input)="onNewRecipientSearch($any($event.target).value)"
+                 (focus)="onNewRecipientSearch($any($event.target).value)"
+                 (blur)="hideNewRecipientSuggestions()">
+          <span class="rm-lock" *ngIf="newRecipient.locked" title="Locked from smart search" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div class="rm-suggest" *ngIf="newRecipSuggestOpen && (newRecipSuggestions.length || newRecipSearching)">
+            <div class="rm-loading" *ngIf="newRecipSearching">Searching…</div>
+            <button type="button" class="rm-item" *ngFor="let e of newRecipSuggestions" (mousedown)="selectNewRecipientEmployee(e)">
+              <span class="rm-emp-name">{{ e.EmployeeName }}</span>
+              <span class="rm-emp-email">{{ e.Email }}</span>
+              <span class="rm-emp-desg" *ngIf="e.Designation">{{ e.Designation }}</span>
+            </button>
+            <div class="rm-none" *ngIf="!newRecipSearching && !newRecipSuggestions.length">No matches</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rm-field">
+        <label class="rm-label">Full name</label>
+        <input type="text" class="rm-input" [(ngModel)]="newRecipient.name" name="newRecipName" placeholder="Full name" readonly>
+      </div>
+
+      <div class="rm-field">
+        <label class="rm-label">Department</label>
+        <input type="text" class="rm-input rm-input-department" [(ngModel)]="newRecipient.department" name="newRecipDept" placeholder="Department" readonly tabindex="-1">
+      </div>
+
+      <div class="rm-field">
+        <label class="rm-label">Role</label>
+        <select class="rm-input rm-select" [(ngModel)]="newRecipient.role" name="newRecipRole">
+          <option value="Sign">Needs to sign</option>
+          <option value="View">Receives a copy</option>
+        </select>
+      </div>
+
+      <button type="button" class="rm-change" *ngIf="newRecipient.locked" (click)="unlockNewRecipient()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 20h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+        Change recipient
+      </button>
+
+      <div class="rm-actions">
+        <button type="button" class="btn btn-main-outline" (click)="closeAddRecipientModal()">Cancel</button>
+        <button type="button" class="btn btn-main-fill" [disabled]="!newRecipient.email || !newRecipient.name" (click)="saveNewRecipient()">Save</button>
+      </div>
+    </div>
+  </div>
 </div>

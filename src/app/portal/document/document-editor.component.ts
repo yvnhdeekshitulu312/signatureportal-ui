@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { forkJoin } from 'rxjs';
 import { EsignService } from '../../services/esign.service';
+import { ConfigService } from '../../services/config.service';
 import { FieldType, PlacedField, RecipientDto, SendDocumentRequest } from '../../models/esign.models';
 import { ToastService } from 'src/app/toast.service';
 
@@ -55,10 +56,20 @@ export class DocumentEditorComponent implements OnInit {
   isSending = false;
 owner = 'You';
   Email:any; EmpID:any;
+
+  // ── "Add Recipient" modal (adds a recipient without leaving the editor) ──
+  showAddRecipientModal = false;
+  newRecipient: any = this.blankRecipient();
+  newRecipSuggestions: any[] = [];
+  newRecipSuggestOpen = false;
+  newRecipSearching = false;
+  private newRecipSearchTimer: any;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private esignService: EsignService,
+    private ConfigService: ConfigService,
     private toast: ToastService
   ) {
      const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
@@ -247,6 +258,108 @@ owner = 'You';
     return palette[idx % palette.length];
   }
 
+  // ── "Add Recipient" modal ──
+  private blankRecipient(): any {
+    return { email: '', name: '', empID: '', department: '', role: 'Sign', deliveryMethod: 'Email', locked: false };
+  }
+
+  openAddRecipientModal(): void {
+    this.newRecipient = this.blankRecipient();
+    this.newRecipSuggestions = [];
+    this.newRecipSuggestOpen = false;
+    this.newRecipSearching = false;
+    this.showAddRecipientModal = true;
+  }
+
+  closeAddRecipientModal(): void {
+    this.showAddRecipientModal = false;
+  }
+
+  onNewRecipientSearch(term: string): void {
+    if (this.newRecipient.locked) {
+      this.newRecipSuggestions = [];
+      this.newRecipSuggestOpen = false;
+      this.newRecipSearching = false;
+      return;
+    }
+    const q = (term || '').trim();
+    this.newRecipSuggestOpen = true;
+    clearTimeout(this.newRecipSearchTimer);
+    if (q.length < 2) { this.newRecipSuggestions = []; this.newRecipSearching = false; return; }
+
+    this.newRecipSearchTimer = setTimeout(() => {
+      this.newRecipSearching = true;
+      this.ConfigService.searchEmployees(q).subscribe({
+        next: (list: any) => {
+          this.newRecipSuggestions = list.SSEmployeeDetailsZohoDataList || [];
+          this.newRecipSearching = false;
+        },
+        error: () => { this.newRecipSuggestions = []; this.newRecipSearching = false; }
+      });
+    }, 300);
+  }
+
+  selectNewRecipientEmployee(emp: any): void {
+    this.newRecipient = {
+      ...this.newRecipient,
+      email: (emp.Email || '').trim(),
+      name: (emp.EmployeeName || '').replace(/\s+/g, ' ').trim(),
+      empID: (emp.Empid || '').trim(),
+      department: (emp.DepartmentName || emp.Department || '').toString().replace(/\s+/g, ' ').trim(),
+      locked: true
+    };
+    this.newRecipSuggestions = [];
+    this.newRecipSuggestOpen = false;
+  }
+
+  unlockNewRecipient(): void {
+    this.newRecipient = { ...this.newRecipient, email: '', name: '', empID: '', department: '', locked: false };
+    this.newRecipSuggestions = [];
+    this.newRecipSuggestOpen = false;
+  }
+
+  hideNewRecipientSuggestions(): void {
+    // small delay so a mousedown on a suggestion registers before we hide it
+    setTimeout(() => { this.newRecipSuggestOpen = false; }, 150);
+  }
+
+  saveNewRecipient(): void {
+    const email = (this.newRecipient.email || '').trim();
+    const name = (this.newRecipient.name || '').trim();
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!email || !name || !emailOk) {
+      this.toast.warning('Pick a valid recipient (name + email) before saving');
+      return;
+    }
+
+    const clientId = `r${this.recipients.length + 1}_${Date.now()}`;
+    const recipient = {
+      clientId,
+      email,
+      name,
+      empID: this.newRecipient.empID || '',
+      department: this.newRecipient.department || '',
+      role: this.newRecipient.role || 'Sign',
+      deliveryMethod: this.newRecipient.deliveryMethod || 'Email',
+      signingOrder: null
+    };
+
+    this.recipients = ([...this.recipients, recipient] as any) as RecipientDto[];
+    this.activeRecipientClientId = clientId;
+    this.persistRecipientsToDraft();
+    this.showAddRecipientModal = false;
+    this.toast.success(`"${name}" added as a recipient`);
+  }
+
+  /** Keep sessionStorage's draft in sync so a recipient added here survives
+   *  a page refresh (mirrors how send-for-signature seeds the draft). */
+  private persistRecipientsToDraft(): void {
+    const draft = JSON.parse(sessionStorage.getItem('esign_draft') || '{}');
+    draft.recipients = this.recipients;
+    sessionStorage.setItem('esign_draft', JSON.stringify(draft));
+  }
+
   goBack(): void { this.router.navigate(['/dashboard/sendforsignature']); }
 
   reject(): void {
@@ -372,8 +485,13 @@ owner = 'You';
     });
 
     // Send one request per document that has fields (each PDF is its own signable document).
-    const docsToSend = this.documents.filter(d => this.placedFields.some(f => f.documentId === d.documentId));
-    if (!docsToSend.length) { this.toast.warning('Place at least one field before sending'); return; }
+    // When NOTHING has fields at all — i.e. every recipient is copy-only — there is
+    // nothing to filter by, so every uploaded document goes out as-is instead of
+    // being dropped by the "has a field" filter below.
+    const docsToSend = this.placedFields.length > 0
+      ? this.documents.filter(d => this.placedFields.some(f => f.documentId === d.documentId))
+      : this.documents;
+    if (!docsToSend.length) { this.toast.warning('Upload at least one document before sending'); return; }
 
     const requests = docsToSend.map(doc => this.esignService.sendDocument({
       documentId: doc.documentId,

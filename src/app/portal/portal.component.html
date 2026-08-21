@@ -101,7 +101,7 @@
                         </div>
                         <div class="app-header__notif-list">
                             <button type="button" class="app-header__notif-item" [class.is-new]="isNew(n)" [class.is-today]="isToday(n)"
-                                    *ngFor="let n of sortedPendingNotifications" (click)="openNotification(n)">
+                                    *ngFor="let n of visiblePendingNotifications" (click)="openNotification(n)">
                                 <span class="app-header__notif-ic">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18c3-1 4-3 5-6s2-5 3-5 1 2 0 5-2 6 0 6 3-2 4-3"/><path d="M3 21h18"/></svg>
                                 </span>
@@ -129,6 +129,19 @@
                                 <div class="app-header__notif-empty-title">You're all caught up</div>
                                 <div class="app-header__notif-empty-sub">No documents are waiting on your signature.</div>
                             </div>
+
+                            <!-- pending exists, but none of it is from today (all currently
+                                 shown items are today's — see visiblePendingNotifications) -->
+                            <div class="app-header__notif-empty" *ngIf="pendingNotifications.length && !visiblePendingNotifications.length">
+                                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                <div class="app-header__notif-empty-title">Nothing pending today</div>
+                                <div class="app-header__notif-empty-sub">{{ pendingNotifications.length }} earlier document{{ pendingNotifications.length === 1 ? '' : 's' }} — tap "{{ notifMoreButtonLabel }}" below.</div>
+                            </div>
+
+                            <button type="button" class="app-header__notif-more" *ngIf="hasMoreNotifications" (click)="showMoreNotifications($event)">
+                                {{ notifMoreButtonLabel }}
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
                         </div>
                         <button type="button" class="app-header__notif-all" *ngIf="pendingNotifications.length" (click)="viewAllPending()">
                             View all pending documents

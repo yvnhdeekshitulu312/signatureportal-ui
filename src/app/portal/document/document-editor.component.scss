@@ -225,3 +225,79 @@ $font:'Noto Kufi Arabic', sans-serif;
   font-size: 10.5px; font-weight: 800; color: $navy; background: $teal-light;
   border-radius: 99px; box-shadow: 0 1px 4px rgba(0,38,84,.2);
 }
+
+/* ===== added: "Add Recipient" modal, opened from the Recipients panel ===== */
+.panel-add-btn {
+  width: 24px; height: 24px; flex-shrink: 0; padding: 0; border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.14); color: $white;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s ease;
+  svg { display: block; }
+  &:hover { background: rgba(255,255,255,.28); }
+}
+
+.recip-modal-overlay {
+  position: fixed; inset: 0; z-index: 5000; background: rgba(0,38,84,.45);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.recip-modal {
+  width: 100%; max-width: 420px; max-height: 86vh; overflow: auto;
+  background: $white; border-radius: 16px; box-shadow: 0 30px 70px rgba(0,38,84,.35);
+  padding: 26px; position: relative; font-family: $font;
+}
+.rm-close {
+  position: absolute; top: 14px; inset-inline-end: 14px; width: 28px; height: 28px; padding: 0;
+  border-radius: 8px; border: none; background: $gray-1; color: $gray-8; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: .15s;
+  &:hover { background: $navy; color: $white; }
+}
+.rm-title { font-size: 16px; font-weight: 800; color: $navy; margin: 0 0 18px; padding-inline-end: 28px; }
+
+.rm-field { margin-bottom: 14px; }
+.rm-label { display: block; font-size: 11.5px; font-weight: 700; color: $gray-8; margin-bottom: 6px; letter-spacing: .02em; }
+.rm-input {
+  font-family: $font; font-size: 13px; width: 100%; box-sizing: border-box;
+  padding: 10px 12px; border-radius: 10px; border: 1px solid $gray-5; color: $navy; background: $white;
+  transition: border-color .15s ease, box-shadow .15s ease;
+  &::placeholder { color: $gray-5; }
+  &:focus { outline: none; border-color: $brand; box-shadow: 0 0 0 3px rgba(24,85,164,.12); }
+  &[readonly] { background: rgba(150,150,150,.05); cursor: default; }
+}
+.rm-input-department { color: $brand; font-weight: 700; background: rgba(24,85,164,.05); }
+.rm-select {
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none'><path d='M6 9l6 6 6-6' stroke='%23969696' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat; background-position: right 12px center; padding-inline-end: 34px;
+}
+:host-context([dir="rtl"]) .rm-select { background-position: left 12px center; }
+
+.rm-emailwrap { position: relative; }
+.rm-input.locked { color: $navy; font-weight: 600; background: rgba(24,85,164,.06); cursor: default; padding-inline-end: 30px; }
+.rm-lock {
+  position: absolute; inset-block-start: 50%; inset-inline-end: 10px; transform: translateY(-50%);
+  display: flex; align-items: center; justify-content: center; color: $brand; pointer-events: none;
+}
+.rm-suggest {
+  position: absolute; inset-block-start: calc(100% + 4px); inset-inline: 0; z-index: 30;
+  max-height: 220px; overflow: auto; background: $white; border: 1px solid $gray-1; border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0,38,84,.16); padding: 4px;
+}
+.rm-item {
+  display: grid; gap: 1px; width: 100%; text-align: start; font-family: $font; background: transparent; border: none;
+  border-radius: 8px; padding: 8px 10px; cursor: pointer; transition: background .12s ease;
+  &:hover { background: $gray-1; }
+}
+.rm-emp-name { font-size: 13px; font-weight: 700; color: $navy; }
+.rm-emp-email { font-size: 12px; color: $brand; direction: ltr; }
+.rm-emp-desg { font-size: 11px; color: $gray-8; }
+.rm-loading, .rm-none { padding: 10px 12px; font-size: 12px; color: $gray-8; }
+
+.rm-change {
+  font-family: $font; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: $brand; background: rgba(24,85,164,.06);
+  border: 1px solid rgba(24,85,164,.25); border-radius: 8px; padding: 6px 10px; margin-bottom: 6px;
+  transition: all .15s ease;
+  svg { fill: none; }
+  &:hover { background: rgba(24,85,164,.12); border-color: $brand; }
+}
+
+.rm-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }

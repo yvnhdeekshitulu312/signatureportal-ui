@@ -45,6 +45,12 @@ export class PortalComponent implements OnInit, OnDestroy {
 
   private timerId: any;
 
+  // ── progressive disclosure in the notifications panel ──
+  // Panel opens showing only TODAY's pending documents. "View more" then
+  // reveals 5 at a time from the earlier ones, and once those are exhausted
+  // a further click reveals everything that's left in one go.
+  notifVisibleExtra = 0;
+
   constructor(private router: Router, private esignService: EsignService) {}
 
   ngOnInit(): void {
@@ -139,6 +145,7 @@ export class PortalComponent implements OnInit, OnDestroy {
     this.esignService.getMyPending(email, EmpID).subscribe({
       next: (docs: any[]) => {
         this.pendingNotifications = docs || [];
+        this.notifVisibleExtra = 0; // fresh data — collapse back to "today only"
         const seen = this.getSeenIds();
         const ids = this.pendingNotifications.map(d => String(d.Id));
         this.newIds = new Set(ids.filter(id => !seen.has(id)));
@@ -191,6 +198,42 @@ export class PortalComponent implements OnInit, OnDestroy {
     const today = this.pendingNotifications.filter(n => this.isToday(n));
     const earlier = this.pendingNotifications.filter(n => !this.isToday(n));
     return [...today, ...earlier];
+  }
+
+  /** How many of pendingNotifications were created today — the panel's
+   *  default, always-visible slice. */
+  get todayNotifCount(): number {
+    return this.pendingNotifications.filter(n => this.isToday(n)).length;
+  }
+
+  /** What the panel actually renders: every today's document, plus however
+   *  many "extra" (older) ones have been revealed via "View more" so far. */
+  get visiblePendingNotifications(): any[] {
+    const limit = this.todayNotifCount + this.notifVisibleExtra;
+    return this.sortedPendingNotifications.slice(0, limit);
+  }
+
+  /** True while older pending documents exist beyond what's currently shown. */
+  get hasMoreNotifications(): boolean {
+    return this.pendingNotifications.length > this.visiblePendingNotifications.length;
+  }
+
+  /** Label for the "View more" button — describes what the NEXT click does:
+   *  first reveals up to 5 more, then (once those are exhausted) everything
+   *  that's left. */
+  get notifMoreButtonLabel(): string {
+    const remaining = this.pendingNotifications.length - this.visiblePendingNotifications.length;
+    if (this.notifVisibleExtra === 0) {
+      return `View ${Math.min(5, remaining)} more`;
+    }
+    return `View all (${this.pendingNotifications.length})`;
+  }
+
+  /** "View more" click handler: first click reveals 5 older documents,
+   *  a further click (once those 5 no longer cover everything) reveals the rest. */
+  showMoreNotifications(ev?: Event): void {
+    ev?.stopPropagation();
+    this.notifVisibleExtra = this.notifVisibleExtra === 0 ? 5 : this.pendingNotifications.length;
   }
 
   toggleNotifications(ev?: Event): void {
