@@ -166,6 +166,7 @@
         <thead>
           <tr>
             <th class="c-name">Document Name</th>
+            <th class="c-docnum">Document No.</th>
             <th class="c-owner">Owner</th>
             <th class="c-recip">Recipient Email</th>
             <th class="c-status">Status</th>
@@ -183,6 +184,10 @@
                       (mouseleave)="hideTooltip()"
                       (click)="openDocModal(d, $event)">{{ d.Name }}</span>
               </div>
+            </td>
+            <td class="c-docnum">
+              <span class="doc-num" *ngIf="d.DocumentNumber; else noDocNum">{{ d.DocumentNumber }}</span>
+              <ng-template #noDocNum><span class="muted">—</span></ng-template>
             </td>
             <td class="c-owner">
               <!-- <div class="owner"><span class="ow-av">{{ initials(owner) }}</span><span class="ow-name">{{ d.CreatedBy }}</span></div> -->
@@ -262,6 +267,7 @@
     <div class="dm-head">
       <div class="dm-head-left">
         <h2 class="dm-title">{{ selectedDoc.Name }}</h2>
+        <div class="dm-meta dm-docnum" *ngIf="selectedDoc.DocumentNumber">Document No: {{ selectedDoc.DocumentNumber }}</div>
         <div class="dm-meta">Owned by {{ selectedDoc.CreatedBy || owner }}</div>
         <div class="dm-meta" *ngIf="selectedDoc.CreatedOn">Submitted on {{ selectedDoc.CreatedOn | date:'dd-MMM-yyyy HH:mm' }}</div>
       </div>

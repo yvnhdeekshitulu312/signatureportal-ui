@@ -144,6 +144,7 @@
             <h6 class="r-name">{{ r.name }}</h6>
             <p class="r-email">{{ r.email }}</p>
           </div>
+          <span class="r-copy-badge" *ngIf="r.role === 'View'" title="Receives a copy — no field required">Copy only</span>
           <svg class="r-check" *ngIf="r.clientId === activeRecipientClientId" width="18" height="18" viewBox="0 0 24 24"
             fill="none" aria-hidden="true">
             <path d="M5 12l4 4 10-10" stroke="#1855A4" stroke-width="2" stroke-linecap="round"

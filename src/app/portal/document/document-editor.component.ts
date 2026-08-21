@@ -336,7 +336,17 @@ owner = 'You';
   }
   send(): void {
     if (this.isSending) { return; }
-    if (this.placedFields.length === 0) { this.toast.error('Place at least one field before sending'); return; }
+
+    // Recipients whose role is "Receives a copy" (View) are copy-only — they
+    // don't sign, so they don't need any field placed for them. A field is
+    // only required when at least one recipient actually needs to sign; if
+    // every recipient is copy-only, the document can be sent straight away
+    // with zero placed fields.
+    const needsSignature = this.recipients.some((r: any) => r.role !== 'View');
+    if (needsSignature && this.placedFields.length === 0) {
+      this.toast.error('Place at least one field before sending');
+      return;
+    }
 
     // Every field must belong to a recipient, or the server can't bind it
     // (and rightly refuses for multi-recipient documents).

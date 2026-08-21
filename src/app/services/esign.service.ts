@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { finalize, shareReplay } from 'rxjs/operators';
 import {
   UploadDocumentResponse,
   SendDocumentRequest,
@@ -12,7 +13,7 @@ import { HttpParams } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class EsignService {
-  
+
   // private baseUrl = 'http://localhost:54166/API/Esign';
   private baseUrl = config.esignApiUrl;
 
@@ -25,7 +26,7 @@ export class EsignService {
   formData.append('uploadedBy', uploadedBy);
   formData.append('EmpID', EmpID);
   return this.http.post<UploadDocumentResponse>(
-    `${this.baseUrl}/UploadDocument`, 
+    `${this.baseUrl}/UploadDocument`,
     formData
   );
 }
@@ -34,7 +35,7 @@ export class EsignService {
     return this.http.post<void>(`${this.baseUrl}/SendDocument`, request);
   }
 
-  
+
 
   sendDocumentMail(model: any): Observable<any> {
     // `model` is the SignatureModel-shaped object the editor builds
@@ -59,20 +60,41 @@ export class EsignService {
   }
 
   // getMyPending(email: string): Observable<DocumentDetailResponse[]> {
-  //   return this.http.get<DocumentDetailResponse[]>(`${this.baseUrl}/MyPending/${email} `);    
+  //   return this.http.get<DocumentDetailResponse[]>(`${this.baseUrl}/MyPending/${email} `);
   // }
 
-  getMyPending(email: string,EmpID:string): Observable<DocumentDetailResponse[]> {
-  const params = new HttpParams()
-  .set('email', email)
-  .set('EmpID', EmpID);
-  ;
+  // De-dupes concurrent calls: PortalComponent (notification bell, on init AND on
+  // every NavigationEnd) and DashboardComponent (its own "Pending" stat/table, on
+  // init) both call getMyPending() independently -- legitimately, they serve two
+  // different UI pieces -- but when they land in the same tick (e.g. dashboard's
+  // first load) that used to fire two identical "MyPending?email=...&EmpID=..."
+  // requests. While a request for a given email+EmpID is already in flight, any
+  // second caller now gets the SAME Observable (shareReplay(1)) instead of
+  // triggering a new HTTP call; once it resolves the cache entry is cleared
+  // (finalize), so the next genuinely-new call (e.g. Portal's post-navigation
+  // refresh) still hits the server for fresh data.
+  private myPendingInFlight = new Map<string, Observable<DocumentDetailResponse[]>>();
 
-  return this.http.get<DocumentDetailResponse[]>(
-    `${this.baseUrl}/MyPending`, 
-    { params }
-  );
-}
+  getMyPending(email: string,EmpID:string): Observable<DocumentDetailResponse[]> {
+    const key = `${email}|${EmpID}`;
+    const cached = this.myPendingInFlight.get(key);
+    if (cached) { return cached; }
+
+    const params = new HttpParams()
+      .set('email', email)
+      .set('EmpID', EmpID);
+
+    const request$ = this.http.get<DocumentDetailResponse[]>(
+      `${this.baseUrl}/MyPending`,
+      { params }
+    ).pipe(
+      shareReplay(1),
+      finalize(() => this.myPendingInFlight.delete(key))
+    );
+
+    this.myPendingInFlight.set(key, request$);
+    return request$;
+  }
 
  getForLoggedInSigner(documentId: number, email: string): Observable<DocumentDetailResponse> {
   const params = new HttpParams()
@@ -80,11 +102,11 @@ export class EsignService {
     .set('email', email);
 
   return this.http.get<DocumentDetailResponse>(
-    `${this.baseUrl}/GetForLoggedInSigner`, 
+    `${this.baseUrl}/GetForLoggedInSigner`,
     { params }
   );
 }
-  
+
 getMyDocuments(email: string,EmpID:string,FromDate:string,ToDate:string): Observable<DocumentDetailResponse[]> {
   const params = new HttpParams()
   .set('email', email)
@@ -93,7 +115,7 @@ getMyDocuments(email: string,EmpID:string,FromDate:string,ToDate:string): Observ
   .set('ToDate', ToDate);
 
   return this.http.get<DocumentDetailResponse[]>(
-    `${this.baseUrl}/MyDocuments`, 
+    `${this.baseUrl}/MyDocuments`,
     { params }
   );
 }
@@ -102,7 +124,7 @@ getMyDocuments(email: string,EmpID:string,FromDate:string,ToDate:string): Observ
   //   return this.http.get<DocumentDetailResponse[]>(`${this.baseUrl}/MyDocuments`);
   // }
 
- 
+
 
   signAsUser(documentId: number,email:any, fieldValues: { fieldId: number; value: string }[]): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/SignAsUser`, { documentId,email, fieldValues });
@@ -125,7 +147,7 @@ getMyDocuments(email: string,EmpID:string,FromDate:string,ToDate:string): Observ
   saveUserSignature(payload: any) {
     return this.http.post(`${this.baseUrl}/SaveUserSignature`, payload);
   }
-  
+
 DraftdeleteDocument(documentId: number, requestedBy: string): Observable<void> {
   const params = requestedBy ? `?requestedBy=${encodeURIComponent(requestedBy)}` : '';
   return this.http.delete<void>(`${this.baseUrl}/DraftdeleteDocument/${documentId}${params}`);

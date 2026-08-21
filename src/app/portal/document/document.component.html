@@ -68,6 +68,7 @@
         <thead>
           <tr>
             <th>Document name</th>
+            <th>Document No.</th>
             <th>Owner</th>
             <th>Recipient email</th>
             <th>Status</th>
@@ -88,6 +89,10 @@
                 <span class="A-nametxt A-namelink" (mouseenter)="showTooltip(d, $event)" (mouseleave)="hideTooltip()"
                   (click)="openDocModal(d, $event)">{{ d.Name }}</span>
               </div>
+            </td>
+            <td>
+              <span class="A-docnum" *ngIf="d.DocumentNumber; else noDocNumA">{{ d.DocumentNumber }}</span>
+              <ng-template #noDocNumA><span class="A-docnum-empty">—</span></ng-template>
             </td>
             <td>
   <div class="A-owner">
@@ -128,7 +133,7 @@
           </tr>
 
           <tr *ngIf="!pageDocs.length">
-            <td colspan="6" class="A-empty">
+            <td colspan="7" class="A-empty">
               {{ loading ? 'Loading…' : 'No documents' }}{{ !loading ? ((fName||fStatus) ? ' match your filters' : '
               yet') : '' }}
             </td>
@@ -202,6 +207,7 @@
     <div class="dm-head">
       <div class="dm-head-left">
         <h2 class="dm-title">{{ selectedDoc.Name }}</h2>
+        <div class="dm-meta dm-docnum" *ngIf="selectedDoc.DocumentNumber">Document No: {{ selectedDoc.DocumentNumber }}</div>
         <div class="dm-meta">Owned by {{ selectedDoc.CreatedBy || owner }}</div>
         <div class="dm-meta" *ngIf="selectedDoc.CreatedOn">Submitted on {{ selectedDoc.CreatedOn | date:'dd-MMM-yyyy
           HH:mm' }}</div>

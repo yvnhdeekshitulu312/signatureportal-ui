@@ -92,6 +92,14 @@ $font:'Noto Kufi Arabic', sans-serif;
 [dir="rtl"] .r-email { text-align: right; }
 .r-check { flex-shrink: 0; }
 
+/* "Copy only" badge — shown on recipients whose role is "Receives a copy"
+   (View), signalling that no field needs to be placed for them before send. */
+.r-copy-badge {
+  flex-shrink: 0; font-family: $font; font-size: 9.5px; font-weight: 800; letter-spacing: .02em;
+  color: $navy; background: $teal-light; border: 1px solid rgba(0,38,84,.08);
+  border-radius: 99px; padding: 3px 8px; white-space: nowrap;
+}
+
 /* fields palette */
 .fields-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
 .field-item {

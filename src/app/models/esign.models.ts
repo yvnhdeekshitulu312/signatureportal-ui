@@ -55,7 +55,10 @@ export interface SendDocumentRequest {
   fields: FieldDto[];
 }
 
-
+export interface DocumentDetailResponse {
+  // ...existing properties...
+  DocumentNumber?: string;
+}
 
 
 export interface RecipientSummaryDto {
