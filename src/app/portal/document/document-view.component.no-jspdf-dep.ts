@@ -51,7 +51,8 @@ export class DocumentViewComponent implements OnInit {
 
   get pageImages(): string[] {
     return (this.doc?.PageImages || []).map(b64 =>
-      b64.startsWith('data:') ? b64 : 'data:image/jpeg;base64,' + b64
+     // b64.startsWith('data:') ? b64 : 'data:image/jpeg;base64,' + b64
+      b64.startsWith('data:') ? b64 : 'data:image/png;base64,' + b64
     );
   }
 
@@ -161,10 +162,12 @@ export class DocumentViewComponent implements OnInit {
       }
 
       const orientation = W >= H ? 'l' : 'p';
-      const data = canvas.toDataURL('image/jpeg', 0.92);
+      //const data = canvas.toDataURL('image/jpeg', 0.92);
+      const data = canvas.toDataURL('image/png');
       if (!pdf) pdf = new JsPDF({ orientation, unit: 'px', format: [W, H] });
       else pdf.addPage([W, H], orientation);
-      pdf.addImage(data, 'JPEG', 0, 0, W, H);
+      pdf.addImage(data, 'PNG', 0, 0, W, H);
+     //pdf.addImage(data, 'JPEG', 0, 0, W, H);
     }
     pdf.save(this.doc.Name + '.pdf');
   }
