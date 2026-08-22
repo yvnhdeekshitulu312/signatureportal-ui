@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EsignService } from '../../services/esign.service';
 import { ConfigService } from '../../services/config.service';
 import { ToastService } from 'src/app/toast.service';
@@ -41,12 +41,12 @@ export class SendForSignatureComponent implements OnInit {
     private fb: FormBuilder,
     private esignService: EsignService,
     private ConfigService: ConfigService,
-    private router: Router, private toast: ToastService,
+    private router: Router, private toast: ToastService, private route: ActivatedRoute
   ) {
     const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
     this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
     this.Email = d?.EmpEmail;
-    this.EmpID=d?.EmpId;
+    this.EmpID = d?.EmpId;
   }
 
   ngOnInit(): void {
@@ -57,6 +57,32 @@ export class SendForSignatureComponent implements OnInit {
       reminderDays: [null],
       note: [''],
       recipients: this.fb.array([this.buildRecipientGroup(1)])
+    });
+
+    const resumeId = Number(this.route.snapshot.queryParamMap.get('documentId'));
+    if (resumeId) {
+      this.resumeDraft(resumeId);
+    }
+  }
+
+  private resumeDraft(documentId: number): void {
+    this.isUploading = true;
+    this.esignService.getDocument(documentId).subscribe({
+      next: (doc: any) => {
+        this.uploadedDocs = [{
+          documentId: doc.Id,
+          name: (doc.Name || '').replace(/\.pdf$/i, ''),
+          pages: (doc.PageImages || []).map((b64: string) => 'data:image/jpeg;base64,' + b64)
+        }];
+        this.uploadedDocumentId = doc.Id;
+        this.form.patchValue({ documentName: (doc.Name || '').replace(/\.pdf$/i, '') });
+        this.isUploading = false;
+        this.toast.info('Resumed draft — file restored, please re-add recipients.');
+      },
+      error: () => {
+        this.isUploading = false;
+        this.toast.error("Couldn't load that draft. Please upload the file again.");
+      }
     });
   }
 
@@ -162,8 +188,8 @@ export class SendForSignatureComponent implements OnInit {
 
     // Assuming you have the user's email/username stored in a property like this.userEmail or this.currentUser.email
     const uploadedBy = this.Email; // or pass it as a method argument: uploadOne(file: File, uploadedBy: string)
-const EmpID = this.EmpID;
-    this.esignService.uploadDocument(file, uploadedBy,EmpID).subscribe({
+    const EmpID = this.EmpID;
+    this.esignService.uploadDocument(file, uploadedBy, EmpID).subscribe({
       next: (res) => {
         this.uploadedDocs.push({
           documentId: res.DocumentId,
@@ -258,7 +284,7 @@ const EmpID = this.EmpID;
           // this.empSuggestions = results.filter(
           //   (emp: any) => (emp.Email || '').toLowerCase() !== loggedInEmail
           // );
-this.empSuggestions = results;
+          this.empSuggestions = results;
           this.searchingEmp = false;
         },
         error: () => { this.empSuggestions = []; this.searchingEmp = false; }

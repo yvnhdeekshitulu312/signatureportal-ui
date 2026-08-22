@@ -288,6 +288,11 @@ export class DocumentComponent implements OnInit {
 
   isDraft(d: any): boolean { return this.statusTone(d.Status) === 'draft'; }
 
+//   continueDoc(d: any): void {
+//   this.openMenuId = null;
+//   this.router.navigate(['/dashboard/sendforsignature'], { queryParams: { documentId: d.Id } });
+// }
+
   continueDoc(d: any): void {
     this.openMenuId = null;
     // Resume a draft in the editor (editor keys off documentId).

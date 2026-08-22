@@ -18,8 +18,8 @@ export class DashboardComponent implements OnInit {
   loading = false;
   activeFilter: 'all' | 'pending' | 'signed' | 'progress' = 'all';
   owner = 'You';
-  Email:any;
-EmpID:any;
+  Email: any;
+  EmpID: any;
   // Admin toggle — when ON, EmpID is sent as 0 (all employees); when OFF,
   // the logged-in user's own EmpID is sent (their documents only).
   isAdmin = false;
@@ -41,8 +41,8 @@ EmpID:any;
     try {
       const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
-      this.Email=d?.EmpEmail;
-      this.EmpID=d?.EmpId;
+      this.Email = d?.EmpEmail;
+      this.EmpID = d?.EmpId;
     } catch { /* keep default */ }
     const today = new Date();
     const past = new Date();
@@ -88,7 +88,7 @@ EmpID:any;
   loadRecent(): void {
     this.loading = true;
     const empId = this.isAdmin ? 0 : this.EmpID;
-    this.esignService.getMyDocuments(this.Email,empId,this.fromDate,this.toDate).subscribe({
+    this.esignService.getMyDocuments(this.Email, empId, this.fromDate, this.toDate).subscribe({
       next: (docs) => { this.recentDocs = docs || []; this.loading = false; },
       error: () => { this.loading = false; }
     });
@@ -96,7 +96,7 @@ EmpID:any;
 
   // Documents pending the logged-in user's signature (server decides "my turn"/order).
   loadPending(): void {
-    this.esignService.getMyPending(this.Email,this.EmpID).subscribe({
+    this.esignService.getMyPending(this.Email, this.EmpID).subscribe({
       next: (docs) => { this.myPending = docs || []; },
       error: () => { this.myPending = []; }
     });
@@ -142,25 +142,25 @@ EmpID:any;
   //   const dt = new Date(m[1]);
   //   return isNaN(dt.getTime()) ? '—' : dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   // }
-createdOn(d: DocumentDetailResponse): string {
-  const url = (d as any).ViewerGcsUrl || '';
+  createdOn(d: DocumentDetailResponse): string {
+    const url = (d as any).ViewerGcsUrl || '';
 
-  const m = /Documents(?:%2F|\/)(\d{4}-\d{2}-\d{2}(?:[T%20_]\d{2}[:\-]\d{2}(?:[:\-]\d{2})?)?)/i.exec(url);
-  if (!m) { return '—'; }
+    const m = /Documents(?:%2F|\/)(\d{4}-\d{2}-\d{2}(?:[T%20_]\d{2}[:\-]\d{2}(?:[:\-]\d{2})?)?)/i.exec(url);
+    if (!m) { return '—'; }
 
-  const rawDateStr = decodeURIComponent(m[1]).replace('_', 'T');
-  const dt = new Date(rawDateStr);
+    const rawDateStr = decodeURIComponent(m[1]).replace('_', 'T');
+    const dt = new Date(rawDateStr);
 
-  if (isNaN(dt.getTime())) { return '—'; }
+    if (isNaN(dt.getTime())) { return '—'; }
 
-  const day = dt.toLocaleDateString('en-GB', { day: '2-digit' });
-  const month = dt.toLocaleDateString('en-GB', { month: 'short' });
-  const year = dt.getFullYear();
-  const hours = String(dt.getHours()).padStart(2, '0');
-  const minutes = String(dt.getMinutes()).padStart(2, '0');
+    const day = dt.toLocaleDateString('en-GB', { day: '2-digit' });
+    const month = dt.toLocaleDateString('en-GB', { month: 'short' });
+    const year = dt.getFullYear();
+    const hours = String(dt.getHours()).padStart(2, '0');
+    const minutes = String(dt.getMinutes()).padStart(2, '0');
 
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
-}
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  }
   initials(name: string): string {
     return (name || '?').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
   }
@@ -209,12 +209,17 @@ createdOn(d: DocumentDetailResponse): string {
   isDraft(d: DocumentDetailResponse): boolean { return this.statusOf(d).includes('draft'); }
 
   /** Resume a draft in the editor (editor keys off documentId). */
+  // editDraft(d: DocumentDetailResponse, ev?: Event): void {
+  //   ev?.stopPropagation();
+  //   this.router.navigate(['/dashboard/document'], { queryParams: { documentId: (d as any).Id } });
+  // }
+
   editDraft(d: DocumentDetailResponse, ev?: Event): void {
     ev?.stopPropagation();
-    this.router.navigate(['/dashboard/document'], { queryParams: { documentId: (d as any).Id } });
+    this.router.navigate(['/dashboard/sendforsignature'], { queryParams: { documentId: (d as any).Id } });
   }
 
-    deleteDoc(d: DocumentDetailResponse, ev?: Event): void {
+  deleteDoc(d: DocumentDetailResponse, ev?: Event): void {
     ev?.stopPropagation();
     this.modalOpen = true;
 
@@ -226,7 +231,7 @@ createdOn(d: DocumentDetailResponse): string {
         this.modalOpen = false;
         if (confirmed) { this.performDelete(d); }
       },
-      () => { this.modalOpen = false; } 
+      () => { this.modalOpen = false; }
     );
   }
 
@@ -240,8 +245,8 @@ createdOn(d: DocumentDetailResponse): string {
     call.subscribe({
       next: () => {
         this.toast.success(
-        'Document deleted successfully.',
-        { title: 'Success' });
+          'Document deleted successfully.',
+          { title: 'Success' });
         this.recentDocs = this.recentDocs.filter(x => (x as any).Id !== id);
         this.myPending = this.myPending.filter(x => (x as any).Id !== id);
       },
