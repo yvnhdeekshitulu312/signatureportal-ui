@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators, FormGroup, FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Patterns } from 'global-constants';
 import * as moment from 'moment';
 import { ConfigService } from '../services/config.service';
@@ -46,7 +46,18 @@ export class LoginComponent implements OnInit, OnDestroy {
   // Live clock shown at the bottom of the login page — ticks every second
   // instead of only rendering the date/time once at page load.
   private clockInterval: any;
-  constructor(private fb: FormBuilder, private config: ConfigService, private router: Router, private loader: LoaderService) {
+
+  // Where to go after a successful login. Defaults to the normal dashboard;
+  // when someone is bounced here from a protected deep link (e.g. an
+  // "Open in browser"/"Start Signing" email link to a specific document —
+  // see AuthGuard, which sets this on redirect), it's set to that original
+  // URL instead, so login drops them right back where they were headed —
+  // e.g. /dashboard/pendingdocuments/sign/179 — instead of the dashboard home.
+  // A plain visit to /login (no returnUrl) behaves exactly as before.
+  returnUrl: string = '/dashboard';
+
+  constructor(private fb: FormBuilder, private config: ConfigService, private router: Router,
+    private route: ActivatedRoute, private loader: LoaderService) {
     this.config.onLogout();
     if ("lang" in localStorage) {
       let langCode = localStorage.getItem('lang');
@@ -76,6 +87,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       Location: ['', Validators.required]
     });
     this.FetchFetchHospitalLocations();
+
+    // Capture the returnUrl the AuthGuard attached when it bounced an
+    // unauthenticated visit to a protected deep link (e.g. a document's
+    // sign page opened from an email) back to /login.
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
   }
 
   FetchFetchHospitalLocations() {
@@ -162,7 +178,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         localStorage.setItem('doctorDetails', JSON.stringify(user));
         localStorage.setItem('hospitalId', this.loginForm.get('Location').value);
         localStorage.setItem('isLoggedIn', 'true');
-        this.router.navigate(['/dashboard']);
+        // Go back to whatever protected page the user was originally trying
+        // to reach (returnUrl), or the normal dashboard if there wasn't one.
+        this.router.navigateByUrl(this.returnUrl);
       },
       error: (err) => {
         this.errorMessage = err?.error?.Message || 'Invalid User Name / Password';
