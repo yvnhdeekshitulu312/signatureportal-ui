@@ -96,10 +96,13 @@
     </div>
 
     <p *ngIf="hasConsented && !loading && pageImages.length > 1" class="text-center d-flex align-items-center gap-3 justify-content-center mt-2">
-      <button class="btn btn-sm btn-link" [disabled]="currentPage===1" (click)="currentPage=currentPage-1">&lt;</button>
+      <button class="btn btn-sm btn-link" [disabled]="currentPage===1" (click)="currentPage=currentPage-1">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </button>
       {{ currentPage }}/{{ pageImages.length }}
-      <button class="btn btn-sm btn-link" [disabled]="currentPage===pageImages.length"
-        (click)="currentPage=currentPage+1">&gt;</button>
+      <button class="btn btn-sm btn-link" [disabled]="currentPage===pageImages.length" (click)="currentPage=currentPage+1">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </button>
     </p>
 
   </div>
