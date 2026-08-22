@@ -4,55 +4,62 @@ import {
   HttpHandler,
   HttpEvent,
   HttpInterceptor,
-  HttpContextToken
+  HttpContextToken,
+  HttpErrorResponse
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
+import { Router } from '@angular/router';
 
 export const BYPASS_LOG = new HttpContextToken(() => false);
+
+const NO_AUTH_URL_PATTERNS = [
+  'ValidateLoginUserHIS',
+  'FetchHospitalLocations'
+];
 
 @Injectable()
 export class HeadersInterceptor implements HttpInterceptor {
 
-  constructor() { }
+  constructor(private router: Router) { }
 
-  private getAuthHeader(): string {
-    const username = localStorage.getItem('authUserName') || 'admin';
-    const password = localStorage.getItem('authPassword') || '123456';
-    return 'Basic ' + btoa(`${username}:${password}`);
+  private getAuthHeader(): string | null {
+    const token = sessionStorage.getItem('token');
+    return token ? 'Bearer ' + token : null;
+  }
+
+  private isNoAuthUrl(url: string): boolean {
+    return NO_AUTH_URL_PATTERNS.some(pattern => url.includes(pattern));
   }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    console.log(`req to ${request.url}`);
-
     const isFormData = request.body instanceof FormData;
-    const authHeader = this.getAuthHeader();
+    const isNoAuth = this.isNoAuthUrl(request.url);
 
-    if (isFormData) {
-      request = request.clone({
-        setHeaders: {
-          'Access-Control-Allow-Origin': '*',
-          'Accept': 'application/json',
-          'Authorization': authHeader
-        }
-      });
-      return next.handle(request);
+    if (request.context.get(BYPASS_LOG) === true) {
+      return next.handle(request).pipe(
+        catchError((error: HttpErrorResponse) => throwError(() => error))
+      );
     }
-    else if (request.context.get(BYPASS_LOG) === true) {
-      request = request.clone({
-        setHeaders: {
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-      return next.handle(request);
-    } else {
-      request = request.clone({
-        setHeaders: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Authorization': authHeader,
-        }
-      });
-      return next.handle(request);
+
+    const headers: { [key: string]: string } = {
+      Authorization: isNoAuth ? 'No Auth' : (this.getAuthHeader() ?? '')
+    };
+
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
     }
+    headers['Accept'] = 'application/json';
+
+    request = request.clone({ setHeaders: headers });
+
+    return next.handle(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401 && !isNoAuth) {
+          sessionStorage.clear();
+          this.router.navigate(['/login']);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 }

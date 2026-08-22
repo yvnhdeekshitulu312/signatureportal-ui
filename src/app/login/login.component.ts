@@ -154,6 +154,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           return;
         }
         const user = response.SmartDataList[0];
+        sessionStorage.setItem("token", response.SmartDataList[0]?.Token ?? response.SmartDataList[0]?.RCMJwtToken);
         localStorage.setItem('authUserName', user.EmpEmail);
         localStorage.setItem('authPassword', password);
         localStorage.setItem('loginUserName', user.UserName + ' - ' + user.LoginUsername);
