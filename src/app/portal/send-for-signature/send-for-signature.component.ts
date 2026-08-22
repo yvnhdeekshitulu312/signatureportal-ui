@@ -357,7 +357,13 @@ export class SendForSignatureComponent implements OnInit {
       daysToComplete: this.form.value.daysToComplete,
       reminderDays: this.form.value.reminderDays,
       note: this.form.value.note,
-      pageImages: this.pageImages,                         // combined pages
+      // NOTE: page images are deliberately NOT stored here. They're already
+      // cached server-side (CachedPageImages) as soon as a document is
+      // uploaded, so the editor re-fetches them by documentId instead of
+      // carrying them through sessionStorage. Since PdfiumViewer now renders
+      // real high-DPI pages, a multi-page document's base64 images can run
+      // into tens of MB -- well past sessionStorage's ~5-10MB quota, which is
+      // exactly what was throwing QuotaExceededError here before this change.
       recipients: this.recipients.value.map((r: any, idx: number) => ({
         clientId: r.clientId,
         email: r.email,

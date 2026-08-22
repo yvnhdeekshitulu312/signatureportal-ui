@@ -54,6 +54,7 @@ export class DocumentEditorComponent implements OnInit {
 
   selectedFieldId: string | null = null;
   isSending = false;
+  loadingPages = false;
 owner = 'You';
   Email:any; EmpID:any;
 
@@ -91,27 +92,38 @@ owner = 'You';
     this.recipients = draft.recipients || [];
     this.activeRecipientClientId = this.recipients[0]?.clientId ?? null;
 
-    // Rebuild per-document pages from the combined pageImages + documents[] metadata.
-    const allPages: string[] = draft.pageImages || [];
+    // Document IDENTITY (id/name) travels through sessionStorage, but the page
+    // IMAGES do not -- they're fetched fresh from the server below instead.
+    // Page images are already cached server-side (CachedPageImages) as soon as
+    // a document is uploaded, so there's no need to duplicate them through
+    // browser storage. Now that PdfiumViewer renders real high-DPI pages, a
+    // multi-page document's combined base64 images can run into tens of MB --
+    // well past sessionStorage's ~5-10MB quota, which is exactly what was
+    // throwing QuotaExceededError when this used to be stored in the draft.
     const meta = (draft.documents && draft.documents.length)
       ? draft.documents
-      : [{ documentId: draft.documentId, name: draft.documentName, pageCount: allPages.length }];
+      : [{ documentId: draft.documentId, name: draft.documentName }];
 
-    let offset = 0;
-    this.documents = meta.map((m: any) => {
-      const count = m.pageCount || 0;
-      const pages = allPages.slice(offset, offset + count);
-      offset += count;
-      return { documentId: m.documentId, name: m.name, pages } as EditorDoc;
-    });
-    // Fallback: if metadata had no page counts, put everything in the first document.
-    if (this.documents.length === 1 && !this.documents[0].pages.length && allPages.length) {
-      this.documents[0].pages = allPages;
-    }
-
+    this.documents = meta.map((m: any) => ({ documentId: m.documentId, name: m.name, pages: [] } as EditorDoc));
     this.documentId = this.documents[0]?.documentId ?? draft.documentId;
     this.currentDocIndex = 0;
     this.currentPage = 1;
+
+    this.loadingPages = true;
+    forkJoin(this.documents.map(d => this.esignService.getDocument(d.documentId))).subscribe({
+      next: (docs: any[]) => {
+        docs.forEach((doc, i) => {
+          this.documents[i].pages = (doc.PageImages || []).map((b64: string) =>
+            b64.startsWith('data:') ? b64 : 'data:image/jpeg;base64,' + b64
+          );
+        });
+        this.loadingPages = false;
+      },
+      error: () => {
+        this.loadingPages = false;
+        this.toast.error('Unable to load document pages. Please try again.');
+      }
+    });
   }
 
   // ── document / page helpers ──
