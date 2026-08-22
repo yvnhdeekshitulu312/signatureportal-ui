@@ -95,7 +95,7 @@
       </div>
     </div>
 
-    <p *ngIf="hasConsented && !loading && pageImages.length > 1" class="text-center mt-2">
+    <p *ngIf="hasConsented && !loading && pageImages.length > 1" class="text-center d-flex align-items-center gap-3 justify-content-center mt-2">
       <button class="btn btn-sm btn-link" [disabled]="currentPage===1" (click)="currentPage=currentPage-1">&lt;</button>
       {{ currentPage }}/{{ pageImages.length }}
       <button class="btn btn-sm btn-link" [disabled]="currentPage===pageImages.length"
