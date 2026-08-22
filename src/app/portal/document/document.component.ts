@@ -190,7 +190,46 @@ export class DocumentComponent implements OnInit {
     if (o) list = list.filter(() => this.owner.toLowerCase().includes(o));
     if (e) list = list.filter(d => (d.Recipients || []).some((r: any) => (r.Email || '').toLowerCase().includes(e)));
     if (s) list = list.filter(d => (d.Status || '').toLowerCase() === s);
-    return list;
+    return this.applySort(list);
+  }
+
+  // ── column sorting (click a header to sort; click again to flip direction) ──
+  sortColumn: 'name' | 'docnum' | 'owner' | 'email' | 'status' | 'date' | null = null;
+  sortDir: 'asc' | 'desc' = 'asc';
+
+  setSort(col: 'name' | 'docnum' | 'owner' | 'email' | 'status' | 'date'): void {
+    if (this.sortColumn === col) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = col;
+      this.sortDir = 'asc';
+    }
+    this.page = 1;
+  }
+
+  private sortValue(d: any, col: string): string | number {
+    switch (col) {
+      case 'name': return (d.Name || '').toLowerCase();
+      case 'docnum': return (d.DocumentNumber || '').toLowerCase();
+      case 'owner': return ((d.FullName || d.EmpNo || '') as string).toLowerCase();
+      case 'email': return (this.recipients(d)[0]?.Email || '').toLowerCase();
+      case 'status': return (d.Status || '').toLowerCase();
+      case 'date': { const t = new Date(d.CreatedOn).getTime(); return isNaN(t) ? 0 : t; }
+      default: return '';
+    }
+  }
+
+  private applySort(list: any[]): any[] {
+    if (!this.sortColumn) { return list; }
+    const col = this.sortColumn;
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    return [...list].sort((a, b) => {
+      const av = this.sortValue(a, col);
+      const bv = this.sortValue(b, col);
+      if (av < bv) { return -1 * dir; }
+      if (av > bv) { return 1 * dir; }
+      return 0;
+    });
   }
   get total(): number { return this.filtered.length; }
   get totalPages(): number { return Math.max(1, Math.ceil(this.total / this.pageSize)); }

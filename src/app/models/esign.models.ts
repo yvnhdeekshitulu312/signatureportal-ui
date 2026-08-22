@@ -15,6 +15,7 @@ export interface DocumentDetailResponse {
     EmpNo: string;
       FullName: string;
         DepartmentName: string;
+          HospitalName: string;
 }
 export interface UploadDocumentResponse {
   DocumentId: number;

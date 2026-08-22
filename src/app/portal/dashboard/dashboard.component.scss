@@ -259,6 +259,13 @@ $font:'Noto Kufi Arabic', sans-serif;
 table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
 .dv-table thead th { position:sticky; top:0; background:rgba(24,85,164,.04); text-align:start; font-size:10.5px; letter-spacing:.4px;
   text-transform:uppercase; color:$gray-8; font-weight:800; padding:13px 14px; border-bottom:1.5px solid $gray-1; white-space:nowrap; }
+
+/* sortable column headers — click to sort, click again to flip direction */
+.dv-table thead th.sortable { cursor:pointer; user-select:none; transition:color .15s ease; }
+.dv-table thead th.sortable:hover { color:$brand; }
+.sort-ic { display:inline-flex; flex-direction:column; gap:1px; margin-inline-start:5px; vertical-align:middle; }
+.sort-ic svg { display:block; color:$gray-5; transition:color .15s ease; }
+.sort-ic svg.on { color:$brand; }
 .dv-table td { padding:13px 14px; font-size:13px; border-bottom:1px solid $gray-1; vertical-align:middle; }
 .dv-table tbody tr:last-child td { border-bottom:none; }
 .dv-table .c-status { width:130px; } .dv-table .c-date { width:130px; } .dv-table .c-view { width:96px; text-align:end; }
@@ -295,14 +302,28 @@ table.dv-table { width:100%; border-collapse:collapse; min-width:820px; }
   border-radius:7px; padding:4px 9px; letter-spacing:.02em; direction:ltr;
 }
 
-/* owner */
-.owner { 
+/* owner — stacked name / department / hospital badge. Was display:flex with
+   implicit row-direction: contiguous text nodes + <br> collapse into a single
+   anonymous flex item, but the hospital-name <span> became its OWN flex item
+   and laid out beside the text instead of beneath it. Explicit block-level
+   children + column-direction flex fixes the stacking cleanly. */
+.owner {
   display: flex;
-    align-items: center;
-    gap: 9px;
-    color: #1855A4;
-    font-size: 12.5px;
- }
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  font-size: 12.5px;
+}
+.owner-name { color: $navy; font-weight: 600; line-height: 1.35; }
+.owner-dept { color: $gray-8; font-size: 11px; font-weight: 500; line-height: 1.3; }
+/* hospital badge — same Brand-Blue-tint pill language as .doc-num above */
+.hospital-badge {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 1px;
+  font-weight: 700; font-size: 10px; color: $brand; text-transform: uppercase; letter-spacing: .02em;
+  background: rgba(24,85,164,.08); border: 1px solid rgba(24,85,164,.18);
+  border-radius: 999px; padding: 3px 9px;
+  svg { flex-shrink: 0; stroke: $brand; }
+}
 .ow-av { width:28px; height:28px; border-radius:50%; background:rgba(59,125,196,.16); color:$royal; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .ow-name { color:$navy; font-weight:500; }
 

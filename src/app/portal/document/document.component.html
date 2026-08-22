@@ -65,14 +65,20 @@
     <!-- table -->
     <div class="A-tablewrap">
       <table class="A-table">
+        <ng-template #sortIcon let-col="col">
+          <span class="sort-ic">
+            <svg class="ic-up" [class.on]="sortColumn===col && sortDir==='asc'" width="7" height="7" viewBox="0 0 10 10"><path d="M5 1L9 7H1L5 1Z" fill="currentColor"/></svg>
+            <svg class="ic-down" [class.on]="sortColumn===col && sortDir==='desc'" width="7" height="7" viewBox="0 0 10 10"><path d="M5 9L1 3H9L5 9Z" fill="currentColor"/></svg>
+          </span>
+        </ng-template>
         <thead>
           <tr>
-            <th>Document name</th>
-            <th>Document No.</th>
-            <th>Owner</th>
-            <th>Recipient email</th>
-            <th>Status</th>
-            <th>Created on</th>
+            <th class="sortable" (click)="setSort('name')">Document name<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'name'}"></ng-container></th>
+            <th class="sortable" (click)="setSort('docnum')">Document No.<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'docnum'}"></ng-container></th>
+            <th class="sortable" (click)="setSort('owner')">Owner<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'owner'}"></ng-container></th>
+            <th class="sortable" (click)="setSort('email')">Recipient email<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'email'}"></ng-container></th>
+            <th class="sortable" (click)="setSort('status')">Status<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'status'}"></ng-container></th>
+            <th class="sortable" (click)="setSort('date')">Created on<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'date'}"></ng-container></th>
             <th></th>
           </tr>
         </thead>
@@ -95,11 +101,15 @@
               <ng-template #noDocNumA><span class="A-docnum-empty">—</span></ng-template>
             </td>
             <td>
-  <div class="A-owner">
-    {{ d.EmpNo + '-' + d.FullName }} <br />
-    {{ d.DepartmentName }}
-  </div>
-</td>
+              <div class="A-owner">
+                <span class="owner-name">{{ d.EmpNo + '-' + d.FullName }}</span>
+                <span class="owner-dept">{{ d.DepartmentName }}</span>
+                <span class="hospital-badge" *ngIf="d.HospitalName">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1"/></svg>
+                  {{ d.HospitalName }}
+                </span>
+              </div>
+            </td>
             <td>
               <div class="A-recip">
                 <span *ngFor="let r of visibleRecipients(d)">
@@ -218,6 +228,7 @@
         <h2 class="dm-title">{{ selectedDoc.Name }}</h2>
         <div class="dm-meta dm-docnum" *ngIf="selectedDoc.DocumentNumber">Document No: {{ selectedDoc.DocumentNumber }}</div>
         <div class="dm-meta">Owned by {{ selectedDoc.CreatedBy || owner }}</div>
+        <div class="dm-meta" *ngIf="selectedDoc.HospitalName || selectedDoc.HospitalID">Hospital: {{ selectedDoc.HospitalName  }}</div>
         <div class="dm-meta" *ngIf="selectedDoc.CreatedOn">Submitted on {{ selectedDoc.CreatedOn | date:'dd-MMM-yyyy
           HH:mm' }}</div>
       </div>

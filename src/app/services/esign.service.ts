@@ -20,11 +20,14 @@ export class EsignService {
   constructor(private http: HttpClient) { }
 
 
-  uploadDocument(file: File, uploadedBy: string,EmpID:string): Observable<UploadDocumentResponse> {
+  uploadDocument(file: File, uploadedBy: string,EmpID:string, HospitalID?: string): Observable<UploadDocumentResponse> {
   const formData = new FormData();
   formData.append('file', file, file.name);
   formData.append('uploadedBy', uploadedBy);
   formData.append('EmpID', EmpID);
+  if (HospitalID) {
+    formData.append('HospitalID', HospitalID);
+  }
   return this.http.post<UploadDocumentResponse>(
     `${this.baseUrl}/UploadDocument`,
     formData

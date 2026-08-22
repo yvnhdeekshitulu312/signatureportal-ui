@@ -31,6 +31,7 @@ export class SendForSignatureComponent implements OnInit {
   owner = 'You';
   Email: any;
   EmpID: any;
+  HospitalId: any;
   // ── employee smart-search (per recipient row) ──
   empSuggestions: any[] = [];
   suggestFor: number | null = null;
@@ -44,9 +45,14 @@ export class SendForSignatureComponent implements OnInit {
     private router: Router, private toast: ToastService, private route: ActivatedRoute
   ) {
     const d = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
+     const HospitalID = JSON.parse(localStorage.getItem('hospitalId') || '{}');
     this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
     this.Email = d?.EmpEmail;
     this.EmpID = d?.EmpId;
+    // Same pattern as Email/EmpID above -- read from the logged-in user's
+    // stored details rather than looking it up server-side. Tries both
+    // casings since it isn't confirmed yet which one doctorDetails uses.
+    this.HospitalId = HospitalID;
   }
 
   ngOnInit(): void {
@@ -189,7 +195,8 @@ export class SendForSignatureComponent implements OnInit {
     // Assuming you have the user's email/username stored in a property like this.userEmail or this.currentUser.email
     const uploadedBy = this.Email; // or pass it as a method argument: uploadOne(file: File, uploadedBy: string)
     const EmpID = this.EmpID;
-    this.esignService.uploadDocument(file, uploadedBy, EmpID).subscribe({
+    const HospitalID = this.HospitalId;
+    this.esignService.uploadDocument(file, uploadedBy, EmpID, HospitalID).subscribe({
       next: (res) => {
         this.uploadedDocs.push({
           documentId: res.DocumentId,
