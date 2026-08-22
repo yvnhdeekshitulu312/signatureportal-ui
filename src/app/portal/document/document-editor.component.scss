@@ -46,7 +46,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 .toolbar-actions { display: flex; align-items: center; gap: 8px; }
 
 /* canvas */
-.canvas-scroll { overflow: auto; padding: 24px; display: flex; justify-content: center;height: calc(100vh - 9rem);overflow: auto; }
+.canvas-scroll { overflow: auto; padding: 24px; display: flex; justify-content: center;height: calc(100vh - 11rem);overflow: auto; }
 .doc-canvas { position: relative; width: 100%; max-width: 780px; align-self: flex-start;
   background: $white; border: 1px solid $gray-1; border-radius: 10px; box-shadow: 0 6px 26px rgba(0,38,84,.10); overflow: hidden; }
 .doc-img { width: 100%; display: block; }
@@ -65,7 +65,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 .cdk-drag-preview .pf-remove { display: none; }
 
 /* RIGHT rail */
-.rail-right { background: $white; border-inline-start: 1px solid $gray-1; display: flex; flex-direction: column; gap: 16px; padding: 16px; overflow: auto;height: calc(100vh - 4rem); }
+.rail-right { background: $white; border-inline-start: 1px solid $gray-1; display: flex; flex-direction: column; gap: 16px; padding: 16px; overflow: auto;height: calc(100vh - 7rem); }
 .panel { border: 1px solid $gray-1; border-radius: 14px; background: $white; }
 .panel-head {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;border-radius: 14px 14px 0 0;
@@ -183,7 +183,7 @@ $font:'Noto Kufi Arabic', sans-serif;
 /* ===== added: left-rail document + page preview ===== */
 
 /* make the left rail scroll on its own, keep its header pinned */
-.rail-left { overflow-y: auto; height: calc(100vh - 4rem); }
+.rail-left { overflow-y: auto; height: calc(100vh - 7rem); }
 .rail-left-head { position: sticky; top: 0; z-index: 2; background: $white; }
 
 /* first-page thumbnail inside each document item (replaces the generic icon

@@ -343,7 +343,7 @@ $font:'Noto Kufi Arabic', sans-serif !important;
    docProgressPct() in the component). Track = translucent white (so it reads
    against the navy/brand-blue gradient header), arc = Teal. Centre label
    uses Noto Kufi Arabic via the shared $font. */
-.dm-ring { position: relative; width: 67px; height: 55px; flex-shrink: 0; }
+.dm-ring { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
 .dm-ring-svg { transform: rotate(-90deg); }
 .dm-ring-track { fill: none; stroke: rgba(255,255,255,.28); stroke-width: 4; }
 .dm-ring-arc {

@@ -37,70 +37,73 @@
     </div>
   </div>
 
-  <div class="border mx-auto p-3 signed-doc flex-grow-1">
-    <!-- sign-doc-frame: zero-padding, zero-border wrapper that ONLY contains
-         the page image + the percentage-positioned field overlay. This is
-         deliberate — boxStyle() positions fields with left/top/width/height
-         as PERCENTAGES, which CSS resolves against the nearest *positioned*
-         ancestor's PADDING box. The outer .signed-doc above has its own
-         `p-3` padding for visual framing, so if the overlay's positioned
-         ancestor were .signed-doc itself, every field would render offset
-         (and slightly mis-scaled) from where it actually sits on the image
-         by the amount of that padding — exactly the "assigned field shows
-         in a different position" bug. Keeping this frame padding/border-free
-         and moving all decorative spacing to .signed-doc instead guarantees
-         the overlay's 0–100% coordinate space is IDENTICAL to the image's
-         own box, so fields always land exactly where they were placed. -->
-    <div class="position-relative sign-doc-frame">
-      <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="w-100 d-block" alt="Document page">
+  <div class="flex-grow-1">
+    <div class="border mx-auto p-3 signed-doc">
+      <!-- sign-doc-frame: zero-padding, zero-border wrapper that ONLY contains
+          the page image + the percentage-positioned field overlay. This is
+          deliberate — boxStyle() positions fields with left/top/width/height
+          as PERCENTAGES, which CSS resolves against the nearest *positioned*
+          ancestor's PADDING box. The outer .signed-doc above has its own
+          `p-3` padding for visual framing, so if the overlay's positioned
+          ancestor were .signed-doc itself, every field would render offset
+          (and slightly mis-scaled) from where it actually sits on the image
+          by the amount of that padding — exactly the "assigned field shows
+          in a different position" bug. Keeping this frame padding/border-free
+          and moving all decorative spacing to .signed-doc instead guarantees
+          the overlay's 0–100% coordinate space is IDENTICAL to the image's
+          own box, so fields always land exactly where they were placed. -->
+      <div class="position-relative sign-doc-frame">
+        <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="w-100 d-block" alt="Document page">
 
-      <div class="position-absolute top-0 start-0 w-100 h-100">
-        <div *ngFor="let f of fieldsOnPage(currentPage)"
-        class="position-absolute d-flex align-items-center justify-content-center rounded-1"
-        [ngClass]="'sign-field-' + f.FieldType.toLowerCase()" [ngStyle]="boxStyle(f)"
-        [style.border]="isFilled(f.Id) ? '2px solid #28a745' : '2px dashed #E29B3E'"
-        [style.background]="isFilled(f.Id) ? '#28a74522' : '#E29B3E22'"
-        [style.cursor]="f.FieldType === 'Text' ? 'text' : 'pointer'" (click)="onFieldClick(f)">
+        <div class="position-absolute top-0 start-0 w-100 h-100">
+          <div *ngFor="let f of fieldsOnPage(currentPage)"
+          class="position-absolute d-flex align-items-center justify-content-center rounded-1"
+          [ngClass]="'sign-field-' + f.FieldType.toLowerCase()" [ngStyle]="boxStyle(f)"
+          [style.border]="isFilled(f.Id) ? '2px solid #28a745' : '2px dashed #E29B3E'"
+          [style.background]="isFilled(f.Id) ? '#28a74522' : '#E29B3E22'"
+          [style.cursor]="f.FieldType === 'Text' ? 'text' : 'pointer'" (click)="onFieldClick(f)">
 
-        <!-- <ng-container *ngIf="f.FieldType === 'Signature' || f.FieldType === 'Stamp'">
-          <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
-          <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">Click to sign</span>
-        </ng-container> -->
-        <!-- SIGNATURE -->
-        <ng-container *ngIf="f.FieldType === 'Signature'">
-          <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+          <!-- <ng-container *ngIf="f.FieldType === 'Signature' || f.FieldType === 'Stamp'">
+            <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+            <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">Click to sign</span>
+          </ng-container> -->
+          <!-- SIGNATURE -->
+          <ng-container *ngIf="f.FieldType === 'Signature'">
+            <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
 
-          <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
-            Click to sign
-          </span>
-        </ng-container>
+            <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
+              Click to sign
+            </span>
+          </ng-container>
 
-        <!-- STAMP -->
-        <ng-container *ngIf="f.FieldType === 'Stamp'">
-          <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
+          <!-- STAMP -->
+          <ng-container *ngIf="f.FieldType === 'Stamp'">
+            <img *ngIf="isFilled(f.Id)" [src]="fieldValues[f.Id]" class="w-100 h-100" style="object-fit: contain;">
 
-          <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
-            Click to stamp
-          </span>
-        </ng-container>
+            <span *ngIf="!isFilled(f.Id)" class="small text-nowrap">
+              Click to stamp
+            </span>
+          </ng-container>
 
-        <input *ngIf="f.FieldType === 'Checkbox'" type="checkbox" [checked]="fieldValues[f.Id] === 'true'"
-          (click)="$event.stopPropagation()" (change)="onFieldClick(f)">
+          <input *ngIf="f.FieldType === 'Checkbox'" type="checkbox" [checked]="fieldValues[f.Id] === 'true'"
+            (click)="$event.stopPropagation()" (change)="onFieldClick(f)">
 
-        <span *ngIf="f.FieldType === 'DateTime' && !isFilled(f.Id)" class="small text-nowrap">Click to select date</span>
-        <span *ngIf="f.FieldType === 'DateTime' && isFilled(f.Id)" class="small">{{ fieldValues[f.Id] }}</span>
-      </div>
+          <span *ngIf="f.FieldType === 'DateTime' && !isFilled(f.Id)" class="small text-nowrap">Click to select date</span>
+          <span *ngIf="f.FieldType === 'DateTime' && isFilled(f.Id)" class="small">{{ fieldValues[f.Id] }}</span>
+        </div>
+        </div>
       </div>
     </div>
+
+    <p *ngIf="hasConsented && !loading && pageImages.length > 1" class="text-center mt-2">
+      <button class="btn btn-sm btn-link" [disabled]="currentPage===1" (click)="currentPage=currentPage-1">&lt;</button>
+      {{ currentPage }}/{{ pageImages.length }}
+      <button class="btn btn-sm btn-link" [disabled]="currentPage===pageImages.length"
+        (click)="currentPage=currentPage+1">&gt;</button>
+    </p>
+
   </div>
 </div>
-
-<p *ngIf="hasConsented && !loading && pageImages.length > 1" class="text-center mt-2">
-  <button class="btn btn-sm btn-link" [disabled]="currentPage===1" (click)="currentPage=currentPage-1">&lt;</button>
-  {{ currentPage }}/{{ pageImages.length }}
-  <button class="btn btn-sm btn-link" [disabled]="currentPage===pageImages.length"
-    (click)="currentPage=currentPage+1">&gt;</button>
-</p>
 
 <div *ngIf="activeSignatureFieldId !== null"
   class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
@@ -218,7 +221,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: 80vh;
+    max-height: calc(100vh - 11rem);
     overflow-y: auto;
     padding: 4px 2px;
   }
@@ -248,5 +251,21 @@
   .sign-field-signature, .sign-field-stamp {
     min-width: 150px;
     min-height: 52px;
+  }
+  .btn-link{
+    width: 32px;
+    height: 32px;
+    padding: unset;
+    border-radius: 9px;
+    border: 1px solid #C0C0C0;
+    background: #FFFFFF;
+    color: #002654;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-link:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 </style>
