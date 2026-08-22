@@ -43,14 +43,50 @@ $font:'Noto Kufi Arabic', sans-serif;
 .pager-count { font-size: 12.5px; font-weight: 600; color: $gray-8; min-width: 44px; text-align: center; }
 :host-context([dir="rtl"]) .pager-btn svg { transform: scaleX(-1); }
 
+/* header page-number textbox — type a page and press Enter/blur to jump to it */
+.pager-jump {
+  display: flex; align-items: center; gap: 5px; font-family: $font;
+  background: $white; border: 1px solid $gray-5; border-radius: 8px; padding: 0 8px; height: 30px;
+}
+.pager-input {
+  width: 32px; border: none; outline: none; background: transparent; font-family: $font;
+  font-size: 12.5px; font-weight: 700; color: $navy; text-align: center;
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button, &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  &:focus { color: $brand; }
+  &:disabled { opacity: .5; }
+}
+.pager-of { font-size: 12.5px; font-weight: 600; color: $gray-8; white-space: nowrap; }
+
 .toolbar-actions { display: flex; align-items: center; gap: 8px; }
 
-/* canvas */
-.canvas-scroll { overflow: auto; padding: 24px; display: flex; justify-content: center;height: calc(100vh - 11rem);overflow: auto; }
-.doc-canvas { position: relative; width: 100%; max-width: 780px; align-self: flex-start;
+/* canvas — continuous scroll: every page of the current document stacks
+   vertically here (see .doc-page-block) instead of showing one page at a time. */
+.canvas-scroll { overflow: auto; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 28px; height: calc(100vh - 11rem); }
+.doc-page-block { width: 100%; max-width: 780px; scroll-margin-top: 16px; }
+.doc-canvas-pagenum {
+  text-align: center; font-size: 11px; font-weight: 700; color: $gray-8;
+  letter-spacing: .03em; text-transform: uppercase; padding-bottom: 8px;
+}
+.doc-canvas { position: relative; width: 100%;
   background: $white; border: 1px solid $gray-1; border-radius: 10px; box-shadow: 0 6px 26px rgba(0,38,84,.10); overflow: hidden; }
 .doc-img { width: 100%; display: block; }
 .page-overlay { position: absolute; top: 0; inset-inline-start: 0; width: 100%; height: 100%; }
+
+/* loading state — shown in place of the canvas while page images are fetched */
+.doc-loading {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; width: 100%; min-height: 60vh; color: $gray-8;
+  p { margin: 0; font-size: 13px; font-weight: 700; color: $navy; }
+}
+.dl-spinner {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 4px solid $gray-1; border-top-color: $brand;
+  animation: editor-spin .8s linear infinite;
+}
+@keyframes editor-spin { to { transform: rotate(360deg); } }
+
+.doc-empty { width: 100%; text-align: center; padding: 60px 0; color: $gray-8; font-size: 13px; font-weight: 600; }
 
 .placed-field {
   position: absolute; border: 2px solid $brand; border-radius: 6px;
@@ -152,6 +188,12 @@ $font:'Noto Kufi Arabic', sans-serif;
 .di-icon { width: 30px; height: 30px; flex-shrink: 0; border-radius: 8px; background: rgba(24,85,164,.08);
   display: flex; align-items: center; justify-content: center; color: #3B7DC4;
   .doc-item.active & { color: #1855A4; } svg { fill: none; } }
+/* small spinner shown in place of the document icon while THAT document's pages are loading */
+.di-spinner {
+  width: 15px; height: 15px; border-radius: 50%;
+  border: 2.5px solid rgba(24,85,164,.18); border-top-color: $brand;
+  animation: editor-spin .8s linear infinite;
+}
 .di-info { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .di-name { font-size: 12.5px; font-weight: 700; color: #002654; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .di-meta { font-size: 10.5px; font-weight: 600; color: #969696; }
@@ -203,10 +245,12 @@ $font:'Noto Kufi Arabic', sans-serif;
   padding: 12px 4px 10px; position: sticky; top: 0; background: $white; z-index: 1;
 }
 .dpp-count { font-size: 11px; font-weight: 700; color: $gray-8; background: $gray-1; padding: 2px 8px; border-radius: 99px; }
-.dpp-list { display: flex; flex-direction: column; gap: 10px; }
+/* small thumbnails — a 2-column grid instead of one big full-width preview per
+   page, so the whole document's pages fit in view at a glance. */
+.dpp-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .dpp-page {
   position: relative; width: 100%; padding: 0; cursor: pointer; font-family: $font;
-  background: $white; border: 1.5px solid $gray-1; border-radius: 10px; overflow: hidden;
+  background: $white; border: 1.5px solid $gray-1; border-radius: 8px; overflow: hidden;
   transition: border-color .15s ease, box-shadow .15s ease;
   img { width: 100%; display: block; }
   &:hover { border-color: $light-blue; }
@@ -214,17 +258,26 @@ $font:'Noto Kufi Arabic', sans-serif;
   &:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
 }
 .dpp-num {
-  position: absolute; inset-block-end: 6px; inset-inline-start: 6px;
-  font-size: 10.5px; font-weight: 700; color: $white; background: rgba(0,38,84,.72);
-  padding: 2px 8px; border-radius: 99px; line-height: 1.4;
+  position: absolute; inset-block-end: 4px; inset-inline-start: 4px;
+  font-size: 9px; font-weight: 700; color: $white; background: rgba(0,38,84,.72);
+  padding: 1px 6px; border-radius: 99px; line-height: 1.4;
 }
 .dpp-page.active .dpp-num { background: $brand; }
 .dpp-badge {
-  position: absolute; inset-block-start: 6px; inset-inline-end: 6px;
-  min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; padding: 0 5px;
-  font-size: 10.5px; font-weight: 800; color: $navy; background: $teal-light;
+  position: absolute; inset-block-start: 4px; inset-inline-end: 4px;
+  min-width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; padding: 0 3px;
+  font-size: 9px; font-weight: 800; color: $navy; background: $teal-light;
   border-radius: 99px; box-shadow: 0 1px 4px rgba(0,38,84,.2);
 }
+
+/* skeleton grid shown in the same spot while pages are still loading */
+.dpp-skeleton { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.dpp-skel {
+  display: block; width: 100%; aspect-ratio: 3 / 4; border-radius: 8px;
+  background: linear-gradient(100deg, $gray-1 30%, $white 50%, $gray-1 70%);
+  background-size: 200% 100%; animation: dpp-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes dpp-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
 /* ===== added: "Add Recipient" modal, opened from the Recipients panel ===== */
 .panel-add-btn {

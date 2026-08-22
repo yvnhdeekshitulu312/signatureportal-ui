@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CdkDragDrop, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { forkJoin } from 'rxjs';
@@ -29,7 +29,14 @@ interface EditorDoc {
   styleUrls: ['./document-editor.component.scss']
 })
 export class DocumentEditorComponent implements OnInit {
-  @ViewChild('pageOverlay', { static: false }) pageOverlay!: ElementRef<HTMLDivElement>;
+  // One overlay per rendered page now (continuous-scroll view shows every page
+  // of the current document at once, not just one page at a time) — so this is
+  // a QueryList, not a single ViewChild. overlayElAt() below maps a page number
+  // to its own overlay element for drop/move/resize math.
+  @ViewChildren('pageOverlay') pageOverlays!: QueryList<ElementRef<HTMLDivElement>>;
+  // Each page's outer block, used to scroll a specific page into view.
+  @ViewChildren('pageContainer') pageContainers!: QueryList<ElementRef<HTMLDivElement>>;
+  @ViewChild('canvasScroll', { static: false }) canvasScrollRef!: ElementRef<HTMLDivElement>;
 
   documentId!: number;          // first document (kept for compatibility)
   documentName = '';
@@ -37,7 +44,16 @@ export class DocumentEditorComponent implements OnInit {
   // ── multiple documents ──
   documents: EditorDoc[] = [];
   currentDocIndex = 0;
-  currentPage = 1; // 1-indexed WITHIN the current document
+  currentPage = 1; // 1-indexed WITHIN the current document — now tracks whichever
+                    // page is most visible in the continuous scroll view.
+
+  // page-number textbox in the header (bound to a string so it can hold an
+  // in-progress edit like "" while the user is typing/clearing it).
+  pageInputValue = '1';
+
+  // Placeholder tiles shown in the left-rail "Pages" list while a document's
+  // pages are still loading — count is arbitrary, just fills the skeleton.
+  skeletonPages = [1, 2, 3, 4, 5, 6];
 
   recipients: RecipientDto[] = [];
   activeRecipientClientId: string | null = null;
@@ -65,6 +81,9 @@ owner = 'You';
   newRecipSuggestOpen = false;
   newRecipSearching = false;
   private newRecipSearchTimer: any;
+
+  // rAF-throttle flag for the scroll-spy handler (see onCanvasScroll()).
+  private scrollSpyScheduled = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -108,6 +127,7 @@ owner = 'You';
     this.documentId = this.documents[0]?.documentId ?? draft.documentId;
     this.currentDocIndex = 0;
     this.currentPage = 1;
+    this.pageInputValue = '1';
 
     this.loadingPages = true;
     forkJoin(this.documents.map(d => this.esignService.getDocument(d.documentId))).subscribe({
@@ -130,10 +150,16 @@ owner = 'You';
   get currentDoc(): EditorDoc | undefined { return this.documents[this.currentDocIndex]; }
   get currentPages(): string[] { return this.currentDoc?.pages || []; }
 
+  trackByIndex(i: number): number { return i; }
+
   selectDocument(index: number): void {
     this.currentDocIndex = index;
     this.currentPage = 1;
+    this.pageInputValue = '1';
     this.selectedFieldId = null;
+    // Pages just switched (new *ngFor content) — wait a tick, then reset scroll
+    // to the top of the newly-selected document instead of an old scroll offset.
+    setTimeout(() => { this.canvasScrollRef?.nativeElement?.scrollTo({ top: 0 }); });
   }
 
   fieldCountFor(doc: EditorDoc): number {
@@ -148,15 +174,85 @@ owner = 'You';
     ).length;
   }
 
-  /** Jump straight to a page from the left-rail page preview. */
+  /** Jump straight to a page from the left-rail page preview, the header
+   *  prev/next buttons, or the page-number textbox — scrolls the continuous
+   *  document view so that page is at the top of the canvas. */
   goToPage(page: number): void {
-    this.currentPage = page;
+    const total = this.currentPages.length || 1;
+    const clamped = Math.min(Math.max(1, page), total);
+    this.currentPage = clamped;
+    this.pageInputValue = String(clamped);
     this.selectedFieldId = null;
+    this.scrollToPage(clamped);
   }
 
-  /** Fields to render on the currently visible page of the current document. */
-  isFieldOnCurrentPage(field: EditorField): boolean {
-    return field.documentId === this.currentDoc?.documentId && field.pageNumber === this.currentPage;
+  private scrollToPage(page: number): void {
+    // Give Angular a tick to render (e.g. right after switching documents)
+    // before looking up the target page's DOM element.
+    setTimeout(() => {
+      const arr = this.pageContainers ? this.pageContainers.toArray() : [];
+      const el = arr[page - 1]?.nativeElement;
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  }
+
+  /** Header page-number textbox: Enter or blur jumps to the typed page,
+   *  clamped to a valid page number; an empty/invalid value snaps back to
+   *  whatever page is currently showing instead of leaving a bad value. */
+  jumpToPageInput(): void {
+    const n = parseInt(this.pageInputValue, 10);
+    if (!n || isNaN(n) || !this.currentPages.length) {
+      this.pageInputValue = String(this.currentPage);
+      return;
+    }
+    this.goToPage(n);
+  }
+
+  /** Fields belonging to a specific page of the current document — each
+   *  rendered page in the continuous-scroll canvas asks for its own slice. */
+  fieldsOnPage(pageNumber: number): EditorField[] {
+    return this.placedFields.filter(
+      f => f.documentId === this.currentDoc?.documentId && f.pageNumber === pageNumber
+    );
+  }
+
+  /** Scroll-spy: as the user scrolls through the continuous document view,
+   *  keep currentPage/pageInputValue (and the left-rail highlight) in sync
+   *  with whichever page is nearest the top of the viewport. Throttled to
+   *  one check per animation frame so it doesn't thrash layout on scroll. */
+  onCanvasScroll(): void {
+    if (this.scrollSpyScheduled) { return; }
+    this.scrollSpyScheduled = true;
+    requestAnimationFrame(() => {
+      this.scrollSpyScheduled = false;
+      this.updateCurrentPageFromScroll();
+    });
+  }
+
+  private updateCurrentPageFromScroll(): void {
+    const containerEl = this.canvasScrollRef?.nativeElement;
+    const arr = this.pageContainers ? this.pageContainers.toArray() : [];
+    if (!containerEl || !arr.length) { return; }
+    const containerTop = containerEl.getBoundingClientRect().top;
+    let closestPage = this.currentPage;
+    let closestDist = Infinity;
+    arr.forEach((ref, idx) => {
+      const dist = Math.abs(ref.nativeElement.getBoundingClientRect().top - containerTop);
+      if (dist < closestDist) { closestDist = dist; closestPage = idx + 1; }
+    });
+    if (closestPage !== this.currentPage) {
+      this.currentPage = closestPage;
+      this.pageInputValue = String(closestPage);
+    }
+  }
+
+  /** The specific page overlay element a field/drop belongs to — replaces the
+   *  old single @ViewChild('pageOverlay') now that every page renders (and
+   *  has its own overlay) at once instead of only the "current" page. */
+  private overlayElAt(pageNumber: number): HTMLDivElement | null {
+    const arr = this.pageOverlays ? this.pageOverlays.toArray() : [];
+    const ref = arr[pageNumber - 1];
+    return ref ? ref.nativeElement : null;
   }
 
   selectRecipient(clientId: string): void {
@@ -166,25 +262,30 @@ owner = 'You';
   onFieldDropped(event: CdkDragDrop<any>, pageNumber: number): void {
     if (!this.activeRecipientClientId) { this.toast.warning('Select a recipient first'); return; }
     const paletteItem: FieldPaletteItem = event.item.data;
-    const overlayRect = this.pageOverlay.nativeElement.getBoundingClientRect();
+    const overlayEl = this.overlayElAt(pageNumber);
+    if (!overlayEl) { return; }
+    const overlayRect = overlayEl.getBoundingClientRect();
     const dropX = event.dropPoint.x - overlayRect.left;
     const dropY = event.dropPoint.y - overlayRect.top;
-    this.addFieldAt(paletteItem, dropX - paletteItem.defaultWidthPx / 2, dropY - paletteItem.defaultHeightPx / 2);
+    this.currentPage = pageNumber; // keep the header/rail in sync with where the drop actually happened
+    this.pageInputValue = String(pageNumber);
+    this.addFieldAt(paletteItem, dropX - paletteItem.defaultWidthPx / 2, dropY - paletteItem.defaultHeightPx / 2, pageNumber);
   }
 
   addFieldByClick(item: FieldPaletteItem): void {
     if (!this.activeRecipientClientId) { this.toast.warning('Select a recipient first'); return; }
-    const overlayRect = this.pageOverlay?.nativeElement.getBoundingClientRect();
+    const overlayEl = this.overlayElAt(this.currentPage);
+    const overlayRect = overlayEl ? overlayEl.getBoundingClientRect() : null;
     const baseX = overlayRect ? overlayRect.width / 2 - item.defaultWidthPx / 2 : 40;
     const baseY = overlayRect ? overlayRect.height / 2 - item.defaultHeightPx / 2 : 40;
     const existingOnPage = this.placedFields.filter(
       (f) => f.documentId === this.currentDoc?.documentId && f.pageNumber === this.currentPage
     ).length;
     const stagger = (existingOnPage % 8) * 24;
-    this.addFieldAt(item, baseX + stagger, baseY + stagger);
+    this.addFieldAt(item, baseX + stagger, baseY + stagger, this.currentPage);
   }
 
-  private addFieldAt(item: FieldPaletteItem, xPx: number, yPx: number): void {
+  private addFieldAt(item: FieldPaletteItem, xPx: number, yPx: number, pageNumber: number = this.currentPage): void {
     if (!this.currentDoc) { return; }
     this.fieldCounter++;
     const tempId = `f${this.fieldCounter}`;
@@ -193,7 +294,7 @@ owner = 'You';
       recipientClientId: this.activeRecipientClientId!,
       fieldType: item.type,
       documentId: this.currentDoc.documentId,   // remember which document
-      pageNumber: this.currentPage,              // page WITHIN that document
+      pageNumber,                                // page WITHIN that document
       xPx: Math.max(0, xPx),
       yPx: Math.max(0, yPx),
       widthPx: item.defaultWidthPx,
@@ -208,9 +309,10 @@ owner = 'You';
     // its own. Persist the net drag distance onto the stored px position, then reset the
     // transform so the element rests exactly at its [style.left/top]. Without the reset,
     // the leftover transform stacks on top of left/top and the field jumps every drag.
-    const rect = this.pageOverlay.nativeElement.getBoundingClientRect();
-    const maxX = Math.max(0, rect.width - field.widthPx);
-    const maxY = Math.max(0, rect.height - field.heightPx);
+    const overlayEl = this.overlayElAt(field.pageNumber);
+    const rect = overlayEl ? overlayEl.getBoundingClientRect() : null;
+    const maxX = rect ? Math.max(0, rect.width - field.widthPx) : Infinity;
+    const maxY = rect ? Math.max(0, rect.height - field.heightPx) : Infinity;
     field.xPx = Math.min(Math.max(0, field.xPx + event.distance.x), maxX);
     field.yPx = Math.min(Math.max(0, field.yPx + event.distance.y), maxY);
     event.source.reset();
@@ -226,7 +328,7 @@ owner = 'You';
     event.stopPropagation();
     this.selectedFieldId = field.tempId;
 
-    const overlay = this.pageOverlay?.nativeElement;
+    const overlay = this.overlayElAt(field.pageNumber);
     const rect = overlay ? overlay.getBoundingClientRect() : null;
     const startX = event.clientX;
     const startY = event.clientY;
@@ -388,7 +490,8 @@ owner = 'You';
 
     const draft = JSON.parse(sessionStorage.getItem('esign_draft') || '{}');
     const user = JSON.parse(localStorage.getItem('doctorDetails') || '{}');
-    const overlayRect = this.pageOverlay.nativeElement.getBoundingClientRect();
+    const fallbackOverlay = this.pageOverlays?.first?.nativeElement;
+    const overlayRect = fallbackOverlay ? fallbackOverlay.getBoundingClientRect() : ({ width: 1, height: 1 } as DOMRect);
 
     // field placement → percentages (top-left origin; backend converts to PDF points)
     const toField = (f: EditorField) => ({
@@ -430,7 +533,7 @@ owner = 'You';
       Remainder: draft.reminderDays ?? 0,
       Notes: draft.note ?? '',
       HTMLDocumentName: doc.name || this.documentName,
-      HTMLStringForSignature: '',       
+      HTMLStringForSignature: '',
       SenderEmail: user.EmpEmail ?? user.EmpEmail ?? 0,          // fill if you serialize placements as HTML
       UserId: user.UserId ?? user.userId ?? 0,
       WorkStationID: user.WorkStationID ?? user.workStationID ?? 0,
@@ -481,20 +584,29 @@ owner = 'You';
     }
 
     const draft = JSON.parse(sessionStorage.getItem('esign_draft') || '{}');
-    const overlayRect = this.pageOverlay.nativeElement.getBoundingClientRect();
 
     // field placement -> percentages (top-left origin; backend converts to PDF points).
     // recipientClientId is REQUIRED so the server can bind each field to its signer.
-    const toPct = (f: EditorField) => ({
-      recipientClientId: f.recipientClientId,
-      fieldType: f.fieldType,
-      pageNumber: f.pageNumber,
-      xPct: (f.xPx / overlayRect.width) * 100,
-      yPct: (f.yPx / overlayRect.height) * 100,
-      widthPct: (f.widthPx / overlayRect.width) * 100,
-      heightPct: (f.heightPx / overlayRect.height) * 100,
-      isRequired: f.isRequired
-    });
+    // Uses the field's OWN page overlay when it's on the currently-displayed
+    // document (every page is in the DOM at once now, so this is exact); for a
+    // field on a document that isn't currently open, falls back to whichever
+    // overlay is rendered — the same approximation the single-overlay version
+    // used before (pages are expected to be a uniform size per upload).
+    const toPct = (f: EditorField) => {
+      const overlayEl = this.currentDoc?.documentId === f.documentId ? this.overlayElAt(f.pageNumber) : null;
+      const fallback = overlayEl ? null : this.pageOverlays?.first?.nativeElement;
+      const rect = (overlayEl || fallback)?.getBoundingClientRect() || ({ width: 1, height: 1 } as DOMRect);
+      return {
+        recipientClientId: f.recipientClientId,
+        fieldType: f.fieldType,
+        pageNumber: f.pageNumber,
+        xPct: (f.xPx / rect.width) * 100,
+        yPct: (f.yPx / rect.height) * 100,
+        widthPct: (f.widthPx / rect.width) * 100,
+        heightPct: (f.heightPx / rect.height) * 100,
+        isRequired: f.isRequired
+      };
+    };
 
     // Send one request per document that has fields (each PDF is its own signable document).
     // When NOTHING has fields at all — i.e. every recipient is copy-only — there is

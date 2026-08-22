@@ -1,5 +1,7 @@
-<!-- Document editor — rich redesign. CDK drag-drop geometry preserved:
-     #pageOverlay stays absolutely sized over the page <img> (send()/drop math depend on it).
+<!-- Document editor — rich redesign. CDK drag-drop geometry preserved per-page:
+     every page has its OWN #pageOverlay now (continuous-scroll view renders the
+     whole document at once), and onFieldDropped/onFieldMoved/startResize all
+     resolve the correct page's overlay via overlayElAt() in the component.
      All bindings kept: cdkDropList/(cdkDropListDropped), cdkDrag/(cdkDragEnded), selectField,
      deleteField, addFieldByClick, selectRecipient, [(ngModel)]="f.isRequired", pager, reject/goBack/send. -->
 <div class="editor">
@@ -12,28 +14,39 @@
         [class.active]="di === currentDocIndex" (click)="selectDocument(di)">
         <img class="di-thumb" *ngIf="doc.pages.length" [src]="doc.pages[0]" [alt]="doc.name">
         <span class="di-icon" *ngIf="!doc.pages.length">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <svg *ngIf="!loadingPages" width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor"
               stroke-width="1.7" />
             <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.7" />
           </svg>
+          <!-- small spinner while this document's pages are still being fetched -->
+          <span class="di-spinner" *ngIf="loadingPages" aria-hidden="true"></span>
         </span>
         <span class="di-info">
           <span class="di-name" [title]="doc.name">{{ doc.name }}</span>
-          <span class="di-meta">{{ doc.pages.length }} pg · {{ fieldCountFor(doc) }} field{{ fieldCountFor(doc) === 1 ?
-            '' : 's' }}</span>
+          <span class="di-meta">
+            <ng-container *ngIf="doc.pages.length; else diLoadingMeta">{{ doc.pages.length }} pg · {{ fieldCountFor(doc) }} field{{ fieldCountFor(doc) === 1 ? '' : 's' }}</ng-container>
+            <ng-template #diLoadingMeta>{{ loadingPages ? 'Loading…' : '0 pg' }}</ng-template>
+          </span>
         </span>
       </button>
     </div>
 
-    <!-- Page preview for the active document — click a thumbnail to jump to it.
-         Uses the same Aspose-rendered page images as the canvas. -->
-    <div class="doc-pages-preview" *ngIf="currentPages.length">
+    <!-- Page preview for the active document — click a thumbnail to jump/scroll to it.
+         Uses the same Aspose-rendered page images as the canvas. Shown as a grid of
+         SMALL thumbnails; a shimmering skeleton grid fills the same spot while pages
+         are still loading so it's clear something is happening, not just empty. -->
+    <div class="doc-pages-preview" *ngIf="currentPages.length || loadingPages">
       <div class="dpp-head">
         <span>Pages</span>
-        <span class="dpp-count">{{ currentPages.length }}</span>
+        <span class="dpp-count" *ngIf="currentPages.length">{{ currentPages.length }}</span>
       </div>
-      <div class="dpp-list bluescroll">
+
+      <div class="dpp-list dpp-skeleton" *ngIf="loadingPages && !currentPages.length">
+        <span class="dpp-skel" *ngFor="let s of skeletonPages"></span>
+      </div>
+
+      <div class="dpp-list bluescroll" *ngIf="currentPages.length">
         <button type="button" class="dpp-page" *ngFor="let pg of currentPages; let pi = index"
                 [class.active]="currentPage === pi + 1" (click)="goToPage(pi + 1)"
                 [attr.aria-label]="'Go to page ' + (pi + 1)" [attr.aria-current]="currentPage === pi + 1">
@@ -60,17 +73,24 @@
           }}</span>
       </div>
 
+      <!-- Page jump: type a page number and press Enter (or blur) to scroll straight to it. -->
       <div class="pager" *ngIf="currentPages.length > 1">
-        <button type="button" class="pager-btn" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1"
+        <button type="button" class="pager-btn" [disabled]="currentPage === 1 || loadingPages" (click)="goToPage(currentPage - 1)"
           aria-label="Previous page">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
               stroke-linejoin="round" />
           </svg>
         </button>
-        <span class="pager-count">{{ currentPage }} / {{ currentPages.length }}</span>
-        <button type="button" class="pager-btn" [disabled]="currentPage === currentPages.length"
-          (click)="currentPage = currentPage + 1" aria-label="Next page">
+        <span class="pager-jump">
+          <input type="number" class="pager-input" min="1" [max]="currentPages.length"
+                 [(ngModel)]="pageInputValue" [disabled]="loadingPages"
+                 (keydown.enter)="jumpToPageInput()" (blur)="jumpToPageInput()"
+                 [attr.aria-label]="'Go to page, 1 to ' + currentPages.length">
+          <span class="pager-of">/ {{ currentPages.length }}</span>
+        </span>
+        <button type="button" class="pager-btn" [disabled]="currentPage === currentPages.length || loadingPages"
+          (click)="goToPage(currentPage + 1)" aria-label="Next page">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
               stroke-linejoin="round" />
@@ -80,9 +100,9 @@
       <div class="pager single" *ngIf="currentPages.length <= 1"><span class="pager-count">1 / 1</span></div>
 
       <div class="toolbar-actions">
-        <button class="btn btn-reject" (click)="reject()">Reject</button>
+        <button class="btn btn-reject" [disabled]="loadingPages" (click)="reject()">Reject</button>
         <button class="btn btn-main-outline" (click)="goBack()">Back</button>
-        <button class="btn btn-main-fill" [disabled]="isSending" (click)="send()">
+        <button class="btn btn-main-fill" [disabled]="isSending || loadingPages" (click)="send()">
           <svg *ngIf="!isSending" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M21.5 2.5l-6.7 19-3.8-8.5L2.5 9.2l19-6.7z" stroke="#FFFFFF" stroke-width="1.6"
               stroke-linecap="round" stroke-linejoin="round" />
@@ -92,35 +112,54 @@
       </div>
     </div>
 
-    <div class="canvas-scroll bluescroll">
-      <div class="doc-canvas">
-        <!-- Aspose-rendered page image -->
-        <img *ngIf="currentPages[currentPage - 1]" [src]="currentPages[currentPage - 1]" class="doc-img"
-          alt="Document page">
+    <div class="canvas-scroll bluescroll" #canvasScroll (scroll)="onCanvasScroll()">
 
-        <!-- Drop target overlay — absolutely sized over the <img> (geometry unchanged) -->
-        <div #pageOverlay class="page-overlay" cdkDropList (cdkDropListDropped)="onFieldDropped($event, currentPage)">
-          <ng-container *ngFor="let field of placedFields">
-            <div *ngIf="isFieldOnCurrentPage(field)" cdkDrag
-                 (cdkDragEnded)="onFieldMoved($event, field)" (click)="selectField(field.tempId)"
-                 class="placed-field" [class.selected]="field.tempId === selectedFieldId"
-                 [style.left.px]="field.xPx" [style.top.px]="field.yPx"
-                 [style.width.px]="field.widthPx" [style.height.px]="field.heightPx"
-                 [style.borderColor]="recipientColor(field.recipientClientId)"
-                 [style.background]="recipientColor(field.recipientClientId) + '22'">
-              <span class="pf-label" [style.color]="recipientColor(field.recipientClientId)">{{ field.fieldType }}</span>
-              <button type="button" class="pf-remove"
-                      (click)="deleteField(field.tempId); $event.stopPropagation()" aria-label="Delete field">×</button>
-              <span class="pf-resize" (pointerdown)="startResize($event, field)"
-                    title="Drag to resize" aria-label="Resize field">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M21 9L9 21M21 15l-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-                </svg>
-              </span>
-            </div>
-          </ng-container>
-        </div>
+      <!-- loading state — shown until the document's page images arrive -->
+      <div class="doc-loading" *ngIf="loadingPages">
+        <span class="dl-spinner" aria-hidden="true"></span>
+        <p>Loading document…</p>
       </div>
+
+      <ng-container *ngIf="!loadingPages">
+        <!-- Complete document, all pages stacked and visible at once (instead of one
+             page at a time) — scroll to move through it; the pager/thumbnails jump here. -->
+        <div class="doc-page-block" *ngFor="let pg of currentPages; let pi = index; trackBy: trackByIndex"
+             #pageContainer [attr.id]="'doc-page-' + (pi + 1)">
+          <div class="doc-canvas-pagenum">Page {{ pi + 1 }} of {{ currentPages.length }}</div>
+
+          <div class="doc-canvas">
+            <!-- Aspose-rendered page image -->
+            <img [src]="pg" class="doc-img" [alt]="'Document page ' + (pi + 1)" loading="lazy">
+
+            <!-- Drop target overlay — absolutely sized over this page's <img> (geometry unchanged) -->
+            <div #pageOverlay class="page-overlay" cdkDropList (cdkDropListDropped)="onFieldDropped($event, pi + 1)">
+              <ng-container *ngFor="let field of fieldsOnPage(pi + 1)">
+                <div cdkDrag
+                     (cdkDragEnded)="onFieldMoved($event, field)" (click)="selectField(field.tempId)"
+                     class="placed-field" [class.selected]="field.tempId === selectedFieldId"
+                     [style.left.px]="field.xPx" [style.top.px]="field.yPx"
+                     [style.width.px]="field.widthPx" [style.height.px]="field.heightPx"
+                     [style.borderColor]="recipientColor(field.recipientClientId)"
+                     [style.background]="recipientColor(field.recipientClientId) + '22'">
+                  <span class="pf-label" [style.color]="recipientColor(field.recipientClientId)">{{ field.fieldType }}</span>
+                  <button type="button" class="pf-remove"
+                          (click)="deleteField(field.tempId); $event.stopPropagation()" aria-label="Delete field">×</button>
+                  <span class="pf-resize" (pointerdown)="startResize($event, field)"
+                        title="Drag to resize" aria-label="Resize field">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M21 9L9 21M21 15l-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-empty" *ngIf="!currentPages.length">
+          <p>No pages to display.</p>
+        </div>
+      </ng-container>
     </div>
   </main>
 
