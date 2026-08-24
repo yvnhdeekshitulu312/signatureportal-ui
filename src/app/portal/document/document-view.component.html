@@ -84,18 +84,29 @@
           <div class="doc-img-frame">
             <img *ngIf="pageImages[currentPage-1]" [src]="pageImages[currentPage-1]" class="doc-img" alt="Document page">
             <div class="page-overlay">
-              <div *ngFor="let f of fieldsOnPage(currentPage)"
-                  class="ro-field" [class.filled]="f.Value"
-                  [ngStyle]="boxStyle(f)"
-                  [style.borderColor]="f.Value ? '#4FCED2' : '#C0C0C0'"
-                  [style.background]="f.Value ? '#CDFCFB' : '#E5E5E522'">
-                <img *ngIf="isImageValue(f.Value)" [src]="f.Value" class="ro-img" alt="">
-                <span *ngIf="!isImageValue(f.Value) && f.Value" class="ro-text">{{ f.Value }}</span>
-                <span *ngIf="!f.Value" class="ro-await">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#969696" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#969696" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  Awaiting {{ f.FieldType }}
-                </span>
-              </div>
+              <ng-container *ngFor="let f of fieldsOnPage(currentPage)">
+                <div class="ro-field" [class.filled]="f.Value"
+                    [ngStyle]="boxStyle(f)"
+                    [style.borderColor]="f.Value ? '#4FCED2' : '#C0C0C0'"
+                    [style.background]="f.Value ? '#CDFCFB' : '#E5E5E522'">
+                  <img *ngIf="isImageValue(f.Value)" [src]="f.Value" class="ro-img" alt="">
+                  <span *ngIf="!isImageValue(f.Value) && f.Value" class="ro-text">{{ f.Value }}</span>
+                  <span *ngIf="!f.Value" class="ro-await">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#969696" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="#969696" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Awaiting {{ f.FieldType }}
+                  </span>
+                </div>
+                <!-- Name-only, and a SIBLING of .ro-field rather than nested inside it --
+                     .ro-field is sized to the field's real, sometimes narrow,
+                     WidthPct/HeightPct and clips overflow, which is fine for the short
+                     "Awaiting Signature" label above but not reliable for an
+                     unpredictable-length name on top of it. Placed here, in the
+                     unclipped .page-overlay layer, it always renders at its own
+                     natural size regardless of field width. -->
+                <div *ngIf="!f.Value && recipientFor(f.RecipientId) as rec" class="ro-await-badge" [ngStyle]="awaitBadgeStyle(f)">
+                  {{ rec.Name }}
+                </div>
+              </ng-container>
             </div>
           </div>
         </div>

@@ -40,11 +40,28 @@ export class DocumentViewComponent implements OnInit {
     console.table((doc.Fields || []).map(f => ({
       Id: (f as any).Id,
       RecipientId: f.RecipientId,
+      RecipientIdType: typeof f.RecipientId,
       FieldType: f.FieldType,
       Page: f.PageNumber,
       X: f.XPct, Y: f.YPct,
       HasValue: !!f.Value,
       ValuePreview: f.Value ? f.Value.substring(0, 30) : ''
+    })));
+
+    // Added alongside the "name not showing on Awaiting Signature" investigation:
+    // logged next to the fields table above so a RecipientId that doesn't
+    // match any recipient's Id (type mismatch, e.g. string "2" vs number 2,
+    // or a genuinely orphaned field) is obvious at a glance instead of
+    // requiring a second console command to cross-reference.
+    // eslint-disable-next-line no-console
+    console.log('[DocumentView] doc.Recipients for "' + doc.Name + '":');
+    // eslint-disable-next-line no-console
+    console.table((doc.Recipients || []).map(r => ({
+      Id: r.Id,
+      IdType: typeof r.Id,
+      Name: r.Name,
+      Email: r.Email,
+      Status: r.Status
     })));
   }
 
@@ -86,6 +103,20 @@ export class DocumentViewComponent implements OnInit {
       seen.add(key);
       return true;
     });
+  }
+
+  // Positions the "Awaiting Signature — Name" badge just below its field.
+  // Deliberately a SIBLING of .ro-field, not a child -- .ro-field is sized
+  // to the field's real (sometimes quite narrow) WidthPct/HeightPct and has
+  // overflow:hidden, so any label placed inside it is capped to that box's
+  // width. A field narrower than the label's natural content width can
+  // shrink the label's flex layout all the way to zero, making the whole
+  // label vanish (only the flex-shrink:0 icon survives) instead of merely
+  // truncating -- that's what happened before this was pulled out. As a
+  // sibling positioned in the unclipped .page-overlay, the badge renders at
+  // its own natural width regardless of how small the underlying field is.
+  awaitBadgeStyle(f: FieldSummaryDto) {
+    return { left: f.XPct + '%', top: 'calc(' + (f.YPct + f.HeightPct) + '% + 4px)' };
   }
 
   boxStyle(f: FieldSummaryDto) {

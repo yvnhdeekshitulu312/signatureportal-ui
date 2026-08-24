@@ -144,6 +144,9 @@
                      [style.borderColor]="recipientColor(field.recipientClientId)"
                      [style.background]="recipientColor(field.recipientClientId) + '22'">
                   <span class="pf-label" [style.color]="recipientColor(field.recipientClientId)">{{ field.fieldType }}</span>
+                  <span class="pf-name" *ngIf="field.fieldType === 'Signature' && recipientName(field.recipientClientId)"
+                        [style.color]="recipientColor(field.recipientClientId)"
+                        [title]="recipientName(field.recipientClientId)">{{ recipientName(field.recipientClientId) }}</span>
                   <button type="button" class="pf-remove"
                           (click)="deleteField(field.tempId); $event.stopPropagation()" aria-label="Delete field">×</button>
                   <span class="pf-resize" (pointerdown)="startResize($event, field)"
@@ -198,6 +201,12 @@
             <path d="M5 12l4 4 10-10" stroke="#1855A4" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" />
           </svg>
+          <button type="button" class="r-remove" *ngIf="recipients.length > 1"
+                  (click)="removeRecipient(r.clientId, $event)" title="Remove recipient" aria-label="Remove recipient">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+            </svg>
+          </button>
         </div>
       </div>
     </section>
@@ -308,7 +317,8 @@
 
       <div class="rm-field">
         <label class="rm-label">Full name</label>
-        <input type="text" class="rm-input" [(ngModel)]="newRecipient.name" name="newRecipName" placeholder="Full name" readonly>
+        <input type="text" class="rm-input" [(ngModel)]="newRecipient.name" name="newRecipName" placeholder="Full name"
+               [class.locked]="newRecipient.locked" [readonly]="newRecipient.locked">
       </div>
 
       <div class="rm-field">

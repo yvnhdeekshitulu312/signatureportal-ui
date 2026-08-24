@@ -102,11 +102,18 @@ $font:'Noto Kufi Arabic', sans-serif;
 
 .placed-field {
   position: absolute; border: 2px solid $brand; border-radius: 6px;
-  display: flex; align-items: center; justify-content: center; cursor: move;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  padding: 2px 6px; overflow: hidden; cursor: move;
   box-shadow: 0 2px 8px rgba(0,38,84,.14); transition: box-shadow .15s ease;
   &.selected { box-shadow: 0 0 0 3px rgba(24,85,164,.25), 0 2px 8px rgba(0,38,84,.14); }
 }
 .pf-label { font-size: 11px; font-weight: 700; white-space: nowrap; pointer-events: none; }
+/* recipient's name, shown under the Signature label so it's clear at a glance
+   whose signature block this is. */
+.pf-name {
+  font-size: 9px; font-weight: 600; line-height: 1.1; opacity: .85; pointer-events: none;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
 .pf-remove { position: absolute; top: -9px; inset-inline-end: -9px; width: 20px; height: 20px; border-radius: 99px;
   border: none; background: $navy; color: $white; font-size: 13px; line-height: 1; cursor: pointer; font-family: $font;
   display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,38,84,.3); }
@@ -149,6 +156,17 @@ $font:'Noto Kufi Arabic', sans-serif;
 .r-email { margin: 0; font-size: 11.5px; color: $gray-8; direction: ltr; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
 [dir="rtl"] .r-email { text-align: right; }
 .r-check { flex-shrink: 0; }
+
+/* remove a recipient (including ones added mid-editing via the "Add Recipient"
+   modal) directly from the right-rail list. */
+.r-remove {
+  flex-shrink: 0; width: 22px; height: 22px; padding: 0; margin-inline-start: 2px;
+  border-radius: 7px; border: none; background: transparent; color: $gray-8; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: background .15s ease, color .15s ease;
+  svg { display: block; }
+  &:hover { background: rgba(0,38,84,.08); color: $navy; }
+  &:focus-visible { outline: 2px solid $royal; outline-offset: 2px; }
+}
 
 /* "Copy only" badge — shown on recipients whose role is "Receives a copy"
    (View), signalling that no field needs to be placed for them before send. */

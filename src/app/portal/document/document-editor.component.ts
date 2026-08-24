@@ -259,6 +259,37 @@ owner = 'You';
     this.activeRecipientClientId = clientId;
   }
 
+  /** Display name for a recipient — used under the placed Signature field so
+   *  it's clear at a glance whose signature block it is. */
+  recipientName(clientId: string): string {
+    const r = this.recipients.find((r: any) => r.clientId === clientId);
+    return r?.name || '';
+  }
+
+  /** Remove a recipient from the right-rail list (including ones added mid-editing
+   *  via the "Add Recipient" modal). Also drops any fields already placed for them
+   *  and keeps sessionStorage's draft in sync. At least one recipient must remain. */
+  removeRecipient(clientId: string, event?: Event): void {
+    event?.stopPropagation();
+    if (this.recipients.length <= 1) {
+      this.toast.warning('At least one recipient is required');
+      return;
+    }
+    const removed = this.recipients.find((r: any) => r.clientId === clientId);
+    this.recipients = this.recipients.filter((r: any) => r.clientId !== clientId);
+    this.placedFields = this.placedFields.filter(f => f.recipientClientId !== clientId);
+
+    if (this.activeRecipientClientId === clientId) {
+      this.activeRecipientClientId = this.recipients[0]?.clientId ?? null;
+    }
+    if (this.selectedFieldId && !this.placedFields.some(f => f.tempId === this.selectedFieldId)) {
+      this.selectedFieldId = null;
+    }
+
+    this.persistRecipientsToDraft();
+    this.toast.success(removed?.name ? `"${removed.name}" removed` : 'Recipient removed');
+  }
+
   onFieldDropped(event: CdkDragDrop<any>, pageNumber: number): void {
     if (!this.activeRecipientClientId) { this.toast.warning('Select a recipient first'); return; }
     const paletteItem: FieldPaletteItem = event.item.data;

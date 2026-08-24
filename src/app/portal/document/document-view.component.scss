@@ -72,7 +72,22 @@ $font:'Noto Kufi Arabic', sans-serif;
 }
 .ro-img { width: 100%; height: 100%; object-fit: contain; }
 .ro-text { font-size: 12px; font-weight: 700; color: $navy; padding: 0 4px; }
+// "Awaiting Signature" alone (no name) fits inside .ro-field's box fine --
+// this is the original single-line icon+label row, unchanged.
 .ro-await { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: $gray-8; padding: 0 4px; }
+
+// Recipient name only, positioned just below the field (see awaitBadgeStyle()
+// in the component) -- deliberately NOT nested inside .ro-field, which is
+// sized to the field's real, sometimes narrow, WidthPct/HeightPct and clips
+// overflow. width: max-content sizes this badge exactly to the name, so
+// there's nothing to truncate or garble regardless of field width.
+.ro-await-badge {
+  position: absolute; z-index: 2;
+  font-size: 10.5px; font-weight: 700; color: $brand;
+ 
+  padding: 3px 8px; white-space: nowrap; width: max-content;
+  
+}
 
 .dv-pager { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
 @media (max-width: 576px) { 
