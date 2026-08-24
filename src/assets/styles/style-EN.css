@@ -1889,6 +1889,11 @@ p.label {
   padding: 1rem;
   padding-top: 0;
 }
+@media (max-width: 768px) { 
+  .main-container{
+    padding-bottom: 7rem !important;
+  }
+ }
 
 /**
 NAV LINK

@@ -75,7 +75,7 @@
           <tr>
             <th class="sortable" (click)="setSort('name')">Document name<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'name'}"></ng-container></th>
             <th class="sortable" (click)="setSort('docnum')">Document No.<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'docnum'}"></ng-container></th>
-            <th class="sortable" (click)="setSort('owner')">Owner<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'owner'}"></ng-container></th>
+            <th class="c-owner sortable" (click)="setSort('owner')">Owner<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'owner'}"></ng-container></th>
             <th class="sortable" (click)="setSort('email')">Recipient email<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'email'}"></ng-container></th>
             <th class="sortable" (click)="setSort('status')">Status<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'status'}"></ng-container></th>
             <th class="sortable" (click)="setSort('date')">Created on<ng-container *ngTemplateOutlet="sortIcon; context: {col: 'date'}"></ng-container></th>

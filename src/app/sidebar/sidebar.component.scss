@@ -11,9 +11,22 @@ $font:'Noto Kufi Arabic', sans-serif;
   height: calc(100vh - 6.5rem); width: 92px; background: $white;
   border-inline-end: 1px solid $gray-1; padding: 14px 10px;
 }
+@media (max-width: 768px) { 
+  .sidebar{
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    height: unset;
+    z-index: 111;
+  }
+ }
 
 .nav-list { display: flex; flex-direction: column; gap: 8px; list-style: none; margin: 0; padding: 0; }
-
+@media (max-width: 768px) { 
+  .nav-list{
+    flex-direction: row;
+  }
+ }
 .nav-item {
   width: 100%; font-family: $font; cursor: pointer; text-decoration: none;
   display: flex; flex-direction: column; align-items: center; gap: 7px;
@@ -36,3 +49,4 @@ $font:'Noto Kufi Arabic', sans-serif;
 
 /* wider screens can breathe a little */
 @media (min-width: 1200px) { .sidebar { width: 104px; } }
+

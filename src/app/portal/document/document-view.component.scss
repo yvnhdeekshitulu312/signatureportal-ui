@@ -27,8 +27,13 @@ $font:'Noto Kufi Arabic', sans-serif;
   padding: 8px 20px;
 }
 .dv-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+@media (max-width: 576px) { 
+  .dv-header-inner {
+    flex-direction: column;
+  }
+ }
 .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: $gray-8; }
-.dv-title { font-size: 20px; font-weight: 700; color: $navy; margin: 2px 0 0; }
+.dv-title { font-size: 20px; font-weight: 700; color: $navy; margin: 2px 0 0;word-break: break-all; }
 .dv-actions { display: flex; align-items: center; gap: 10px; }
 
 /* status chips (map from statusBadgeClass returns) */
@@ -52,6 +57,11 @@ $font:'Noto Kufi Arabic', sans-serif;
 .dv-viewer { min-width: 0; }
 .doc-canvas-wrapper { height: calc(100vh - 11rem);overflow: auto;padding:24px;}
 .doc-canvas-wrapper-pager { height: calc(100vh - 14rem);}
+@media (max-width: 576px) { 
+  .doc-canvas-wrapper-pager {
+   height: unset;
+  }
+ }
 .doc-canvas { position: relative; width: 100%; background: $white; border: 1px solid $gray-1; border-radius: 12px; box-shadow: 0 6px 26px rgba(0,38,84,.10); overflow: hidden;max-width: 780px;margin: 0 auto; }
 .doc-img { width: 100%; display: block; }
 .page-overlay { position: absolute; top: 0; inset-inline-start: 0; width: 100%; height: 100%; }
@@ -65,6 +75,11 @@ $font:'Noto Kufi Arabic', sans-serif;
 .ro-await { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: $gray-8; padding: 0 4px; }
 
 .dv-pager { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
+@media (max-width: 576px) { 
+  .dv-pager{
+    margin: 14px;
+  }
+ }
 .pager-btn { width: 32px; height: 32px;padding:unset; border-radius: 9px; border: 1px solid $gray-5; background: $white; color: $navy; display: flex; align-items: center; justify-content: center; cursor: pointer;
   &:hover:not(:disabled) { border-color: $brand; color: $brand; } &:disabled { opacity: .4; cursor: not-allowed; } }
 .pager-count { font-size: 13px; font-weight: 600; color: $gray-8; min-width: 48px; text-align: center; }
@@ -77,6 +92,12 @@ $font:'Noto Kufi Arabic', sans-serif;
   background: #fff;
   border-left: 1px solid $gray-1;
 }
+@media (max-width: 576px) {
+  .dv-side-wrapper{
+    padding: 0px;
+  }
+}
+
 .dv-side { border: 1px solid $gray-1; border-radius: 14px; overflow: hidden; background: $white; position: sticky; top: 16px; }
 .side-head { background: $brand; color: $white; padding: 13px 16px; font-size: 14px; font-weight: 700; }
 .side-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }

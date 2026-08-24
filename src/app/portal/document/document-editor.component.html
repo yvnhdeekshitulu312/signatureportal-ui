@@ -74,41 +74,43 @@
       </div>
 
       <!-- Page jump: type a page number and press Enter (or blur) to scroll straight to it. -->
-      <div class="pager" *ngIf="currentPages.length > 1">
-        <button type="button" class="pager-btn" [disabled]="currentPage === 1 || loadingPages" (click)="goToPage(currentPage - 1)"
-          aria-label="Previous page">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-        </button>
-        <span class="pager-jump">
-          <input type="number" class="pager-input" min="1" [max]="currentPages.length"
-                 [(ngModel)]="pageInputValue" [disabled]="loadingPages"
-                 (keydown.enter)="jumpToPageInput()" (blur)="jumpToPageInput()"
-                 [attr.aria-label]="'Go to page, 1 to ' + currentPages.length">
-          <span class="pager-of">/ {{ currentPages.length }}</span>
-        </span>
-        <button type="button" class="pager-btn" [disabled]="currentPage === currentPages.length || loadingPages"
-          (click)="goToPage(currentPage + 1)" aria-label="Next page">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-        </button>
-      </div>
-      <div class="pager single" *ngIf="currentPages.length <= 1"><span class="pager-count">1 / 1</span></div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="pager" *ngIf="currentPages.length > 1">
+          <button type="button" class="pager-btn" [disabled]="currentPage === 1 || loadingPages" (click)="goToPage(currentPage - 1)"
+            aria-label="Previous page">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <span class="pager-jump">
+            <input type="number" class="pager-input" min="1" [max]="currentPages.length"
+                  [(ngModel)]="pageInputValue" [disabled]="loadingPages"
+                  (keydown.enter)="jumpToPageInput()" (blur)="jumpToPageInput()"
+                  [attr.aria-label]="'Go to page, 1 to ' + currentPages.length">
+            <span class="pager-of">/ {{ currentPages.length }}</span>
+          </span>
+          <button type="button" class="pager-btn" [disabled]="currentPage === currentPages.length || loadingPages"
+            (click)="goToPage(currentPage + 1)" aria-label="Next page">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+        <div class="pager single" *ngIf="currentPages.length <= 1"><span class="pager-count">1 / 1</span></div>
 
-      <div class="toolbar-actions">
-        <button class="btn btn-reject" [disabled]="loadingPages" (click)="reject()">Reject</button>
-        <button class="btn btn-main-outline" (click)="goBack()">Back</button>
-        <button class="btn btn-main-fill" [disabled]="isSending || loadingPages" (click)="send()">
-          <svg *ngIf="!isSending" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M21.5 2.5l-6.7 19-3.8-8.5L2.5 9.2l19-6.7z" stroke="#FFFFFF" stroke-width="1.6"
-              stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          {{ isSending ? 'Sending…' : 'Send' }}
-        </button>
+        <div class="toolbar-actions">
+          <button class="btn btn-reject" [disabled]="loadingPages" (click)="reject()">Reject</button>
+          <button class="btn btn-main-outline" (click)="goBack()">Back</button>
+          <button class="btn btn-main-fill" [disabled]="isSending || loadingPages" (click)="send()">
+            <svg *ngIf="!isSending" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21.5 2.5l-6.7 19-3.8-8.5L2.5 9.2l19-6.7z" stroke="#FFFFFF" stroke-width="1.6"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            {{ isSending ? 'Sending…' : 'Send' }}
+          </button>
+        </div>
       </div>
     </div>
 

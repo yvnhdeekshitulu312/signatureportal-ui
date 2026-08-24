@@ -89,6 +89,11 @@
   gap: 14px;
   flex-shrink: 0;
 }
+@media (max-width: 768px) { 
+  .app-header__brand img{
+    height: 30px !important;
+  }
+ }
 
 .app-header__mark {
   width: 46px;
@@ -185,6 +190,14 @@
     background: var(--light-blue);
   }
 }
+@media (max-width: 768px) { 
+  .app-header__iconbtn {
+     width: 30px;
+    height: 30px;
+        padding: 7px;
+  }
+ }
+
 
 .app-header__dot {
   position: absolute;
@@ -221,6 +234,12 @@
     place-items: center;
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--teal);
 }
+@media (max-width: 768px) { 
+  .app-header__avatar {
+      width: 30px;
+      height: 30px;
+  }
+ }
 
 .app-header__user-name {
   color: #1855a4;
@@ -312,6 +331,13 @@ color: #757575;
   /* blinks only while there's a document the user hasn't seen yet */
   &.is-new { animation: notif-badge-pulse 1.4s ease-in-out infinite; }
 }
+@media (max-width: 768px) { 
+  .app-header__badge {
+      top: -4px;
+      inset-inline-end: -5px;
+  }
+ }
+
 
 /* bell "new notification" ring — a soft expanding pulse around the icon
    button, on top of the numeric badge, so it's noticeable even at a glance. */

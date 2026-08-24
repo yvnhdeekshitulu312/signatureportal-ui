@@ -163,13 +163,13 @@ details[open] .more-chevron { transform: rotate(180deg); }
 .reminder-unit { font-size: 13px; color: $gray-8; }
 .note-opt { margin-top: 16px; }
 
-@media (max-width: 720px) {
-  .recip-fields { grid-template-columns: 1fr 1fr; }
-  .opts-grid { grid-template-columns: 1fr; }
-  .sfs-title { font-size: 18px; }
-}
 @media (max-width: 900px) {
   .recip-fields { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 576px) {
+  .recip-fields { grid-template-columns: 1fr; }
+  .opts-grid { grid-template-columns: 1fr; }
+  .sfs-title { font-size: 18px; }
 }
 
 /* ===== added: multi-document upload · recipient reorder · send-in-order ===== */

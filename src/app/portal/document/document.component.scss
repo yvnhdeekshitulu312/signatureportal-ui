@@ -55,6 +55,12 @@ $font:'Noto Kufi Arabic', sans-serif !important;
 
 /* toolbar */
 .A-toolbar { display:flex; align-items:center; gap:14px; padding:0 26px 18px; flex-wrap:wrap; }
+@media (max-width: 576px) { 
+  .A-toolbar {
+     flex-direction: column;
+     align-items:start;
+  }
+ }
 .A-search {
   flex:1; min-width:200px; max-width:340px; display:flex; align-items:center; gap:9px;
   background:#f7f9fc; border:1px solid #e5e5e5; border-radius:10px; padding:10px 14px;
@@ -64,6 +70,11 @@ $font:'Noto Kufi Arabic', sans-serif !important;
     &::placeholder { color:$g8; } }
   &:focus-within { border-color:$med; background:$white; }
 }
+@media (max-width: 576px) { 
+  .A-search {
+      min-width: 100%;
+  }
+ }
 .A-seg {
   display:flex; background:#f4f6fa; border-radius:11px; padding:4px; gap:2px;
   button {
@@ -82,6 +93,14 @@ $font:'Noto Kufi Arabic', sans-serif !important;
     &.active { background:#1855a4; color:$white; }
   }
 }
+
+@media (max-width: 576px) { 
+  .A-seg  {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+  }
+ }
 
 /* From/To date range filter (added alongside the search + segmented tabs) */
 .A-daterange {
@@ -130,6 +149,11 @@ $font:'Noto Kufi Arabic', sans-serif !important;
     background:rgba(24,85,164,.05); text-align:start; font-size:13px; font-weight:700; color:$g8;
     text-transform:uppercase; letter-spacing:.06em; padding:13px 16px;
     border-top:1px solid $g1; border-bottom:2px solid $g1; white-space:nowrap;
+  }
+  @media (max-width: 786px) {
+    thead th.c-owner{
+      min-width: 200px;
+    }
   }
   /* sortable column headers — click to sort, click again to flip direction */
   thead th.sortable { cursor:pointer; user-select:none; transition:color .15s ease; }
@@ -332,7 +356,7 @@ $font:'Noto Kufi Arabic', sans-serif !important;
   padding: 0 28px 28px; position: relative; font-family: $font;
 }
 .dm-close {
-  position: absolute; top: 16px; inset-inline-end: 16px; width: 30px; height: 30px; z-index: 1;
+  position: absolute; top: 9px; inset-inline-end: 9px; width: 30px; height: 30px; z-index: 1;
   border-radius: 50%; border: none; background: rgba(255,255,255,.92); color: $navy; cursor: pointer;
   display: flex; align-items: center; justify-content: center; transition: .15s; padding: 0;
   &:hover { background: $white; }
@@ -342,11 +366,11 @@ $font:'Noto Kufi Arabic', sans-serif !important;
    16px corner radius on its top edge only. */
 .dm-head {
   display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
-  margin: 0 -28px 22px; padding: 17px 80px 0px 17px; border-radius: 16px 16px 0 0;
+  margin: 0 -28px 22px; padding: 17px 80px 10px 17px; border-radius: 16px 16px 0 0;
   background: linear-gradient(150deg, var(--dark-navy), var(--brand-blue));
   color: $white;
 }
-.dm-title { font-size: 17px; font-weight: 800; color: $white; line-height: 1.35; margin-bottom: 6px; }
+.dm-title { font-size: 17px; font-weight: 800; color: $white; line-height: 1.35; margin-bottom: 6px;word-break: break-all; }
 .dm-meta { font-size: 12px; color: $lblue; font-weight: 500; line-height: 1.6; }
 /* Document No. line in the modal — same weight treatment as the title area,
    slightly brighter than the other .dm-meta lines so it reads as an
@@ -365,6 +389,9 @@ $font:'Noto Kufi Arabic', sans-serif !important;
   &.progress { background: #6B21A8; }
 }
 .dm-statustxt { font-size: 12px; font-weight: 700; }
+@media (max-width: 520px) {
+  .dm-statustxt { font-size: 10px;}
+}
 
 /* header progress ring — % of recipients who have viewed/signed (see
    docProgressPct() in the component). Track = translucent white (so it reads
@@ -435,7 +462,8 @@ $font:'Noto Kufi Arabic', sans-serif !important;
 .dm-empty { padding: 20px 0; text-align: center; color: $g8; font-size: 12.5px; }
 
 @media (max-width: 520px) {
-  .doc-modal { padding: 20px; }
+  .doc-modal { padding: 0 20px; }
+  .dm-head{ margin: 0 -20px 22px;}
   .dm-recip-top { flex-wrap: wrap; }
   .dm-recip-pill { margin-inline-start: 47px; }
 }
