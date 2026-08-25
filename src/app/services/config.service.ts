@@ -63,9 +63,15 @@ export class ConfigService {
     return this.https.get<any>(this.hisUrl + '/FetchHospitalLocations?type=0&filter=blocked=0&UserId=0&WorkstationId=0', this.httpOptions);
   }
 
-   searchEmployees(Name: any) {
-   // return this.https.get(`${this.hisUrl}/SSEmployeeDetailsZoho`, { params: { Name } });
-    return this.https.get<any>(this.hisUrl + '/SSEmployeeDetailsZoho?Name='+ Name+'', this.httpOptions);
+  //  searchEmployees(Name: any) {
+  //  // return this.https.get(`${this.hisUrl}/SSEmployeeDetailsZoho`, { params: { Name } });
+  //   return this.https.get<any>(this.hisUrl + '/SSEmployeeDetailsZoho?Name='+ Name+'', this.httpOptions);
+  // }
+
+  searchEmployees(query: string) {
+    return this.https.get<any>(`${this.devApiUrl}/Directory/SearchEmployees`, {
+      params: { q: query }
+    });
   }
 
   validateDoctorLogin(username: string, password: string, location: string) {

@@ -159,6 +159,15 @@ getMyDocuments(email: string,EmpID:string,FromDate:string,ToDate:string): Observ
    getUserSignature(userId: number) {
     return this.http.get(`${this.baseUrl}/GetUserSignature`, { params: { userId } });
   }
+  // Token-based counterpart to getUserSignature(userId) -- for the
+  // unguarded /pendingdocuments/sign/:token page (DocumentSignPublicComponent),
+  // which has no logged-in userId. The server resolves accessToken -> the
+  // recipient's own email -> their saved signature (see
+  // EsignService.GetUserSignatureForTokenAsync). Same response shape as
+  // getUserSignature (SignatureBase64/InitialBase64/StampBase64).
+  getUserSignatureToken(Token: string) {
+    return this.http.get(`${this.baseUrl}/GetUserSignatureToken`, { params: { Token } });
+  }
   saveUserSignature(payload: any) {
     return this.http.post(`${this.baseUrl}/SaveUserSignature`, payload);
   }

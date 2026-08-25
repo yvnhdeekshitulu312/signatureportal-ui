@@ -88,6 +88,14 @@
           <input *ngIf="f.FieldType === 'Checkbox'" type="checkbox" [checked]="fieldValues[f.Id] === 'true'"
             (click)="$event.stopPropagation()" (change)="onFieldClick(f)">
 
+          <!-- TEXT -- free-typed directly into the field, no modal (unlike
+               Signature/Stamp/DateTime): the box itself becomes the input.
+               Previously had NO branch here at all, so a Text field just sat
+               there as an empty, unclickable box -- see
+               document-sign-public.component.html's matching fix. -->
+          <input *ngIf="f.FieldType === 'Text'" type="text" class="sign-field-text-input"
+            [(ngModel)]="fieldValues[f.Id]" (click)="$event.stopPropagation()" placeholder="Type here">
+
           <span *ngIf="f.FieldType === 'DateTime' && !isFilled(f.Id)" class="small text-nowrap">Click to select date</span>
           <span *ngIf="f.FieldType === 'DateTime' && isFilled(f.Id)" class="small">{{ fieldValues[f.Id] }}</span>
         </div>
@@ -269,6 +277,13 @@
     min-width: 150px;
     min-height: 52px;
   }
+
+  .sign-field-text-input {
+    width: 100%; height: 100%; border: none; background: transparent; outline: none;
+    font-family: 'Noto Kufi Arabic', sans-serif; font-size: 13px; color: #002654;
+    text-align: center; padding: 0 6px;
+  }
+  .sign-field-text-input::placeholder { color: #969696; }
   .btn-link{
     width: 32px;
     height: 32px;

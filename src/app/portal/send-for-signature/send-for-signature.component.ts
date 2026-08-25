@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EsignService } from '../../services/esign.service';
 import { ConfigService } from '../../services/config.service';
 import { ToastService } from 'src/app/toast.service';
+import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 interface UploadedDoc {
   documentId: number;
   name: string;
@@ -16,6 +17,7 @@ interface UploadedDoc {
   styleUrls: ['./send-for-signature.component.scss']   // ← added (was template-only)
 })
 export class SendForSignatureComponent implements OnInit {
+  private searchTerm$ = new Subject<{ index: number; term: string }>();
   form!: FormGroup;
 
   // Multiple documents — each PDF uploaded becomes one UploadedDoc.
@@ -69,6 +71,25 @@ export class SendForSignatureComponent implements OnInit {
     if (resumeId) {
       this.resumeDraft(resumeId);
     }
+
+    this.searchTerm$.pipe(
+      debounceTime(300),
+      distinctUntilChanged((a, b) => a.term === b.term && a.index === b.index),
+      switchMap(({ index, term }) => {
+        if (this.recipients.at(index)?.get('locked')?.value || term.length < 2) {
+          return of({ index, results: [] as any[] });
+        }
+        this.searchingEmp = true;
+        return this.ConfigService.searchEmployees(term).pipe(
+          map((list: any) => ({ index, results: list.SSEmployeeDetailsZohoDataList || [] })),
+          catchError(() => of({ index, results: [] as any[] }))
+        );
+      })
+    ).subscribe(({ index, results }) => {
+      this.suggestFor = index;
+      this.empSuggestions = results;
+      this.searchingEmp = false;
+    });
   }
 
   private resumeDraft(documentId: number): void {
@@ -268,35 +289,42 @@ export class SendForSignatureComponent implements OnInit {
   // ── employee smart-search ──
   // Type a name in the Email box → look up matching staff → pick one to fill
   // email + name. Uses (mousedown) on options so the pick fires before blur.
+  // onEmpSearch(i: number, term: string): void {
+  //   // once a recipient is locked in from smart-search, don't search again
+  //   if (this.recipients.at(i)?.get('locked')?.value) {
+  //     this.empSuggestions = [];
+  //     this.suggestFor = null;
+  //     this.searchingEmp = false;
+  //     return;
+  //   }
+  //   const q = (term || '').trim();
+  //   this.suggestFor = i;
+  //   clearTimeout(this.searchTimer);
+  //   if (q.length < 2) { this.empSuggestions = []; this.searchingEmp = false; return; }
+
+  //   this.searchTimer = setTimeout(() => {
+  //     this.searchingEmp = true;
+  //     this.ConfigService.searchEmployees(q).subscribe({
+  //       next: (list: any) => {
+  //         //const loggedInEmail = (localStorage.getItem('authUserName') || '').toLowerCase();
+  //         const results = list.SSEmployeeDetailsZohoDataList || [];
+
+  //         // this.empSuggestions = results.filter(
+  //         //   (emp: any) => (emp.Email || '').toLowerCase() !== loggedInEmail
+  //         // );
+  //         this.empSuggestions = results;
+  //         this.searchingEmp = false;
+  //       },
+  //       error: () => { this.empSuggestions = []; this.searchingEmp = false; }
+  //     });
+  //   }, 300);
+  // }
+
   onEmpSearch(i: number, term: string): void {
-    // once a recipient is locked in from smart-search, don't search again
-    if (this.recipients.at(i)?.get('locked')?.value) {
-      this.empSuggestions = [];
-      this.suggestFor = null;
-      this.searchingEmp = false;
-      return;
-    }
     const q = (term || '').trim();
     this.suggestFor = i;
-    clearTimeout(this.searchTimer);
-    if (q.length < 2) { this.empSuggestions = []; this.searchingEmp = false; return; }
-
-    this.searchTimer = setTimeout(() => {
-      this.searchingEmp = true;
-      this.ConfigService.searchEmployees(q).subscribe({
-        next: (list: any) => {
-          //const loggedInEmail = (localStorage.getItem('authUserName') || '').toLowerCase();
-          const results = list.SSEmployeeDetailsZohoDataList || [];
-
-          // this.empSuggestions = results.filter(
-          //   (emp: any) => (emp.Email || '').toLowerCase() !== loggedInEmail
-          // );
-          this.empSuggestions = results;
-          this.searchingEmp = false;
-        },
-        error: () => { this.empSuggestions = []; this.searchingEmp = false; }
-      });
-    }, 300);
+    if (q.length < 2) { this.empSuggestions = []; return; }
+    this.searchTerm$.next({ index: i, term: q });
   }
 
   selectEmployee(i: number, emp: any): void {
