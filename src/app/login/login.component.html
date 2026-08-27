@@ -141,7 +141,7 @@
               <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
             </svg>
             <input type="text" formControlName="UserName"
-              [placeholder]="selectedLang?.code === 'ar' ? 'مثال: ص.كومار' : 'e.g. p.kumar'">
+              [placeholder]="selectedLang?.code === 'ar' ? 'مثال: ص.كومار' : 'User Name'">
           </div>
           <div class="lv-field-err"
             *ngIf="(isSubmitted && loginForm.get('UserName')?.errors) || (!loginForm.get('UserName')?.pristine && loginForm.get('UserName')?.invalid)">
@@ -198,7 +198,7 @@
         <button class="lv-login" type="submit">{{ selectedLang?.code === 'ar' ? 'تسجيل الدخول' : 'Login' }}</button>
       </form>
 
-      <div class="lv-badges">
+      <div class="lv-badges d-none">
         <div class="lv-badge">{{ selectedLang?.code === 'ar' ? 'السويدي' : 'SUWAIDI' }}</div>
         <div class="lv-badge">{{ selectedLang?.code === 'ar' ? 'النزهة' : 'NUZHA' }}</div>
        

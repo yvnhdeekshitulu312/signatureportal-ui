@@ -21,6 +21,7 @@ export class DocumentComponent implements OnInit {
   owner = 'You';
   Email:any;
     EmpID:any;
+      HammadiSignAdmin:any;
   // Admin toggle — when ON, EmpID is sent as 0 (all employees); when OFF,
   // the logged-in user's own EmpID is sent (their documents only).
   isAdmin = false;
@@ -60,6 +61,7 @@ export class DocumentComponent implements OnInit {
       this.owner = d?.Name || d?.FullName || d?.EmployeeName || d?.DoctorName || d?.UserName || 'You';
        this.Email=d?.EmpEmail;
        this.EmpID=d?.EmpId;
+       this.HammadiSignAdmin = d?.HammadiSignAdmin;
     } catch { /* keep default */ }
     const today = new Date();
     const past = new Date();

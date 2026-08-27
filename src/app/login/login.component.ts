@@ -87,11 +87,17 @@ export class LoginComponent implements OnInit, OnDestroy {
       Location: ['', Validators.required]
     });
     this.FetchFetchHospitalLocations();
+     this.getUserLocation();
 
     // Capture the returnUrl the AuthGuard attached when it bounced an
     // unauthenticated visit to a protected deep link (e.g. a document's
     // sign page opened from an email) back to /login.
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+  }
+  getUserLocation() {
+    this.loginForm.get('Location')?.setValue(2);
+    return;
+    
   }
 
   FetchFetchHospitalLocations() {
@@ -100,6 +106,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.locationList = response.HospitalLocationsDataList;
         if (response.HospitalLocationsDataList.length == 1) {
           this.loginForm.get('Location')?.setValue(response.HospitalLocationsDataList[0].HospitalID);
+          
         }
       } else {
       }
@@ -178,6 +185,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         localStorage.setItem('doctorDetails', JSON.stringify(user));
         localStorage.setItem('hospitalId', this.loginForm.get('Location').value);
         localStorage.setItem('isLoggedIn', 'true');
+         localStorage.setItem('HammadiSignAdmin', user.HammadiSignAdmin);
         // Go back to whatever protected page the user was originally trying
         // to reach (returnUrl), or the normal dashboard if there wasn't one.
         this.router.navigateByUrl(this.returnUrl);

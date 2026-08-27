@@ -9,7 +9,7 @@
       <span class="dv-eyebrow"><span class="dot"></span> Live · Suwaidi &amp; Nuzha</span>
       <h1>Send documents for signature — securely, internally.</h1>
       <p>Upload a PDF, place signature fields, and route it to colleagues to sign via SSO. Documents never leave internal storage.</p>
-      <div class="dv-hero-btns">
+      <div class="dv-hero-btns d-none">
         <button type="button" class="dv-btn teal" (click)="gotoSignature()">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
           Send for signatures
@@ -113,7 +113,7 @@
   <div class="dv-panel">
     <div class="dv-panel-head">
       <h3>Recent documents</h3>
-      <div class="dv-panel-head-actions">
+      <div class="dv-panel-head-actions" *ngIf="HammadiSignAdmin=='YES'">
         <label class="dv-admin-toggle">
           <input type="checkbox" [(ngModel)]="isAdmin" (ngModelChange)="onAdminToggle()">
           <span class="dv-admin-track"><span class="dv-admin-thumb"></span></span>
