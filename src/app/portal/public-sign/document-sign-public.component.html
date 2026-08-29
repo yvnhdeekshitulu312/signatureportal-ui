@@ -126,7 +126,19 @@
 
       <div *ngIf="hasConsented && loading" class="psign-card psign-state">Loading document…</div>
 
-      <div *ngIf="hasConsented && !loading && doc">
+      <!-- ===== Already signed — this recipient's own SignedOn (from GetForSigner)
+           is already populated, meaning they completed signing via this same
+           link before. Shown instead of the fields/signing UI below. ===== -->
+      <div *ngIf="hasConsented && !loading && doc && alreadySigned" class="psign-card psign-state psign-state-success">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="#4FCED2" stroke-width="1.6"/>
+          <path d="M8.5 12.5l2.5 2.5 5-5" stroke="#4FCED2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h2>Already signed</h2>
+        <p>This document was already signed on {{ alreadySignedOnFormatted }}. You can close this page now.</p>
+      </div>
+
+      <div *ngIf="hasConsented && !loading && doc && !alreadySigned">
         <div class="sign-header">
           <h5 class="m-0">Sign: {{ doc?.Name || 'Document' }}</h5>
           <button class="btn btn-main-fill" [disabled]="isSubmitting || !allRequiredFilled()" (click)="submit()">

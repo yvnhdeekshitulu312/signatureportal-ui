@@ -68,6 +68,13 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
   // reason: nowhere authenticated to navigate this signer to afterwards.
   signedSuccessfully = false;
 
+  // Set from GetForSigner's response when THIS recipient's own "SignedOn" is
+  // already populated (non-null) -- i.e. they used this link once before and
+  // already completed signing. Shown instead of the signing form/fields, same
+  // reasoning as signedSuccessfully above (nowhere authenticated to send them).
+  alreadySigned = false;
+  alreadySignedOn: string | null = null;
+
   activeDateTimeFieldId: number | null = null;
   dateTimeValue = '';
 
@@ -169,12 +176,34 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
   private loadDocument(): void {
     this.loading = true;
     this.esignService.getDocumentForSigner(this.token).subscribe({
-      next: (doc) => { this.doc = doc; this.loading = false; },
+      next: (doc) => {
+        this.doc = doc;
+        this.loading = false;
+
+        // GetForSigner scopes Recipients to just this token's recipient (see
+        // the header comment above) -- a non-null SignedOn there means they
+        // already completed signing via this same link previously.
+        const recipients: any[] = (doc as any)?.Recipients || [];
+        const mine = recipients.find((r: any) => !!r?.SignedOn) || recipients[0];
+        if (mine?.SignedOn) {
+          this.alreadySigned = true;
+          this.alreadySignedOn = mine.SignedOn;
+        }
+      },
       error: (err: any) => {
         this.loading = false;
         this.loadError = err?.error?.Message || 'This signing link is invalid or has expired. Please ask the sender for a new one.';
       }
     });
+  }
+
+  /** "8/29/2026 1:36:37 PM" (the server's raw SignedOn string) formatted the
+   *  same way applyDateTime() already renders a DateTime field's value. */
+  get alreadySignedOnFormatted(): string {
+    if (!this.alreadySignedOn) { return ''; }
+    const d = new Date(this.alreadySignedOn);
+    if (isNaN(d.getTime())) { return this.alreadySignedOn; }
+    return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
   get pageImages(): string[] {

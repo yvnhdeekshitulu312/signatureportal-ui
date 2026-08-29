@@ -6,20 +6,20 @@ export const environment = {
 //   production: true,
 //   //esignApiUrl: 'http://localhost:54166/API/Esign',
 //   esignApiUrl: 'https://his.alhammadi.med.sa/ZOHOAPI/API/Esign',
-//   clinicalApiUrl: 'https://his.alhammadi.med.sa/ClinicalsAPIDev/API' //local
+//   clinicalApiUrl: 'https://his.alhammadi.med.sa/ClinicalsAPI/API' //local
 // };
 //KPI Cloud
-export const config = {
-  production: true,
-  esignApiUrl: 'https://kpi.alhammadi.med.sa/HammadiSignAPI/API/Esign',
-  clinicalApiUrl: 'https://kpi.alhammadi.med.sa/ClinicalsAPI/API/' 
-};
-
-// //KPI Cloud
 // export const config = {
 //   production: true,
 //   esignApiUrl: 'https://kpi.alhammadi.med.sa/HammadiSignAPI/API/Esign',
-//   clinicalApiUrl: 'http://kpi.alhammadi.med.sa/ClinicalsAPI/API/' 
+//   clinicalApiUrl: 'https://kpi.alhammadi.med.sa/ClinicalsAPI/API/' 
 // };
+
+// //KPI Cloud build
+export const config = {
+  production: true,
+  esignApiUrl: 'https://kpi.alhammadi.med.sa/HammadiSignAPI/API/Esign',
+  clinicalApiUrl: 'http://kpi.alhammadi.med.sa/ClinicalsAPI/API/' 
+};
 
 
