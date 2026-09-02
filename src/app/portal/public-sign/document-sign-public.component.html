@@ -148,7 +148,20 @@
         <p>This document was already signed on {{ alreadySignedOnFormatted }}. You can close this page now.</p>
       </div>
 
-      <div *ngIf="hasConsented && !loading && doc && !alreadySigned">
+      <!-- ===== Already rejected — this recipient's own Status (from
+           GetForSigner) is already 'Rejected', meaning they declined via
+           this same link before. Shown instead of the fields/signing UI
+           below, same reasoning as "Already signed" above. ===== -->
+      <div *ngIf="hasConsented && !loading && doc && !alreadySigned && alreadyRejected" class="psign-card psign-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="#969696" stroke-width="1.6"/>
+          <path d="M9 9l6 6M15 9l-6 6" stroke="#969696" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <h2>Document rejected</h2>
+        <p>You've already declined to sign this document. You can close this page now.</p>
+      </div>
+
+      <div *ngIf="hasConsented && !loading && doc && !alreadySigned && !alreadyRejected">
         <div class="sign-header">
           <h5 class="m-0">Sign: {{ doc?.Name || 'Document' }}</h5>
           <div class="d-flex gap-2">

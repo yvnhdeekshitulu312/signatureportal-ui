@@ -125,7 +125,8 @@
             </td>
             <td>
               <span class="A-status" [class.completed]="statusTone(d.Status)==='done'"
-                [class.draft]="statusTone(d.Status)==='draft'" [class.pending]="statusTone(d.Status)==='progress'">
+                [class.draft]="statusTone(d.Status)==='draft'" [class.pending]="statusTone(d.Status)==='progress'"
+                [class.rejected]="statusTone(d.Status)==='rejected'">
                 <span class="A-dot"></span>{{ d.Status }}
               </span>
             </td>

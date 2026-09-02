@@ -5,7 +5,7 @@ import { EsignService } from 'src/app/services/esign.service';
 import { ConfirmDeleteModalComponent } from '../confirm-delete-modal.component';
 import { ToastService } from 'src/app/toast.service';
 
-type StatusTone = 'draft' | 'progress' | 'done' | 'default';
+type StatusTone = 'draft' | 'progress' | 'done' | 'rejected' | 'default';
 
 @Component({
   selector: 'app-documents',
@@ -282,6 +282,17 @@ export class DocumentComponent implements OnInit {
 
   statusTone(status: string): StatusTone {
     const s = (status || '').toLowerCase();
+    // Checked before the 'done'/'progress' checks below so a rejected
+    // document can never accidentally fall into either of those. Previously
+    // there was no rejected-specific branch at all, so 'Rejected' fell all
+    // the way through to the 'default' tone -- which the table (see
+    // statusPill()/the [class.*] bindings in document.component.html) had no
+    // pill styling for at all, leaving it either unstyled or, in the
+    // dashboard's separate (and differently-ordered) statusClass() logic,
+    // landing in the same amber/cream bucket as an actual PENDING request --
+    // making an already-declined document look like one still awaiting
+    // signature.
+    if (s.includes('reject')) return 'rejected';
     if (s.includes('complet') || s.includes('signed')) return 'done';
     if (s.includes('draft')) return 'draft';
     if (s.includes('progress') || s.includes('sent') || s.includes('pending')) return 'progress';
@@ -396,7 +407,7 @@ export class DocumentComponent implements OnInit {
   bulkTodo(_action: string): void { /* no-op placeholder */ }
 
   // Map statusTone() to the pill class names used in the template.
-  statusPill(status: string): 'draft' | 'progress' | 'completed' | 'default' {
+  statusPill(status: string): 'draft' | 'progress' | 'completed' | 'rejected' | 'default' {
     const t = this.statusTone(status);
     return t === 'done' ? 'completed' : t;
   }
@@ -465,11 +476,15 @@ export class DocumentComponent implements OnInit {
   /** Maps this page's own statusTone() to the dashboard modal's colour-class
    *  names, so the same dm-statusicon styling (signed/progress/pending/draft)
    *  used on the dashboard applies here too. */
-  statusClass(d: any): 'signed' | 'progress' | 'pending' | 'draft' {
+  statusClass(d: any): 'signed' | 'progress' | 'pending' | 'draft' | 'rejected' {
     const t = this.statusTone(d?.Status);
     if (t === 'done') { return 'signed'; }
     if (t === 'progress') { return 'progress'; }
     if (t === 'draft') { return 'draft'; }
+    // Previously fell all the way through to 'pending' here too (there was
+    // no rejected check at all), so a rejected document's modal header dot
+    // showed the same colour as one still awaiting signature.
+    if (t === 'rejected') { return 'rejected'; }
     return 'pending';
   }
 

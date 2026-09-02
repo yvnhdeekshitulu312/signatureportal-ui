@@ -108,7 +108,8 @@ export class DashboardComponent implements OnInit {
   private statusOf(d: DocumentDetailResponse): string { return (d.Status || '').toLowerCase(); }
   isSigned(d: DocumentDetailResponse): boolean { return this.statusOf(d).includes('complet') || this.statusOf(d).includes('sign'); }
   isProgress(d: DocumentDetailResponse): boolean { return this.statusOf(d).includes('progress'); }
-  isPending(d: DocumentDetailResponse): boolean { return !this.isSigned(d) && !this.isProgress(d); }
+  isRejected(d: DocumentDetailResponse): boolean { return this.statusOf(d).includes('reject'); }
+  isPending(d: DocumentDetailResponse): boolean { return !this.isSigned(d) && !this.isProgress(d) && !this.isRejected(d); }
 
   get totalCount(): number { return this.recentDocs.length; }
   get pendingCount(): number { return this.myPending.length; }
@@ -216,10 +217,18 @@ export class DashboardComponent implements OnInit {
     const n: string = r?.Name || '';
     return n.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '—';
   }
-  statusClass(d: DocumentDetailResponse): 'signed' | 'progress' | 'pending' | 'draft' {
+  statusClass(d: DocumentDetailResponse): 'signed' | 'progress' | 'pending' | 'draft' | 'rejected' {
     if (this.isSigned(d)) return 'signed';
     if (this.isProgress(d)) return 'progress';
     if (this.statusOf(d).includes('draft')) return 'draft';
+    // THE BUG: there was no rejected check here at all, so a rejected
+    // document fell all the way through to `return 'pending'` -- giving it
+    // the exact same amber/cream ".dv-pill.pending" styling as a document
+    // that's still genuinely awaiting someone's signature. That's what was
+    // showing "REJECTED" in the pending colour on both the dashboard's
+    // Recent Documents table and its detail-modal status dot (dm-statusicon
+    // uses this same statusClass() return value).
+    if (this.isRejected(d)) return 'rejected';
     return 'pending';
   }
 

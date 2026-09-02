@@ -75,6 +75,15 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
   alreadySigned = false;
   alreadySignedOn: string | null = null;
 
+  // Same idea as alreadySigned above, but for this recipient's own Status
+  // (from GetForSigner's Recipients array) already being 'Rejected' -- i.e.
+  // they declined via this same link before. Shown instead of the
+  // fields/signing UI below, same reasoning as alreadySigned. Before this,
+  // there was no client-side check for this at all: a signer who had
+  // already rejected could reopen their link and still see (and use) the
+  // full signing form, including Submit.
+  alreadyRejected = false;
+
   // ── Reject flow ──
   // Set once reject() succeeds -- shown instead of the document, same
   // reasoning as signedSuccessfully above (nowhere authenticated to send them).
@@ -245,6 +254,15 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
           this.alreadySigned = true;
           this.alreadySignedOn = mine.SignedOn;
         }
+
+        // Same recipient-scoping reasoning as alreadySigned above (`mine`,
+        // not "any recipient on the document") -- this recipient's own
+        // Status coming back as 'Rejected' means THEY already declined via
+        // this link, regardless of what any other recipient on the document
+        // has done.
+        if (mine?.Status === 'Rejected') {
+          this.alreadyRejected = true;
+        }
       },
       error: (err: any) => {
         this.loading = false;
@@ -397,8 +415,24 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
     const fieldValues = Object.keys(this.fieldValues).map(id => ({ fieldId: Number(id), value: this.fieldValues[Number(id)] }));
     this.isSubmitting = true;
     this.esignService.sign(this.token, fieldValues).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isSubmitting = false;
+
+        // SAME TRAP as loadDocument()'s doc-load fix above: EsignController.Sign
+        // catches an InvalidOperationException (e.g. the server's own
+        // duplicate-sign guard -- "already signed", and now also "this
+        // document was already rejected and can't be signed") and still
+        // returns HTTP 200 OK with the error envelope ({Code, Status,
+        // Message}), not a non-2xx status. Without checking the body here,
+        // THIS `next` callback ran unconditionally and always set
+        // signedSuccessfully = true -- so a signer who, say, revisited a
+        // link after already rejecting it would see "Document signed"
+        // regardless of what the server actually did.
+        if (res && (res.Code === 'Fail' || res.Status === 'Fail')) {
+          this.toast.error(res?.Message || 'Failed to sign document. Please try again.', { title: 'Error' });
+          return;
+        }
+
         this.signedSuccessfully = true;
       },
       error: (err: any) => {
@@ -434,8 +468,16 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
 
     this.isRejecting = true;
     this.esignService.reject(this.token, reason).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isRejecting = false;
+
+        // Same 200-OK-with-error-envelope trap as submit() above -- check
+        // before declaring success.
+        if (res && (res.Code === 'Fail' || res.Status === 'Fail')) {
+          this.toast.error(res?.Message || 'Failed to reject document. Please try again.', { title: 'Error' });
+          return;
+        }
+
         this.showRejectModal = false;
         this.rejectedSuccessfully = true;
       },
