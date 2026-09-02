@@ -456,15 +456,27 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
     this.showRejectModal = false;
   }
 
+  // Shown to the sender (in the rejection email/audit trail/EsignRejections
+  // row) whenever the signer rejects without typing anything -- remarks are
+  // optional, not required, so submitReject() below no longer blocks on an
+  // empty textarea. Kept as a named constant rather than inlined so the
+  // exact wording only needs to change in one place.
+  private readonly defaultRejectReason = 'No reason provided.';
+
   /** POSTs to API/Esign/Reject (EsignController.Reject -> EsignService.RejectAsync),
    *  same accessToken this whole page runs on. The server records the remarks
    *  (EsignRecipient.RejectReason + a permanent row in EsignRejections -- see
    *  PR_EsignAddRejection), marks the recipient Rejected, and marks the whole
-   *  document Rejected. */
+   *  document Rejected.
+   *
+   *  Remarks are OPTIONAL: previously this blocked with a warning toast and
+   *  refused to submit at all when the textarea was empty. Now an empty
+   *  entry just sends defaultRejectReason instead of the signer's own text,
+   *  so the sender/audit trail still always has *something* readable in the
+   *  Reason field rather than a blank or null value. */
   submitReject(): void {
     if (this.isRejecting) { return; }
-    const reason = (this.rejectReason || '').trim();
-    if (!reason) { this.toast.warning('Please enter a reason for rejecting this document.'); return; }
+    const reason = (this.rejectReason || '').trim() || this.defaultRejectReason;
 
     this.isRejecting = true;
     this.esignService.reject(this.token, reason).subscribe({

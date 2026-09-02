@@ -325,12 +325,12 @@
       <div *ngIf="showRejectModal" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.5); z-index: 1050;">
         <div class="bg-white rounded-3 p-3" style="width: 420px;">
           <h6>Reject document</h6>
-          <p class="small text-muted mb-2">Please tell the sender why you're rejecting this document.</p>
-          <textarea class="form-control" rows="4" placeholder="Reason for rejection"
+          <p class="small text-muted mb-2">Optionally tell the sender why you're rejecting this document.</p>
+          <textarea class="form-control" rows="4" placeholder="Reason for rejection (optional)"
                     [(ngModel)]="rejectReason" [disabled]="isRejecting"></textarea>
           <div class="d-flex justify-content-end mt-3 gap-2">
             <button class="btn btn-main-outline btn-sm" [disabled]="isRejecting" (click)="closeRejectModal()">Cancel</button>
-            <button class="btn btn-main-fill btn-sm" [disabled]="isRejecting || !rejectReason.trim()" (click)="submitReject()">
+            <button class="btn btn-main-fill btn-sm" [disabled]="isRejecting" (click)="submitReject()">
               {{ isRejecting ? 'Rejecting…' : 'Reject Document' }}
             </button>
           </div>
