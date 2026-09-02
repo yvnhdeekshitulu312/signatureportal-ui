@@ -107,7 +107,17 @@
       <p>Thank you — your signature has been recorded. You can close this page now.</p>
     </div>
 
-    <ng-container *ngIf="!loadError && !signedSuccessfully">
+    <!-- ===== Rejected successfully ===== -->
+    <div *ngIf="rejectedSuccessfully" class="psign-card psign-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="#969696" stroke-width="1.6"/>
+        <path d="M9 9l6 6M15 9l-6 6" stroke="#969696" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <h2>Document rejected</h2>
+      <p>You've declined to sign this document, and your remarks have been recorded. The sender has been notified. You can close this page now.</p>
+    </div>
+
+    <ng-container *ngIf="!loadError && !signedSuccessfully && !rejectedSuccessfully">
 
       <!-- ===== Electronic Record and Signature Disclosure — consent gate ===== -->
       <div *ngIf="!hasConsented" class="psign-card consent-bar">
@@ -141,9 +151,14 @@
       <div *ngIf="hasConsented && !loading && doc && !alreadySigned">
         <div class="sign-header">
           <h5 class="m-0">Sign: {{ doc?.Name || 'Document' }}</h5>
-          <button class="btn btn-main-fill" [disabled]="isSubmitting || !allRequiredFilled()" (click)="submit()">
-            Submit Signed Document
-          </button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-danger-outline" [disabled]="isSubmitting" (click)="openRejectModal()">
+              Reject
+            </button>
+            <button class="btn btn-main-fill" [disabled]="isSubmitting || !allRequiredFilled()" (click)="submit()">
+              Submit Signed Document
+            </button>
+          </div>
         </div>
 
         <div class="d-flex align-items-start gap-3">
@@ -289,6 +304,22 @@
           <div class="d-flex justify-content-end mt-3">
             <button class="btn btn-danger-outline btn-sm me-2" (click)="cancelDateTime()">Cancel</button>
             <button class="btn btn-main-fill btn-sm" (click)="applyDateTime()">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reject modal -->
+      <div *ngIf="showRejectModal" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.5); z-index: 1050;">
+        <div class="bg-white rounded-3 p-3" style="width: 420px;">
+          <h6>Reject document</h6>
+          <p class="small text-muted mb-2">Please tell the sender why you're rejecting this document.</p>
+          <textarea class="form-control" rows="4" placeholder="Reason for rejection"
+                    [(ngModel)]="rejectReason" [disabled]="isRejecting"></textarea>
+          <div class="d-flex justify-content-end mt-3 gap-2">
+            <button class="btn btn-main-outline btn-sm" [disabled]="isRejecting" (click)="closeRejectModal()">Cancel</button>
+            <button class="btn btn-main-fill btn-sm" [disabled]="isRejecting || !rejectReason.trim()" (click)="submitReject()">
+              {{ isRejecting ? 'Rejecting…' : 'Reject Document' }}
+            </button>
           </div>
         </div>
       </div>

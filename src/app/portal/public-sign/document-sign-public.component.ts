@@ -75,6 +75,14 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
   alreadySigned = false;
   alreadySignedOn: string | null = null;
 
+  // ── Reject flow ──
+  // Set once reject() succeeds -- shown instead of the document, same
+  // reasoning as signedSuccessfully above (nowhere authenticated to send them).
+  showRejectModal = false;
+  rejectReason = '';
+  isRejecting = false;
+  rejectedSuccessfully = false;
+
   activeDateTimeFieldId: number | null = null;
   dateTimeValue = '';
 
@@ -177,14 +185,62 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.esignService.getDocumentForSigner(this.token).subscribe({
       next: (doc) => {
-        this.doc = doc;
         this.loading = false;
 
-        // GetForSigner scopes Recipients to just this token's recipient (see
-        // the header comment above) -- a non-null SignedOn there means they
-        // already completed signing via this same link previously.
+        // DEFENSE IN DEPTH: EsignController.GetForSigner catches ANY exception
+        // thrown by GetDocumentForSignerAsync (bad token, expired link, a DB
+        // failure while recording the first-view 'Viewed' status, anything)
+        // and STILL returns HTTP 200 OK -- just with the error envelope
+        // ({Code, Status, Message}, see objBase/SetErrorObject) instead of a
+        // real DocumentDetailResponse (see the `catch` blocks in
+        // EsignController.cs, every one of which ends in
+        // `return OkOrNotFound(objBase);`). Angular's HttpClient sees "200 OK"
+        // and calls THIS `next` callback, not `error` below -- so a
+        // server-side failure here never used to reach the `error` handler at
+        // all, it arrived right here disguised as success.
+        //
+        // A real DocumentDetailResponse always has a Fields array (empty at
+        // worst); the error envelope never does -- that's what distinguishes
+        // them. Without this check, `this.doc` got set to the error envelope,
+        // which is truthy, so every `*ngIf="... && doc && ..."` guard in the
+        // template was satisfied and it tried to render the signing UI --
+        // then `fieldsOnPage()`'s `this.doc.Fields.filter(...)` below threw on
+        // the missing Fields and silently broke the rest of the render. THAT
+        // was the actual mechanism behind "nothing loads at all, reject
+        // button included" whenever the server-side call failed -- most
+        // often on a brand-new/never-before-opened link, since that's the one
+        // case where GetDocumentForSignerAsync does an extra one-time DB
+        // write (the Sent -> Viewed transition) that could throw.
+        if (!doc || !Array.isArray((doc as any)?.Fields)) {
+          this.loadError = (doc as any)?.Message
+            || 'This signing link is invalid or has expired. Please ask the sender for a new one.';
+          return;
+        }
+
+        this.doc = doc;
+
+        // BUG FIX: GetForSigner's Fields array IS scoped to just this token's
+        // recipient (server-side restrictToRecipientId), but its Recipients
+        // array is NOT -- it lists every recipient on the whole document.
+        // Picking "the first recipient with a SignedOn" out of that list, as
+        // this used to do, meant that on any multi-recipient document where
+        // SOME OTHER recipient had already signed, a genuinely new/unsigned
+        // request would get flagged alreadySigned=true here too -- hiding the
+        // entire signing/reject UI (including the Reject button) even though
+        // THIS recipient hadn't done anything yet.
+        //
+        // Fix: resolve MY OWN recipientId from my own (correctly-scoped)
+        // fields first, then look only that recipient up. If this recipient
+        // has zero fields (e.g. a copy-only "View" role, or a Sign recipient
+        // with no field placed yet), this deliberately falls back to NOT
+        // flagging alreadySigned -- worst case they see the signing UI again,
+        // which the server's own duplicate-sign guard (SignInternalAsync)
+        // already rejects safely, rather than silently locking them out.
         const recipients: any[] = (doc as any)?.Recipients || [];
-        const mine = recipients.find((r: any) => !!r?.SignedOn) || recipients[0];
+        const myRecipientId = (doc as any)?.Fields?.[0]?.RecipientId;
+        const mine = myRecipientId != null
+          ? recipients.find((r: any) => r?.Id === myRecipientId)
+          : undefined;
         if (mine?.SignedOn) {
           this.alreadySigned = true;
           this.alreadySignedOn = mine.SignedOn;
@@ -348,6 +404,44 @@ export class DocumentSignPublicComponent implements OnInit, OnDestroy {
       error: (err: any) => {
         this.isSubmitting = false;
         this.toast.error(err?.error?.Message || 'Failed to sign document. Please try again.', { title: 'Error' });
+      }
+    });
+  }
+
+  // ── Reject flow ──
+  // Opens the "enter remarks" modal. The doc itself stays as-is behind it;
+  // nothing is submitted until submitReject() below.
+  openRejectModal(): void {
+    if (this.isSubmitting) { return; }
+    this.rejectReason = '';
+    this.showRejectModal = true;
+  }
+
+  closeRejectModal(): void {
+    if (this.isRejecting) { return; } // don't let a stray click cancel mid-submit
+    this.showRejectModal = false;
+  }
+
+  /** POSTs to API/Esign/Reject (EsignController.Reject -> EsignService.RejectAsync),
+   *  same accessToken this whole page runs on. The server records the remarks
+   *  (EsignRecipient.RejectReason + a permanent row in EsignRejections -- see
+   *  PR_EsignAddRejection), marks the recipient Rejected, and marks the whole
+   *  document Rejected. */
+  submitReject(): void {
+    if (this.isRejecting) { return; }
+    const reason = (this.rejectReason || '').trim();
+    if (!reason) { this.toast.warning('Please enter a reason for rejecting this document.'); return; }
+
+    this.isRejecting = true;
+    this.esignService.reject(this.token, reason).subscribe({
+      next: () => {
+        this.isRejecting = false;
+        this.showRejectModal = false;
+        this.rejectedSuccessfully = true;
+      },
+      error: (err: any) => {
+        this.isRejecting = false;
+        this.toast.error(err?.error?.Message || 'Failed to reject document. Please try again.', { title: 'Error' });
       }
     });
   }
