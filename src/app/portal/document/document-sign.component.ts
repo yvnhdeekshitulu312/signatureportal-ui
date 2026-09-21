@@ -102,7 +102,15 @@ Email:any;
     });
   }
 
-  toggleImport(): void { this.showImport = !this.showImport; }
+  toggleImport(): void {
+    this.showImport = !this.showImport;
+    // When switching back to the draw pad (Import -> "Draw instead"), the
+    // canvas's *ngIf="!showImport" has just re-created a FRESH <canvas>
+    // element. The cached this.ctx still points at the old, detached canvas,
+    // so drawing on the new one silently does nothing. Re-bind the context to
+    // the new canvas on the next tick (same as openSignaturePad() does).
+    if (!this.showImport) { setTimeout(() => this.initCanvas(), 0); }
+  }
 
   /** Apply a saved profile image (signature or initial) to the active field. */
   useSaved(img: string | null): void {
